@@ -15,24 +15,23 @@ namespace Needlefish
         public static EventHandler<SerializeFallbackArgs> SerializeFallback;
         public static EventHandler<DeserializeCallbackArgs> DeserializeFallback;
 
-        public static byte[] Serialize<T>(T source) where T : IFormattable => WriteObject(source);
+        public static byte[] Serialize<T>(T source) where T : IDataBody => WriteObject(typeof(T), source);
 
-        public static void Populate<T>(T target, byte[] data) where T : IFormattable, new() => PopulateObject(target, data);
+        public static void Populate<T>(T target, byte[] data) where T : IDataBody, new() => PopulateObject(target, data);
 
-        public static T Deserialize<T>(byte[] data) where T : IFormattable, new() => PopulateNew<T>(data);
+        public static T Deserialize<T>(byte[] data) where T : IDataBody, new() => PopulateNew<T>(data);
 
-        internal static byte[] WriteObject(object obj)
+        public static IDataBody Deserialize(Type type, byte[] data) => (IDataBody) PopulateNew(type, data);
+
+        internal static byte[] WriteObject(Type type, object obj)
         {
-            if (obj == null)
-                throw new SerializationException($"Tried to write a null object.");
-
             List<byte> buffer = new List<byte>();
 
-            foreach (FieldInfo field in Reflector.GetFields(obj.GetType()))
+            foreach (FieldInfo field in Reflector.GetFields(type))
             {
                 try
                 {
-                    buffer.AddRange(Write(field.GetValue(obj)));
+                    buffer.AddRange(Write(field.FieldType, field.GetValue(obj)));
                 }
                 catch (Exception ex)
                 {
@@ -40,11 +39,11 @@ namespace Needlefish
                 }
             }
             
-            foreach (PropertyInfo property in Reflector.GetProperties(obj.GetType()))
+            foreach (PropertyInfo property in Reflector.GetProperties(type))
             {
                 try
                 {
-                    buffer.AddRange(Write(property.GetValue(obj)));
+                    buffer.AddRange(Write(property.PropertyType, property.GetValue(obj)));
                 }
                 catch (Exception ex)
                 {
@@ -55,73 +54,76 @@ namespace Needlefish
             return buffer.ToArray();
         }
 
-        internal static byte[] Write(object value)
+        internal static byte[] Write(Type type, object value)
         {
-            if (value == null)
-                throw new SerializationException($"Tried to write a null value.");
-            
             byte[] bytes;
             
-            if (value.GetType() == typeof(bool))
+            if (type == typeof(bool))
                 return BitConverter.GetBytes((bool)value);
 
-            if (value.GetType() == typeof(byte))
+            if (type == typeof(byte))
                 return new byte[] { (byte)value };
 
-            if (value.GetType() == typeof(sbyte))
+            if (type == typeof(sbyte))
                 return new byte[] { (byte)value };
 
-            if (value.GetType() == typeof(char))
+            if (type == typeof(char))
                 return BitConverter.GetBytes((char)value);
 
-            if (value.GetType() == typeof(decimal))
-                return Write(Decimal.GetBits((decimal)value));
+            if (type == typeof(decimal))
+                return Write(typeof(int[]), Decimal.GetBits((decimal)value));
 
-            if (value.GetType() == typeof(double))
+            if (type == typeof(double))
                 return BitConverter.GetBytes((double)value);
 
-            if (value.GetType() == typeof(float))
+            if (type == typeof(float))
                 return BitConverter.GetBytes((float)value);
 
-            if (value.GetType() == typeof(int))
+            if (type == typeof(int))
                 return BitConverter.GetBytes((int)value);
 
-            if (value.GetType() == typeof(uint))
+            if (type == typeof(uint))
                 return BitConverter.GetBytes((uint)value);
 
-            if (value.GetType() == typeof(long))
+            if (type == typeof(long))
                 return BitConverter.GetBytes((long)value);
 
-            if (value.GetType() == typeof(ulong))
+            if (type == typeof(ulong))
                 return BitConverter.GetBytes((ulong)value);
 
-            if (value.GetType() == typeof(short))
+            if (type == typeof(short))
                 return BitConverter.GetBytes((short)value);
 
-            if (value.GetType() == typeof(ushort))
+            if (type == typeof(ushort))
                 return BitConverter.GetBytes((ushort)value);
 
-            if (value.GetType() == typeof(MultiBool))
+            if (type == typeof(MultiBool))
                 return new byte[] { (MultiBool)value };
 
-            if (value.GetType() == typeof(string))
+            if (type == typeof(string))
             {
+                if (value == null)
+                    return Write(typeof(int), -1);
+                
                 byte[] stringBytes = Encoding.Unicode.GetBytes((string)value);
                 bytes = new byte[stringBytes.Length + 4];
-                Write(stringBytes.Length).CopyTo(bytes, 0);
+                Write(typeof(int), stringBytes.Length).CopyTo(bytes, 0);
                 stringBytes.CopyTo(bytes, 4);
                 return bytes;
             }
 
-            if (value.GetType().IsArray)
+            if (type.IsArray)
             {
+                if (value == null)
+                    return Write(typeof(int), -1);
+                
                 Array array = (Array) value;
                 List<byte> buffer = new List<byte>();
 
                 int count = 0;
                 foreach (object obj in array)
                 {
-                    buffer.AddRange(Write(obj));
+                    buffer.AddRange(Write(type.GetElementType(), obj));
                     count++;
                 }
 
@@ -130,44 +132,47 @@ namespace Needlefish
                 return buffer.ToArray();
             }
 
-            if (value.GetType().IsEnum)
+            if (type.IsEnum)
             {
-                Type enumType = value.GetType().GetEnumUnderlyingType();
+                Type enumType = type.GetEnumUnderlyingType();
                 
                 if (enumType == typeof(int))
-                    return Write((int)value);
+                    return Write(enumType, (int)value);
 
                 if (enumType == typeof(byte))
-                    return Write((byte)value);
+                    return Write(enumType, (byte)value);
 
                 if (enumType == typeof(long))
-                    return Write((long)value);
+                    return Write(enumType, (long)value);
 
                 if (enumType == typeof(short))
-                    return Write((short)value);
+                    return Write(enumType, (short)value);
 
                 if (enumType == typeof(ushort))
-                    return Write((ushort)value);
+                    return Write(enumType, (ushort)value);
 
                 if (enumType == typeof(uint))
-                    return Write((uint)value);
+                    return Write(enumType, (uint)value);
 
                 if (enumType == typeof(ulong))
-                    return Write((ulong)value);
+                    return Write(enumType, (ulong)value);
 
                 if (enumType == typeof(sbyte))
-                    return Write((sbyte)value);
+                    return Write(enumType, (sbyte)value);
             }
 
-            if (typeof(IList).IsAssignableFrom(value.GetType()))
+            if (typeof(IList).IsAssignableFrom(type))
             {
+                if (value == null)
+                    return Write(typeof(int), -1);
+                
                 IList list = (IList) value;
                 List<byte> buffer = new List<byte>();
 
                 int count = 0;
                 foreach (object obj in list)
                 {
-                    buffer.AddRange(Write(obj));
+                    buffer.AddRange(Write(type.GenericTypeArguments[0], obj));
                     count++;
                 }
 
@@ -176,8 +181,20 @@ namespace Needlefish
                 return buffer.ToArray();
             }
 
-            if (value.GetType().IsClass)
-                return WriteObject(value);
+            if (value == null)
+                return new byte[1];
+
+            if (type.IsClass)
+            {
+                if (value == null)
+                    return Write(typeof(bool), false);
+                
+                List<byte> buffer = new List<byte>();
+                buffer.AddRange(Write(typeof(bool), true));
+                buffer.AddRange(WriteObject(type, value));
+
+                return buffer.ToArray();
+            }
 
             SerializeFallbackArgs args = new SerializeFallbackArgs(value);
             SerializeFallback?.Invoke(value, args);
@@ -190,6 +207,13 @@ namespace Needlefish
         internal static T PopulateNew<T>(byte[] data) where T : new()
         {
             T obj = new T();
+            PopulateObject(obj, data);
+            return obj;
+        }
+
+        internal static object PopulateNew(Type type, byte[] data)
+        {
+            object obj = Activator.CreateInstance(type);
             PopulateObject(obj, data);
             return obj;
         }
@@ -310,8 +334,10 @@ namespace Needlefish
             {
                 int length = BitConverter.ToInt32(data, index);
                 index += 4;
-                if (length <= 0)
+                if (length == 0)
                     return string.Empty;
+                else if (length < 0)
+                    return null;
                     
                 string result = Encoding.Unicode.GetString(data, index, length);
                 index += length;
@@ -325,6 +351,8 @@ namespace Needlefish
             {
                 int length = BitConverter.ToInt32(data, index);
                 index += 4;
+                if (length < 0)
+                    return null;
 
                 Array array = Array.CreateInstance(type.GetElementType(), length);
                 for (int i = 0; i < length; i++)
@@ -343,6 +371,8 @@ namespace Needlefish
             {
                 int length = BitConverter.ToInt32(data, index);
                 index += 4;
+                if (length < 0)
+                    return null;
 
                 IList values = (IList) Activator.CreateInstance(type);
                 for (int i = 0; i < length; i++)
@@ -352,7 +382,12 @@ namespace Needlefish
             }
 
             if (type.IsClass)
+            {
+                if (!BitConverter.ToBoolean(data, index++))
+                    return null;
+                
                 return StepPopulateNew(type, data, ref index);
+            }
 
             DeserializeCallbackArgs args = new DeserializeCallbackArgs(type, data, index);
             DeserializeFallback?.Invoke(type, args);

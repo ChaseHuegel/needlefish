@@ -87,7 +87,8 @@ namespace Needlefish.Tests
             TestObject testObject2 = NeedlefishFormatter.Deserialize<TestObject>(bytes);
 
             Assert.Equal(testObject2.Name, testObject.Name);
-            Assert.Equal(testObject2.PopulateString, testObject.PopulateString);
+            Assert.Equal(testObject2.EmptyString, testObject.EmptyString);
+            Assert.Equal(testObject2.NullString, testObject.NullString);
             Assert.Equal(testObject2.MyInt, testObject.MyInt);
             Assert.Equal(testObject2.MyFloat, testObject.MyFloat);
             Assert.Equal(testObject2.MyDecimal, testObject.MyDecimal);
@@ -109,6 +110,7 @@ namespace Needlefish.Tests
 
             Assert.Equal(testObject2.MyTestClass.MyInt, testObject.MyTestClass.MyInt);
             Assert.Equal(testObject2.MyTestClass.TestString, testObject.MyTestClass.TestString);
+            Assert.Equal(testObject2.NullClass, testObject.NullClass);
         }
 
         [Fact]
@@ -117,7 +119,8 @@ namespace Needlefish.Tests
             TestObject testObject = new TestObject {
                 Name = "Different name",
                 IntEnum = TestObject.TestEnum.B,
-                MyFloat = 0f
+                MyFloat = 0f,
+                EmptyString = null
             };
 
             byte[] bytes = NeedlefishFormatter.Serialize(testObject);
@@ -128,12 +131,14 @@ namespace Needlefish.Tests
             Assert.Equal(testObject2.Name, testObject.Name);
             Assert.Equal(testObject2.IntEnum, testObject.IntEnum);
             Assert.Equal(testObject2.MyFloat, testObject.MyFloat);
+            Assert.Equal(testObject2.EmptyString, testObject.EmptyString);
         }
 
-        public class TestObject : IFormattable
+        public class TestObject : IDataBody
         {
             public string Name = "My Name";
-            public string PopulateString = string.Empty;
+            public string EmptyString = string.Empty;
+            public string NullString;
             public int MyInt;
             public float MyFloat = 7.11f;
             public decimal MyDecimal = Decimal.MaxValue;
@@ -147,6 +152,7 @@ namespace Needlefish.Tests
             public TestEnum[] EnumArray = new TestEnum[] { TestEnum.A, TestEnum.C };
             public List<bool> BoolList = new List<bool>();
             public TestClass MyTestClass = new TestClass();
+            public TestClass NullClass;
 
             public enum TestEnum
             {
