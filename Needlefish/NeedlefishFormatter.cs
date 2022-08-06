@@ -1,3 +1,4 @@
+using System.Linq;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -27,7 +28,7 @@ namespace Needlefish
         {
             List<byte> buffer = new List<byte>();
 
-            foreach (FieldInfo field in Reflector.GetFields(type))
+            foreach (FieldInfo field in Reflector.GetFields(type).Where(info => !info.IsStatic && info.IsPublic))
             {
                 try
                 {
@@ -39,7 +40,7 @@ namespace Needlefish
                 }
             }
             
-            foreach (PropertyInfo property in Reflector.GetProperties(type))
+            foreach (PropertyInfo property in Reflector.GetProperties(type).Where(info => info.CanWrite && info.CanRead && !info.SetMethod.IsStatic))
             {
                 try
                 {
@@ -206,6 +207,9 @@ namespace Needlefish
 
         internal static T PopulateNew<T>(byte[] data) where T : new()
         {
+            if (typeof(T).IsValueType)
+                throw new SerializationException("Unable to populate value types! Targets must be classes.");
+
             T obj = new T();
             PopulateObject(obj, data);
             return obj;
@@ -213,6 +217,9 @@ namespace Needlefish
 
         internal static object PopulateNew(Type type, byte[] data)
         {
+            if (type.IsValueType)
+                throw new SerializationException("Unable to populate value types! Targets must be classes.");
+
             object obj = Activator.CreateInstance(type);
             PopulateObject(obj, data);
             return obj;
@@ -220,6 +227,9 @@ namespace Needlefish
 
         internal static void PopulateObject(object obj, byte[] data)
         {
+            if (obj.GetType().IsValueType)
+                throw new SerializationException("Unable to populate value types! Targets must be classes.");
+            
             int index = 0;
             StepPopulateObject(obj, data, ref index);
         }
@@ -233,7 +243,7 @@ namespace Needlefish
 
         internal static void StepPopulateObject(object obj, byte[] data, ref int index)
         {
-            foreach (FieldInfo field in Reflector.GetFields(obj.GetType()))
+            foreach (FieldInfo field in Reflector.GetFields(obj.GetType()).Where(info => !info.IsStatic && info.IsPublic))
             {
                 try
                 {
@@ -245,7 +255,7 @@ namespace Needlefish
                 }
             }
             
-            foreach (PropertyInfo property in Reflector.GetProperties(obj.GetType()))
+            foreach (PropertyInfo property in Reflector.GetProperties(obj.GetType()).Where(info => info.CanWrite && info.CanRead && !info.SetMethod.IsStatic))
             {
                 try
                 {
@@ -334,11 +344,12 @@ namespace Needlefish
             {
                 int length = BitConverter.ToInt32(data, index);
                 index += 4;
+
                 if (length == 0)
                     return string.Empty;
                 else if (length < 0)
                     return null;
-                    
+                
                 string result = Encoding.Unicode.GetString(data, index, length);
                 index += length;
                 return result;
