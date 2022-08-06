@@ -16,7 +16,7 @@ namespace Needlefish
         public static EventHandler<SerializeFallbackArgs> SerializeFallback;
         public static EventHandler<DeserializeCallbackArgs> DeserializeFallback;
 
-        public static byte[] Serialize<T>(T source) where T : IDataBody => WriteObject(typeof(T), source);
+        public static byte[] Serialize<T>(T source) where T : IDataBody => WriteObject(source.GetType(), source);
 
         public static void Populate<T>(T target, byte[] data) where T : IDataBody, new() => PopulateObject(target, data);
 
@@ -106,7 +106,7 @@ namespace Needlefish
                 if (value == null)
                     return Write(typeof(int), -1);
                 
-                byte[] stringBytes = Encoding.Unicode.GetBytes((string)value);
+                byte[] stringBytes = Encoding.Default.GetBytes((string)value);
                 bytes = new byte[stringBytes.Length + 4];
                 Write(typeof(int), stringBytes.Length).CopyTo(bytes, 0);
                 stringBytes.CopyTo(bytes, 4);
@@ -350,9 +350,13 @@ namespace Needlefish
                 else if (length < 0)
                     return null;
                 
-                string result = Encoding.Unicode.GetString(data, index, length);
-                index += length;
-                return result;
+                try {
+                    string result = Encoding.Default.GetString(data, index, length);
+                    index += length;
+                    return result;
+                } catch (Exception ex) {
+                    throw new SerializationException($"Error deserializing string! index: {index} length: {length} dataLength: {data.Length}", ex);
+                }
             }
 
             if (type == typeof(MultiBool))

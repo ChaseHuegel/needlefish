@@ -156,6 +156,28 @@ namespace Needlefish.Tests
             Assert.Equal(testObject2.Password, testObject.Password);
         }
 
+        [Fact]
+        public void TestDeserializeDerivedObject()
+        {
+            LoginPacket testObject = new LoginPacket {
+                SessionID = 10,
+                PacketID = 1,
+                Sequence = 32,
+                Username = "test",
+                Password = "password32"
+            };
+            
+            byte[] bytes = NeedlefishFormatter.Serialize((Packet)testObject);
+
+            LoginPacket testObject2 = NeedlefishFormatter.Deserialize<LoginPacket>(bytes);
+
+            Assert.Equal(testObject2.SessionID, testObject.SessionID);
+            Assert.Equal(testObject2.PacketID, testObject.PacketID);
+            Assert.Equal(testObject2.Sequence, testObject.Sequence);
+            Assert.Equal(testObject2.Username, testObject.Username);
+            Assert.Equal(testObject2.Password, testObject.Password);
+        }
+
         public class Packet : IDataBody
         {
             public int SessionID;
