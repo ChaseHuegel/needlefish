@@ -28,7 +28,7 @@ namespace Needlefish
         {
             List<byte> buffer = new List<byte>();
 
-            foreach (FieldInfo field in Reflector.GetFields(type).Where(info => !info.IsStatic && info.IsPublic))
+            foreach (FieldInfo field in Reflector.GetFields(type))
             {
                 try
                 {
@@ -40,7 +40,7 @@ namespace Needlefish
                 }
             }
             
-            foreach (PropertyInfo property in Reflector.GetProperties(type).Where(info => info.CanWrite && info.CanRead && !info.SetMethod.IsStatic))
+            foreach (PropertyInfo property in Reflector.GetProperties(type))
             {
                 try
                 {
@@ -243,7 +243,7 @@ namespace Needlefish
 
         internal static void StepPopulateObject(object obj, byte[] data, ref int index)
         {
-            foreach (FieldInfo field in Reflector.GetFields(obj.GetType()).Where(info => !info.IsStatic && info.IsPublic))
+            foreach (FieldInfo field in Reflector.GetFields(obj.GetType()))
             {
                 try
                 {
@@ -255,7 +255,7 @@ namespace Needlefish
                 }
             }
             
-            foreach (PropertyInfo property in Reflector.GetProperties(obj.GetType()).Where(info => info.CanWrite && info.CanRead && !info.SetMethod.IsStatic))
+            foreach (PropertyInfo property in Reflector.GetProperties(obj.GetType()))
             {
                 try
                 {

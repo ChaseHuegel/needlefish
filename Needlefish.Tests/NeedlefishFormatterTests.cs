@@ -178,10 +178,42 @@ namespace Needlefish.Tests
             Assert.Equal(testObject2.Password, testObject.Password);
         }
 
+        [Fact]
+        public void TestDeserializeRespectingOrder()
+        {
+            LoginPacket testObject = new LoginPacket {
+                SessionID = 10,
+                PacketID = 1,
+                Sequence = 32,
+                Username = "test",
+                Password = "password32"
+            };
+            
+            byte[] bytes = NeedlefishFormatter.Serialize(testObject);
+
+            Packet testObject2 = NeedlefishFormatter.Deserialize<Packet>(bytes);
+            LoginPacket testObject3 = NeedlefishFormatter.Deserialize<LoginPacket>(bytes);
+
+            Assert.Equal(testObject2.SessionID, testObject.SessionID);
+            Assert.Equal(testObject2.PacketID, testObject.PacketID);
+            Assert.Equal(testObject2.Sequence, testObject.Sequence);
+
+            Assert.Equal(testObject3.SessionID, testObject.SessionID);
+            Assert.Equal(testObject3.PacketID, testObject.PacketID);
+            Assert.Equal(testObject3.Sequence, testObject.Sequence);
+            Assert.Equal(testObject3.Username, testObject.Username);
+            Assert.Equal(testObject3.Password, testObject.Password);
+        }
+
         public class Packet : IDataBody
         {
+            [DataField(0)]
             public int SessionID;
+
+            [DataField(1)]
             public int PacketID;
+
+            [DataField(2)]
             public uint Sequence;
         }
 
@@ -191,7 +223,10 @@ namespace Needlefish.Tests
 
             public static LoginPacket StaticGetter => new LoginPacket();
 
+            [DataField]
             public string Username;
+            
+            [DataField]
             public string Password;
         }
 
