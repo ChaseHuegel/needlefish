@@ -22,7 +22,7 @@ namespace Needlefish
 
         public static void Populate<T>(T target, byte[] data) where T : IDataBody, new() => PopulateObject(target, data);
 
-        public static T Deserialize<T>(byte[] data) where T : IDataBody, new() => PopulateNew<T>(data);
+        public static T Deserialize<T>(byte[] data) where T : new() => PopulateNew<T>(data);
 
         public static IDataBody Deserialize(Type type, byte[] data) => (IDataBody) PopulateNew(type, data);
 
