@@ -18,6 +18,8 @@ namespace Needlefish
 
         public static byte[] Serialize<T>(T source) where T : IDataBody => WriteObject(source.GetType(), source);
 
+        public static byte[] Serialize(object source) => WriteObject(source.GetType(), source);
+
         public static void Populate<T>(T target, byte[] data) where T : IDataBody, new() => PopulateObject(target, data);
 
         public static T Deserialize<T>(byte[] data) where T : IDataBody, new() => PopulateNew<T>(data);
