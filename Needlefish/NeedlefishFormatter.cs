@@ -20,11 +20,14 @@ namespace Needlefish
 
         public static byte[] Serialize(object source) => WriteObject(source.GetType(), source);
 
-        public static void Populate<T>(T target, byte[] data) where T : IDataBody, new() => PopulateObject(target, data);
+        public static void Populate<T>(T target, byte[] data) where T : IDataBody, new() => PopulateObject(target, new ArraySegment<byte>(data));
+        public static void Populate<T>(T target, ArraySegment<byte> data) where T : IDataBody, new() => PopulateObject(target, data);
 
-        public static T Deserialize<T>(byte[] data) where T : new() => PopulateNew<T>(data);
+        public static T Deserialize<T>(byte[] data) where T : new() => PopulateNew<T>(new ArraySegment<byte>(data));
+        public static T Deserialize<T>(ArraySegment<byte> data) where T : new() => PopulateNew<T>(data);
 
-        public static IDataBody Deserialize(Type type, byte[] data) => (IDataBody) PopulateNew(type, data);
+        public static IDataBody Deserialize(Type type, byte[] data) => (IDataBody) PopulateNew(type, new ArraySegment<byte>(data));
+        public static IDataBody Deserialize(Type type, ArraySegment<byte> data) => (IDataBody) PopulateNew(type, data);
 
         internal static byte[] WriteObject(Type type, object obj)
         {
@@ -207,7 +210,7 @@ namespace Needlefish
             throw new SerializationException($"Unsupported type {value.GetType()}");
         }
 
-        internal static T PopulateNew<T>(byte[] data) where T : new()
+        internal static T PopulateNew<T>(ArraySegment<byte> data) where T : new()
         {
             if (typeof(T).IsValueType)
                 throw new SerializationException("Unable to populate value types! Targets must be classes.");
@@ -217,7 +220,7 @@ namespace Needlefish
             return obj;
         }
 
-        internal static object PopulateNew(Type type, byte[] data)
+        internal static object PopulateNew(Type type, ArraySegment<byte> data)
         {
             if (type.IsValueType)
                 throw new SerializationException("Unable to populate value types! Targets must be classes.");
@@ -227,7 +230,7 @@ namespace Needlefish
             return obj;
         }
 
-        internal static void PopulateObject(object obj, byte[] data)
+        internal static void PopulateObject(object obj, ArraySegment<byte> data)
         {
             if (obj.GetType().IsValueType)
                 throw new SerializationException("Unable to populate value types! Targets must be classes.");
@@ -236,14 +239,14 @@ namespace Needlefish
             StepPopulateObject(obj, data, ref index);
         }
 
-        internal static object StepPopulateNew(Type type, byte[] data, ref int index)
+        internal static object StepPopulateNew(Type type, ArraySegment<byte> data, ref int index)
         {
             object obj = Activator.CreateInstance(type);
             StepPopulateObject(obj, data, ref index);
             return obj;
         }
 
-        internal static void StepPopulateObject(object obj, byte[] data, ref int index)
+        internal static void StepPopulateObject(object obj, ArraySegment<byte> data, ref int index)
         {
             foreach (FieldInfo field in Reflector.GetFields(obj.GetType()))
             {
@@ -270,23 +273,23 @@ namespace Needlefish
             }
         }
 
-        internal static T Read<T>(byte[] data, ref int index) => (T)Read(typeof(T), data, ref index);
+        internal static T Read<T>(ArraySegment<byte> data, ref int index) => (T)Read(typeof(T), data, ref index);
 
-        internal static object Read(Type type, byte[] data, ref int index)
+        internal static object Read(Type type, ArraySegment<byte> data, ref int index)
         {
             if (type == typeof(bool))
-                return BitConverter.ToBoolean(data, index++);
+                return BitConverter.ToBoolean(data.Array, data.Offset + index++);
             
             if (type == typeof(byte))
-                return data[index++];
+                return data.Array[data.Offset + index++];
             
             if (type == typeof(sbyte))
-                return (sbyte)data[index++];
+                return (sbyte)data.Array[data.Offset + index++];
 
             if (type == typeof(char))
             {
                 index += 2;
-                return BitConverter.ToChar(data, index-2);
+                return BitConverter.ToChar(data.Array, data.Offset + index-2);
             }
 
             if (type == typeof(decimal))
@@ -297,54 +300,54 @@ namespace Needlefish
             if (type == typeof(double))
             {
                 index += 8;
-                return BitConverter.ToDouble(data, index-8);
+                return BitConverter.ToDouble(data.Array, data.Offset + index-8);
             }
 
             if (type == typeof(float))
             {
                 index += 4;
-                return BitConverter.ToSingle(data, index-4);
+                return BitConverter.ToSingle(data.Array, data.Offset + index-4);
             }
 
             if (type == typeof(int))
             {
                 index += 4;
-                return BitConverter.ToInt32(data, index-4);
+                return BitConverter.ToInt32(data.Array, data.Offset + index-4);
             }
 
             if (type == typeof(uint))
             {
                 index += 4;
-                return BitConverter.ToUInt32(data, index-4);
+                return BitConverter.ToUInt32(data.Array, data.Offset + index-4);
             }
 
             if (type == typeof(long))
             {
                 index += 8;
-                return BitConverter.ToInt64(data, index-8);
+                return BitConverter.ToInt64(data.Array, data.Offset + index-8);
             }
 
             if (type == typeof(ulong))
             {
                 index += 8;
-                return BitConverter.ToUInt64(data, index-8);
+                return BitConverter.ToUInt64(data.Array, data.Offset + index-8);
             }
 
             if (type == typeof(short))
             {
                 index += 2;
-                return BitConverter.ToInt16(data, index-2);
+                return BitConverter.ToInt16(data.Array, data.Offset + index-2);
             }
 
             if (type == typeof(ushort))
             {
                 index += 2;
-                return BitConverter.ToUInt16(data, index-2);
+                return BitConverter.ToUInt16(data.Array, data.Offset + index-2);
             }
 
             if (type == typeof(string))
             {
-                int length = BitConverter.ToInt32(data, index);
+                int length = BitConverter.ToInt32(data.Array, data.Offset + index);
                 index += 4;
 
                 if (length == 0)
@@ -353,20 +356,20 @@ namespace Needlefish
                     return null;
                 
                 try {
-                    string result = Encoding.Default.GetString(data, index, length);
+                    string result = Encoding.Default.GetString(data.Array, data.Offset + index, length);
                     index += length;
                     return result;
                 } catch (Exception ex) {
-                    throw new SerializationException($"Error deserializing string! index: {index} length: {length} dataLength: {data.Length}", ex);
+                    throw new SerializationException($"Error deserializing string! index: {index} length: {length} data length: {data.Count}", ex);
                 }
             }
 
             if (type == typeof(MultiBool))
-                return new MultiBool(data[index++]);
+                return new MultiBool(data.Array[data.Offset + index++]);
 
             if (type.IsArray)
             {
-                int length = BitConverter.ToInt32(data, index);
+                int length = BitConverter.ToInt32(data.Array, data.Offset + index);
                 index += 4;
                 if (length < 0)
                     return null;
@@ -386,7 +389,7 @@ namespace Needlefish
 
             if (typeof(IList).IsAssignableFrom(type))
             {
-                int length = BitConverter.ToInt32(data, index);
+                int length = BitConverter.ToInt32(data.Array, data.Offset + index);
                 index += 4;
                 if (length < 0)
                     return null;
@@ -400,13 +403,13 @@ namespace Needlefish
 
             if (type.IsClass)
             {
-                if (!BitConverter.ToBoolean(data, index++))
+                if (!BitConverter.ToBoolean(data.Array, data.Offset + index++))
                     return null;
                 
                 return StepPopulateNew(type, data, ref index);
             }
 
-            DeserializeCallbackArgs args = new DeserializeCallbackArgs(type, data, index);
+            DeserializeCallbackArgs args = new DeserializeCallbackArgs(type, data.Array, data.Offset + index);
             DeserializeFallback?.Invoke(type, args);
             if (args.Successful)
                 return args.Result;

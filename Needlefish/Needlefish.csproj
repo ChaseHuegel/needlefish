@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     <PackageId>Needlefish</PackageId>
-    <Version>1.4.0</Version>
+    <Version>1.5.0</Version>
     <Authors>Chase Huegel</Authors>
   </PropertyGroup>
 
