@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Needlefish", "Needlefish\Ne
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Needlefish.Tests", "Needlefish.Tests\Needlefish.Tests.csproj", "{B3624C91-B86D-4A6D-A416-6B8856D653EA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Needlefish.Compiler", "Needlefish.Compiler\Needlefish.Compiler.csproj", "{71F2839F-A531-4349-9988-AB5B8A5A0942}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{B3624C91-B86D-4A6D-A416-6B8856D653EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B3624C91-B86D-4A6D-A416-6B8856D653EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B3624C91-B86D-4A6D-A416-6B8856D653EA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{71F2839F-A531-4349-9988-AB5B8A5A0942}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{71F2839F-A531-4349-9988-AB5B8A5A0942}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{71F2839F-A531-4349-9988-AB5B8A5A0942}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{71F2839F-A531-4349-9988-AB5B8A5A0942}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
