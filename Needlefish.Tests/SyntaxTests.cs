@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Needlefish.Tests;
 
-public class ParserTests
+public class SyntaxTests
 {
     public static Nsd ParseNsdContent(string content)
     {
