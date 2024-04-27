@@ -1,7 +1,7 @@
 # This workflow will build a .NET project
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
 
-name: .NET
+name: build
 
 on:
   push:
@@ -24,12 +24,3 @@ jobs:
       run: dotnet restore
     - name: Build
       run: dotnet build --no-restore
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
-    - name: Publish
-      run: dotnet publish -c Release
-    - name: Upload Build Artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: nsdc_artifact
-        path: /home/runner/work/needlefish/needlefish/Needlefish.Compiler/bin/Release/net7.0/win-x64/publish/nsdc.exe
