@@ -79,7 +79,7 @@ If a field type is optional (specified by `?`), it may not contain a value at al
 ## Compiling NSD Files
 Once you have `.nsd` files, you need to generate the code to reference, read, and write your data models. You need to run `nsdc` on your `.nsd` file(s).
 
-1. If you haven't installed the compiler, place `nsdc.exe` in your PATH or open a terminal where it is located.
+1. If you haven't installed the compiler, place `nsdc.exe` in your PATH or open a terminal where it is located. `nsdc.exe` can be downloaded from the [releases page here](https://github.com/ChaseHuegel/needlefish/releases).
 
 2. Run the compiler, optionally specifying the input (`-i`) path (`$SRC`) and/or output (`-o`) path (`$OUTPUT`) and whether to search for `.nsd` files at the input path recursively (`-r`). If either the input or output path are not provided, each will use the current directory.
     > nsdc -r -i $SRC -o $OUTPUT
