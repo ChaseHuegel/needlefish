@@ -27,4 +27,9 @@ jobs:
     - name: Test
       run: dotnet test --no-build --verbosity normal
     - name: Publish
-      run: dotnet publish --no-restore --no-build
+      run: dotnet publish -c Release --no-restore --no-build
+    - name: Upload Build Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: nsdc_artifact
+        path: /home/runner/work/needlefish/needlefish/Needlefish.Compiler/bin/Release/net7.0/win-x64/publish/nsdc.exe
