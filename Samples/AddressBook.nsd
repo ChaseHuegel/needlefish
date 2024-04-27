@@ -1,0 +1,30 @@
+#version 1.0;
+#namespace Samples.Nsd;
+
+message Person
+{
+    int Id;
+    string Name;
+    string? Email;
+
+    PhoneNumber[]? Phones = 10;
+}
+
+enum PhoneType
+{
+    Unknown;
+    Mobile;
+    Home = 5;
+    Work;
+}
+
+message PhoneNumber
+{
+    string Number;
+    PhoneType Type;
+}
+
+message AddressBook
+{
+    Person[] People;
+}
