@@ -1,3 +1,5 @@
+[![build](https://github.com/ChaseHuegel/needlefish/actions/workflows/build.yml/badge.svg)](https://github.com/ChaseHuegel/needlefish/actions/workflows/build.yml) [![test](https://github.com/ChaseHuegel/needlefish/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/ChaseHuegel/needlefish/actions/workflows/test.yml) [![publish artifact](https://github.com/ChaseHuegel/needlefish/actions/workflows/publish.yml/badge.svg)](https://github.com/ChaseHuegel/needlefish/actions/workflows/publish.yml)
+
 # Needlefish
 Needlefish is a slim and fast binary serialization solution utilizing `.nsd` files to define data models and the `nsdc` compiler to generate highly optimized code for those models and their serialization. The format is intended for performance and memory focused networking, and can be used as a binary storage format.
 
