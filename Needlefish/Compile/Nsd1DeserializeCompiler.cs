@@ -280,7 +280,7 @@ offset += 2;
 int g__$field:name_Start = (int)(offset - b);
 if ($field:accessor == null)
 {
-    $field:accessor = Submessage.Deserialize(buffer, g__$field:name_Start, g__$field:name_ObjectLength);
+    $field:accessor = $field:type.Deserialize(buffer, g__$field:name_Start, g__$field:name_ObjectLength);
 }
 else
 {
