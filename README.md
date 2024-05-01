@@ -17,7 +17,12 @@ The Needlefish Schema Definition Compiler ("nsdc") is a CLI tool that consumes n
 - Nsdc may support reading and/or writing other data formats in the future (ex: xml, json).
 - The format trades compression for speed but it aims to not expand your data. When using nsd for storage, the size on disk will be close to the size in memory and smaller than human-readable formats such as JSON or XML.
 
+## Language Support
+Support for the nsd language is available for:
+- [VS Code](https://github.com/ChaseHuegel/needlefish-vscode-ext/tree/main)
+
 # Getting Started
+
 To get started you need a `.nsd` file. The definitions in a `.nsd` file are straightfoward. You add a message for each data model, and specify the type and name for each field within that model.
 
 The `.nsd` file always begins with a version declaration to specify the language version in use. This determines syntax and supported capabilities.
