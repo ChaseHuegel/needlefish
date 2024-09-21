@@ -1,6 +1,5 @@
 ﻿using Needlefish.Schema;
 using System;
-using System.Reflection.Emit;
 using System.Text;
 
 namespace Needlefish.Compile;
@@ -20,6 +19,11 @@ internal class Nsd1SerializeCompiler : INsdTypeCompiler
 {
     unchecked
     {
+        if (buffer.Length == 0)
+        {
+            return 0;
+        }
+
         fixed (byte* b = &buffer[start])
         {
             byte* offset = b;
