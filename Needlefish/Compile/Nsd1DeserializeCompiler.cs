@@ -19,6 +19,11 @@ internal class Nsd1DeserializeCompiler : INsdTypeCompiler
 {
     unchecked
     {
+        if (buffer.Length == 0 || length == 0)
+        {
+            return 0;
+        }
+
         fixed (byte* b = &buffer[start])
         {
             byte* end = b + length;
