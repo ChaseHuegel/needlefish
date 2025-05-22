@@ -38,7 +38,7 @@ internal class Nsd1SerializeCompiler : INsdTypeCompiler
     private const string SerializeIntoSpanTemplate = 
 @"public int SerializeInto(Span<byte> buffer)
 {
-    return SerializeInto(buffer, 0, buffer.Length);
+    return SerializeInto(buffer, 0);
 }";
     
     private const string SerializeIntoSpanOverloadTemplate =
