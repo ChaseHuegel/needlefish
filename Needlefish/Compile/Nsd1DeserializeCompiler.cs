@@ -22,6 +22,15 @@ internal class Nsd1DeserializeCompiler : INsdTypeCompiler
     value.Unpack(buffer);
     return value;
 }";
+    
+    
+    private const string DeserializeReadOnlySpanTemplate =
+@"public static $type Deserialize(ReadOnlySpan<byte> buffer)
+{
+    $type value = new $type();
+    value.Unpack(buffer);
+    return value;
+}";
 
     private const string UnpackTemplate =
 @"public unsafe int Unpack(byte[] buffer, int start, int length)
@@ -63,8 +72,50 @@ internal class Nsd1DeserializeCompiler : INsdTypeCompiler
     return Unpack(buffer, 0, buffer.Length);
 }";
     
+    
+    private const string UnpackReadOnlySpanTemplate =
+@"public unsafe int Unpack(ReadOnlySpan<byte> buffer)
+{
+    return Unpack(buffer, 0, buffer.Length);
+}";
+    
     private const string UnpackSpanOverloadTemplate =
 @"public unsafe int Unpack(Span<byte> buffer, int start, int length)
+{
+    unchecked
+    {
+        if (buffer.Length == 0 || length == 0)
+        {
+            return 0;
+        }
+
+        fixed (byte* b = &buffer[start])
+        {
+            byte* end = b + length;
+            byte* offset = b;
+
+            int readsCompleted = 0;
+            $deserialize:reads
+
+            while (readsCompleted < $fields:count && offset + 2 < end)
+            {
+                ushort id = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
+                offset += 2;
+
+                switch (id)
+                {
+                    $deserialize:cases
+                }
+            }
+
+            return (int)(offset - b);
+        }
+    }
+}";
+    
+    
+    private const string UnpackReadOnlySpanOverloadTemplate =
+@"public unsafe int Unpack(ReadOnlySpan<byte> buffer, int start, int length)
 {
     unchecked
     {
@@ -372,7 +423,11 @@ offset += 4;";
             .Replace("$deserialize:cases", casesBuilder.ToString())
             .Replace("$deserialize:reads", readBuilder.ToString());
 
-        string unpackSpanPrivate = UnpackSpanOverloadTemplate
+        string unpackSpanOverload = UnpackSpanOverloadTemplate
+            .Replace("$deserialize:cases", casesBuilder.ToString())
+            .Replace("$deserialize:reads", readBuilder.ToString());
+        
+        string unpackReadOnlySpanOverload = UnpackReadOnlySpanOverloadTemplate
             .Replace("$deserialize:cases", casesBuilder.ToString())
             .Replace("$deserialize:reads", readBuilder.ToString());
         
@@ -381,11 +436,17 @@ offset += 4;";
         builder.AppendLine();
         builder.AppendLine(DeserializeSpanTemplate);
         builder.AppendLine();
+        builder.AppendLine(DeserializeReadOnlySpanTemplate);
+        builder.AppendLine();
         builder.AppendLine(unpack);
         builder.AppendLine();
         builder.AppendLine(UnpackSpanTemplate);
         builder.AppendLine();
-        builder.AppendLine(unpackSpanPrivate);
+        builder.AppendLine(unpackSpanOverload);
+        builder.AppendLine();
+        builder.AppendLine(UnpackReadOnlySpanTemplate);
+        builder.AppendLine();
+        builder.AppendLine(unpackReadOnlySpanOverload);
         builder.Replace("$type", typeDefinition.Name);
         builder.Replace("$fields:count", typeDefinition.FieldDefinitions.Length.ToString());
         return builder;
