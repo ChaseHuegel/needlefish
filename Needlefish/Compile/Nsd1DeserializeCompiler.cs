@@ -60,6 +60,12 @@ internal class Nsd1DeserializeCompiler : INsdTypeCompiler
     private const string UnpackSpanTemplate =
 @"public unsafe int Unpack(Span<byte> buffer)
 {
+    return Unpack(buffer, 0, buffer.Length);
+}";
+    
+    private const string UnpackSpanPrivateTemplate =
+@"private unsafe int Unpack(Span<byte> buffer, int start, int length)
+{
     unchecked
     {
         if (buffer.Length == 0)
@@ -366,7 +372,7 @@ offset += 4;";
             .Replace("$deserialize:cases", casesBuilder.ToString())
             .Replace("$deserialize:reads", readBuilder.ToString());
 
-        string unpackSpan = UnpackSpanTemplate
+        string unpackSpanPrivate = UnpackSpanPrivateTemplate
             .Replace("$deserialize:cases", casesBuilder.ToString())
             .Replace("$deserialize:reads", readBuilder.ToString());
         
@@ -377,7 +383,9 @@ offset += 4;";
         builder.AppendLine();
         builder.AppendLine(unpack);
         builder.AppendLine();
-        builder.AppendLine(unpackSpan);
+        builder.AppendLine(UnpackSpanTemplate);
+        builder.AppendLine();
+        builder.AppendLine(unpackSpanPrivate);
         builder.Replace("$type", typeDefinition.Name);
         builder.Replace("$fields:count", typeDefinition.FieldDefinitions.Length.ToString());
         return builder;
