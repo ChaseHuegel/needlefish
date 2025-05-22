@@ -42,11 +42,11 @@ internal class Nsd1SerializeCompiler : INsdTypeCompiler
 }";
     
     private const string SerializeIntoSpanOverloadTemplate =
-@"public unsafe int SerializeInto(Span<byte> buffer, int start, int length)
+@"public unsafe int SerializeInto(Span<byte> buffer, int start)
 {
     unchecked
     {
-        if (buffer.Length == 0 || length == 0)
+        if (buffer.Length == 0)
         {
             return 0;
         }
