@@ -63,19 +63,19 @@ internal class Nsd1DeserializeCompiler : INsdTypeCompiler
     return Unpack(buffer, 0, buffer.Length);
 }";
     
-    private const string UnpackSpanPrivateTemplate =
-@"private unsafe int Unpack(Span<byte> buffer, int start, int length)
+    private const string UnpackSpanOverloadTemplate =
+@"public unsafe int Unpack(Span<byte> buffer, int start, int length)
 {
     unchecked
     {
-        if (buffer.Length == 0)
+        if (buffer.Length == 0 || length == 0)
         {
             return 0;
         }
 
-        fixed (byte* b = &buffer[0])
+        fixed (byte* b = &buffer[start])
         {
-            byte* end = b + buffer.Length;
+            byte* end = b + length;
             byte* offset = b;
 
             int readsCompleted = 0;
@@ -372,7 +372,7 @@ offset += 4;";
             .Replace("$deserialize:cases", casesBuilder.ToString())
             .Replace("$deserialize:reads", readBuilder.ToString());
 
-        string unpackSpanPrivate = UnpackSpanPrivateTemplate
+        string unpackSpanPrivate = UnpackSpanOverloadTemplate
             .Replace("$deserialize:cases", casesBuilder.ToString())
             .Replace("$deserialize:reads", readBuilder.ToString());
         
