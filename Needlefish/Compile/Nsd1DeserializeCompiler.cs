@@ -13,6 +13,15 @@ internal class Nsd1DeserializeCompiler : INsdTypeCompiler
     value.Unpack(buffer, start, length);
     return value;
 }";
+    
+    
+    private const string DeserializeSpanTemplate =
+@"public static $type Deserialize(Span<byte> buffer)
+{
+    $type value = new $type();
+    value.Unpack(buffer);
+    return value;
+}";
 
     private const string UnpackTemplate =
 @"public unsafe int Unpack(byte[] buffer, int start, int length)
@@ -27,6 +36,40 @@ internal class Nsd1DeserializeCompiler : INsdTypeCompiler
         fixed (byte* b = &buffer[start])
         {
             byte* end = b + length;
+            byte* offset = b;
+
+            int readsCompleted = 0;
+            $deserialize:reads
+
+            while (readsCompleted < $fields:count && offset + 2 < end)
+            {
+                ushort id = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
+                offset += 2;
+
+                switch (id)
+                {
+                    $deserialize:cases
+                }
+            }
+
+            return (int)(offset - b);
+        }
+    }
+}";
+    
+    private const string UnpackSpanTemplate =
+@"public unsafe int Unpack(Span<byte> buffer)
+{
+    unchecked
+    {
+        if (buffer.Length == 0)
+        {
+            return 0;
+        }
+
+        fixed (byte* b = &buffer[0])
+        {
+            byte* end = b + buffer.Length;
             byte* offset = b;
 
             int readsCompleted = 0;
@@ -323,10 +366,18 @@ offset += 4;";
             .Replace("$deserialize:cases", casesBuilder.ToString())
             .Replace("$deserialize:reads", readBuilder.ToString());
 
+        string unpackSpan = UnpackSpanTemplate
+            .Replace("$deserialize:cases", casesBuilder.ToString())
+            .Replace("$deserialize:reads", readBuilder.ToString());
+        
         StringBuilder builder = new();
         builder.AppendLine(DeserializeTemplate);
         builder.AppendLine();
+        builder.AppendLine(DeserializeSpanTemplate);
+        builder.AppendLine();
         builder.AppendLine(unpack);
+        builder.AppendLine();
+        builder.AppendLine(unpackSpan);
         builder.Replace("$type", typeDefinition.Name);
         builder.Replace("$fields:count", typeDefinition.FieldDefinitions.Length.ToString());
         return builder;

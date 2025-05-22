@@ -13,7 +13,7 @@ internal class Nsd1SerializeCompiler : INsdTypeCompiler
     SerializeInto(buffer, 0);
     return buffer;
 }";
-
+    
     private const string SerializeIntoTemplate =
 @"public unsafe int SerializeInto(byte[] buffer, int start)
 {
@@ -25,6 +25,27 @@ internal class Nsd1SerializeCompiler : INsdTypeCompiler
         }
 
         fixed (byte* b = &buffer[start])
+        {
+            byte* offset = b;
+
+            $serialize:fields
+
+            return (int)(offset - b);
+        }
+    }
+}";
+
+    private const string SerializeIntoSpanTemplate =
+@"public unsafe int SerializeInto(Span<byte> buffer)
+{
+    unchecked
+    {
+        if (buffer.Length == 0)
+        {
+            return 0;
+        }
+
+        fixed (byte* b = &buffer[0])
         {
             byte* offset = b;
 
@@ -219,11 +240,14 @@ for (int i = 0; i < $field:accessor:base?.Length; i++)
         fieldsBuilder.Replace("\n", "\n" + Nsd1Compiler.Indent + Nsd1Compiler.Indent + Nsd1Compiler.Indent);
 
         string serializeInto = SerializeIntoTemplate.Replace("$serialize:fields", fieldsBuilder.ToString());
+        string serializeIntoSpan = SerializeIntoSpanTemplate.Replace("$serialize:fields", fieldsBuilder.ToString());
 
         StringBuilder builder = new();
         builder.AppendLine(SerializeTemplate);
         builder.AppendLine();
         builder.AppendLine(serializeInto);
+        builder.AppendLine();
+        builder.AppendLine(serializeIntoSpan);
         return builder;
     }
 
