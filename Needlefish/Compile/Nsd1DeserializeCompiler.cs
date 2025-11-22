@@ -375,14 +375,14 @@ offset += $field:size;";
     private const string ObjectValueTemplate =
 @"ushort g__$field:name_ObjectLength = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
 offset += 2;
-int g__$field:name_Start = (int)(offset - b);
+int g__$field:name_Start = start + (int)(offset - b);
 $field:accessor.Unpack(buffer, g__$field:name_Start, g__$field:name_ObjectLength);
 offset += g__$field:name_ObjectLength;";
 
     private const string OptionalObjectValueTemplate =
 @"ushort g__$field:name_ObjectLength = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
 offset += 2;
-int g__$field:name_Start = (int)(offset - b);
+int g__$field:name_Start = start + (int)(offset - b);
 if ($field:accessor == null)
 {
     $field:accessor = $field:type.Deserialize(buffer, g__$field:name_Start, g__$field:name_ObjectLength);

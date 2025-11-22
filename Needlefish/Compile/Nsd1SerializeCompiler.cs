@@ -221,7 +221,7 @@ for (int i = 0; i < $field:accessor:base?.Length; i++)
     * ((ushort*)offset) = BitConverter.IsLittleEndian ? g__$field:name_ObjectLength : BinaryPrimitives.ReverseEndianness(g__$field:name_ObjectLength);
     offset += 2;
 
-    $field:accessor:context.SerializeInto(buffer, (int)(offset - b));
+    $field:accessor:context.SerializeInto(buffer, start + (int)(offset - b));
     offset += g__$field:name_ObjectLength;";
 
     private const string EnumValueTemplate =
