@@ -399,7 +399,7 @@ offset += 4;";
 
     public bool CanCompile(TypeDefinition typeDefinition)
     {
-        return typeDefinition.Keyword == Nsd1MessageCompiler.Keyword;
+        return typeDefinition.Keyword == Nsd1MessageCompiler.KEYWORD;
     }
 
     public StringBuilder Compile(TypeDefinition typeDefinition)
@@ -415,9 +415,9 @@ offset += 4;";
             casesBuilder.AppendLine();
         }
 
-        readBuilder.Replace("\n", "\n" + Nsd1Compiler.Indent + Nsd1Compiler.Indent + Nsd1Compiler.Indent);
+        readBuilder.Replace("\n", "\n" + Nsd1Compiler.INDENT + Nsd1Compiler.INDENT + Nsd1Compiler.INDENT);
 
-        casesBuilder.Replace("\n", "\n" + Nsd1Compiler.Indent + Nsd1Compiler.Indent + Nsd1Compiler.Indent + Nsd1Compiler.Indent + Nsd1Compiler.Indent);
+        casesBuilder.Replace("\n", "\n" + Nsd1Compiler.INDENT + Nsd1Compiler.INDENT + Nsd1Compiler.INDENT + Nsd1Compiler.INDENT + Nsd1Compiler.INDENT);
 
         string unpack = UnpackTemplate
             .Replace("$deserialize:cases", casesBuilder.ToString())
@@ -512,7 +512,7 @@ offset += 4;";
             }
         }
 
-        builder.Replace("\n", "\n" + Nsd1Compiler.Indent);
+        builder.Replace("\n", "\n" + Nsd1Compiler.INDENT);
         return builder;
     }
 

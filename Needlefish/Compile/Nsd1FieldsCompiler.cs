@@ -7,7 +7,7 @@ internal class Nsd1FieldsCompiler : INsdTypeCompiler
 {
     public bool CanCompile(TypeDefinition typeDefinition)
     {
-        return typeDefinition.Keyword == Nsd1MessageCompiler.Keyword;
+        return typeDefinition.Keyword == Nsd1MessageCompiler.KEYWORD;
     }
 
     public StringBuilder Compile(TypeDefinition typeDefinition)

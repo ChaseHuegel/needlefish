@@ -109,15 +109,15 @@ internal class NsdLinter
         }
     }
 
-    public static Issue[] Lint(List<Define> _defines, List<TypeDefinition> _typeDefinitions)
+    public static Issue[] Lint(List<Define> defines, List<TypeDefinition> typeDefinitions)
     {
         var issues = new List<Issue>();
 
-        ValidateVersion(issues, _defines);
-        ValidateNoTypeDuplicates(issues, _typeDefinitions);
-        ValidateFieldDefinitions(issues, _typeDefinitions);
-        ValidateMessageDefinitions(issues, _typeDefinitions);
-        ValidateEnumDefinitions(issues, _typeDefinitions);
+        ValidateVersion(issues, defines);
+        ValidateNoTypeDuplicates(issues, typeDefinitions);
+        ValidateFieldDefinitions(issues, typeDefinitions);
+        ValidateMessageDefinitions(issues, typeDefinitions);
+        ValidateEnumDefinitions(issues, typeDefinitions);
 
         return issues.ToArray();
     }

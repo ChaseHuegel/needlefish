@@ -6,21 +6,21 @@ namespace Needlefish.Compile;
 
 internal class Nsd1EnumCompiler : INsdTypeCompiler
 {
-    internal const string Keyword = "enum";
+    internal const string KEYWORD = "enum";
 
     public bool CanCompile(TypeDefinition typeDefinition)
     {
-        return typeDefinition.Keyword == Keyword;
+        return typeDefinition.Keyword == KEYWORD;
     }
 
     public StringBuilder Compile(TypeDefinition typeDefinition)
     {
-        if (typeDefinition.Keyword != Keyword)
+        if (typeDefinition.Keyword != KEYWORD)
         {
             throw new InvalidOperationException(string.Format(
                 "Invalid {0}. Expected keyword \"{1}\" but got \"{2}\".",
                 nameof(TypeDefinition),
-                Keyword,
+                KEYWORD,
                 typeDefinition.Keyword)
             );
         }
@@ -36,7 +36,7 @@ internal class Nsd1EnumCompiler : INsdTypeCompiler
 
         foreach (FieldDefinition fieldDefinition in typeDefinition.FieldDefinitions)
         {
-            builder.Append(Nsd1Compiler.Indent);
+            builder.Append(Nsd1Compiler.INDENT);
             builder.AppendLine($"{fieldDefinition.Name} = {fieldDefinition.Value},");
         }
 

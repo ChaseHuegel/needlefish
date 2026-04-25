@@ -230,7 +230,7 @@ for (int i = 0; i < $field:accessor:base?.Length; i++)
 
     public bool CanCompile(TypeDefinition typeDefinition)
     {
-        return typeDefinition.Keyword == Nsd1MessageCompiler.Keyword;
+        return typeDefinition.Keyword == Nsd1MessageCompiler.KEYWORD;
     }
 
     public StringBuilder Compile(TypeDefinition typeDefinition)
@@ -243,7 +243,7 @@ for (int i = 0; i < $field:accessor:base?.Length; i++)
             fieldsBuilder.AppendLine();
         }
 
-        fieldsBuilder.Replace("\n", "\n" + Nsd1Compiler.Indent + Nsd1Compiler.Indent + Nsd1Compiler.Indent);
+        fieldsBuilder.Replace("\n", "\n" + Nsd1Compiler.INDENT + Nsd1Compiler.INDENT + Nsd1Compiler.INDENT);
 
         string serializeInto = SerializeIntoTemplate.Replace("$serialize:fields", fieldsBuilder.ToString());
         string serializeIntoSpanPrivate = SerializeIntoSpanOverloadTemplate.Replace("$serialize:fields", fieldsBuilder.ToString());

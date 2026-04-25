@@ -7,9 +7,9 @@ namespace Needlefish.Compile;
 
 internal class Nsd1MessageCompiler : INsdTypeCompiler
 {
-    internal const string Keyword = "message";
+    internal const string KEYWORD = "message";
 
-    private readonly INsdTypeCompiler[] Subcompilers = [
+    private readonly INsdTypeCompiler[] _subcompilers = [
         new Nsd1FieldIdentifiersCompiler(),
         new Nsd1FieldsCompiler(),
         new Nsd1ConstructorCompiler(),
@@ -20,17 +20,17 @@ internal class Nsd1MessageCompiler : INsdTypeCompiler
 
     public bool CanCompile(TypeDefinition typeDefinition)
     {
-        return typeDefinition.Keyword == Keyword;
+        return typeDefinition.Keyword == KEYWORD;
     }
 
     public StringBuilder Compile(TypeDefinition typeDefinition)
     {
-        if (typeDefinition.Keyword != Keyword)
+        if (typeDefinition.Keyword != KEYWORD)
         {
             throw new InvalidOperationException(string.Format(
                 "Invalid {0}. Expected keyword \"{1}\" but got \"{2}\".",
                 nameof(TypeDefinition),
-                Keyword,
+                KEYWORD,
                 typeDefinition.Keyword)
             );
         }
@@ -44,12 +44,12 @@ internal class Nsd1MessageCompiler : INsdTypeCompiler
         builder.AppendLine($"public struct {typeDefinition.Name}");
         builder.AppendLine("{");
 
-        foreach (INsdTypeCompiler subcompiler in Subcompilers.Where(c => c.CanCompile(typeDefinition)))
+        foreach (INsdTypeCompiler subcompiler in _subcompilers.Where(c => c.CanCompile(typeDefinition)))
         {
             StringBuilder subcompilerBuilder = subcompiler.Compile(typeDefinition);
-            subcompilerBuilder.Replace("\n", "\n" + Nsd1Compiler.Indent);
+            subcompilerBuilder.Replace("\n", "\n" + Nsd1Compiler.INDENT);
 
-            builder.Append(Nsd1Compiler.Indent);
+            builder.Append(Nsd1Compiler.INDENT);
             builder.Append(subcompilerBuilder);
             builder.AppendLine();
         }

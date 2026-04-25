@@ -26,7 +26,7 @@ internal class Nsd1GetSizeCompiler : INsdTypeCompiler
 
     public bool CanCompile(TypeDefinition typeDefinition)
     {
-        return typeDefinition.Keyword == Nsd1MessageCompiler.Keyword;
+        return typeDefinition.Keyword == Nsd1MessageCompiler.KEYWORD;
     }
 
     public StringBuilder Compile(TypeDefinition typeDefinition)
@@ -36,29 +36,29 @@ internal class Nsd1GetSizeCompiler : INsdTypeCompiler
         builder.AppendLine("public int GetSize()");
         builder.AppendLine("{");
 
-        builder.AppendLine(Nsd1Compiler.Indent + "#region Helper consts");
+        builder.AppendLine(Nsd1Compiler.INDENT + "#region Helper consts");
         AppendHelperConsts(builder);
-        builder.AppendLine(Nsd1Compiler.Indent + "#endregion");
+        builder.AppendLine(Nsd1Compiler.INDENT + "#endregion");
         builder.AppendLine();
 
-        builder.AppendLine(Nsd1Compiler.Indent + "#region Static size calculation");
+        builder.AppendLine(Nsd1Compiler.INDENT + "#region Static size calculation");
         AppendFieldConsts(typeDefinition, builder);
-        builder.AppendLine(Nsd1Compiler.Indent + "#endregion");
+        builder.AppendLine(Nsd1Compiler.INDENT + "#endregion");
         builder.AppendLine();
 
         AppendMinLength(typeDefinition, builder);
         builder.AppendLine();
 
-        builder.Append(Nsd1Compiler.Indent);
+        builder.Append(Nsd1Compiler.INDENT);
         builder.AppendLine("int length = minLength;");
         builder.AppendLine();
 
-        builder.AppendLine(Nsd1Compiler.Indent + "#region Dynamic size calculation");
+        builder.AppendLine(Nsd1Compiler.INDENT + "#region Dynamic size calculation");
         AppendLengthCalculation(typeDefinition, builder);
-        builder.AppendLine(Nsd1Compiler.Indent + "#endregion");
+        builder.AppendLine(Nsd1Compiler.INDENT + "#endregion");
         builder.AppendLine();
 
-        builder.Append(Nsd1Compiler.Indent);
+        builder.Append(Nsd1Compiler.INDENT);
         builder.AppendLine("return length;");
 
         builder.AppendLine("}");
@@ -67,8 +67,8 @@ internal class Nsd1GetSizeCompiler : INsdTypeCompiler
 
     private static void AppendHelperConsts(StringBuilder builder)
     {
-        builder.Append(Nsd1Compiler.Indent);
-        builder.AppendLine(ConstDefs.Replace("\n", "\n" + Nsd1Compiler.Indent));
+        builder.Append(Nsd1Compiler.INDENT);
+        builder.AppendLine(ConstDefs.Replace("\n", "\n" + Nsd1Compiler.INDENT));
     }
 
     private void AppendFieldConsts(TypeDefinition typeDefinition, StringBuilder builder)
@@ -77,19 +77,19 @@ internal class Nsd1GetSizeCompiler : INsdTypeCompiler
         {
             string fieldMinLenConst = GetFieldMinLenStr(fieldDefinition.Name, GetFieldMinLenValue(fieldDefinition));
 
-            builder.Append(Nsd1Compiler.Indent);
+            builder.Append(Nsd1Compiler.INDENT);
             builder.AppendLine(fieldMinLenConst);
         }
     }
 
     private static void AppendMinLength(TypeDefinition typeDefinition, StringBuilder builder)
     {
-        builder.Append(Nsd1Compiler.Indent);
+        builder.Append(Nsd1Compiler.INDENT);
         builder.Append("const int minLength = ");
 
         IEnumerable<string> minLenConsts = GetMinLenEligableFields(typeDefinition).Select(f => $"{f.Name}_MinLen");
 
-        string minLengthValue = string.Join("\n" + Nsd1Compiler.Indent + Nsd1Compiler.Indent + "+ ", minLenConsts);
+        string minLengthValue = string.Join("\n" + Nsd1Compiler.INDENT + Nsd1Compiler.INDENT + "+ ", minLenConsts);
 
         builder.Append(string.IsNullOrEmpty(minLengthValue) ? 0 : minLengthValue);
         builder.AppendLine(";");
@@ -102,39 +102,39 @@ internal class Nsd1GetSizeCompiler : INsdTypeCompiler
         {
             if (fieldDefinition.Type == FieldType.Object && !fieldDefinition.IsOptional && !fieldDefinition.IsArray)
             {
-                builder.Append(Nsd1Compiler.Indent);
+                builder.Append(Nsd1Compiler.INDENT);
                 builder.AppendLine($"length += arrayHeaderLen + {fieldDefinition.Name}.GetSize();");
 
                 builder.AppendLine();
                 continue;
             }
 
-            builder.Append(Nsd1Compiler.Indent);
+            builder.Append(Nsd1Compiler.INDENT);
             builder.AppendLine($"if ({fieldDefinition.Name} != null)");
 
-            builder.Append(Nsd1Compiler.Indent);
+            builder.Append(Nsd1Compiler.INDENT);
             builder.AppendLine("{");
 
             if (fieldDefinition.Type == FieldType.Object && !fieldDefinition.IsOptional && fieldDefinition.IsArray)
             {
-                builder.Append(Nsd1Compiler.Indent);
-                builder.Append(Nsd1Compiler.Indent);
+                builder.Append(Nsd1Compiler.INDENT);
+                builder.Append(Nsd1Compiler.INDENT);
                 builder.AppendLine($"for (int i = 0; i < {fieldDefinition.Name}.Length; i++)");
 
-                builder.Append(Nsd1Compiler.Indent);
-                builder.Append(Nsd1Compiler.Indent);
+                builder.Append(Nsd1Compiler.INDENT);
+                builder.Append(Nsd1Compiler.INDENT);
                 builder.AppendLine("{");
 
-                builder.Append(Nsd1Compiler.Indent);
-                builder.Append(Nsd1Compiler.Indent);
-                builder.Append(Nsd1Compiler.Indent);
+                builder.Append(Nsd1Compiler.INDENT);
+                builder.Append(Nsd1Compiler.INDENT);
+                builder.Append(Nsd1Compiler.INDENT);
                 builder.AppendLine($"length += arrayHeaderLen + {fieldDefinition.Name}[i].GetSize();");
 
-                builder.Append(Nsd1Compiler.Indent);
-                builder.Append(Nsd1Compiler.Indent);
+                builder.Append(Nsd1Compiler.INDENT);
+                builder.Append(Nsd1Compiler.INDENT);
                 builder.AppendLine("}");
 
-                builder.Append(Nsd1Compiler.Indent);
+                builder.Append(Nsd1Compiler.INDENT);
                 builder.AppendLine("}");
                 builder.AppendLine();
                 continue;
@@ -142,8 +142,8 @@ internal class Nsd1GetSizeCompiler : INsdTypeCompiler
 
             if (fieldDefinition.Type == FieldType.Object && !fieldDefinition.IsArray)
             {
-                builder.Append(Nsd1Compiler.Indent);
-                builder.Append(Nsd1Compiler.Indent);
+                builder.Append(Nsd1Compiler.INDENT);
+                builder.Append(Nsd1Compiler.INDENT);
                 builder.Append("length += ");
 
                 if (fieldDefinition.IsOptional)
@@ -153,14 +153,14 @@ internal class Nsd1GetSizeCompiler : INsdTypeCompiler
 
                 builder.AppendLine($"arrayHeaderLen + {fieldDefinition.Name}.Value.GetSize();");
 
-                builder.Append(Nsd1Compiler.Indent);
+                builder.Append(Nsd1Compiler.INDENT);
                 builder.AppendLine("}");
                 builder.AppendLine();
                 continue;
             }
 
-            builder.Append(Nsd1Compiler.Indent);
-            builder.Append(Nsd1Compiler.Indent);
+            builder.Append(Nsd1Compiler.INDENT);
+            builder.Append(Nsd1Compiler.INDENT);
             builder.Append("length += ");
 
             if (fieldDefinition.IsOptional)
@@ -197,45 +197,45 @@ internal class Nsd1GetSizeCompiler : INsdTypeCompiler
 
             if (fieldDefinition.Type == FieldType.Object && fieldDefinition.IsArray)
             {
-                builder.Append(Nsd1Compiler.Indent);
-                builder.Append(Nsd1Compiler.Indent);
+                builder.Append(Nsd1Compiler.INDENT);
+                builder.Append(Nsd1Compiler.INDENT);
                 builder.AppendLine($"for (int i = 0; i < {fieldDefinition.Name}.Length; i++)");
 
-                builder.Append(Nsd1Compiler.Indent);
-                builder.Append(Nsd1Compiler.Indent);
+                builder.Append(Nsd1Compiler.INDENT);
+                builder.Append(Nsd1Compiler.INDENT);
                 builder.AppendLine("{");
 
-                builder.Append(Nsd1Compiler.Indent);
-                builder.Append(Nsd1Compiler.Indent);
-                builder.Append(Nsd1Compiler.Indent);
+                builder.Append(Nsd1Compiler.INDENT);
+                builder.Append(Nsd1Compiler.INDENT);
+                builder.Append(Nsd1Compiler.INDENT);
                 builder.AppendLine($"length += arrayHeaderLen + {fieldDefinition.Name}[i].GetSize();");
 
-                builder.Append(Nsd1Compiler.Indent);
-                builder.Append(Nsd1Compiler.Indent);
+                builder.Append(Nsd1Compiler.INDENT);
+                builder.Append(Nsd1Compiler.INDENT);
                 builder.AppendLine("}");
             }
 
             if (fieldDefinition.TypeName == "string" && fieldDefinition.IsArray)
             {
-                builder.Append(Nsd1Compiler.Indent);
-                builder.Append(Nsd1Compiler.Indent);
+                builder.Append(Nsd1Compiler.INDENT);
+                builder.Append(Nsd1Compiler.INDENT);
                 builder.AppendLine($"for (int i = 0; i < {fieldDefinition.Name}.Length; i++)");
 
-                builder.Append(Nsd1Compiler.Indent);
-                builder.Append(Nsd1Compiler.Indent);
+                builder.Append(Nsd1Compiler.INDENT);
+                builder.Append(Nsd1Compiler.INDENT);
                 builder.AppendLine("{");
 
-                builder.Append(Nsd1Compiler.Indent);
-                builder.Append(Nsd1Compiler.Indent);
-                builder.Append(Nsd1Compiler.Indent);
+                builder.Append(Nsd1Compiler.INDENT);
+                builder.Append(Nsd1Compiler.INDENT);
+                builder.Append(Nsd1Compiler.INDENT);
                 builder.AppendLine($"length += {GetFieldTypeMinLenValue(fieldDefinition)} + {fieldDefinition.Name}[i].Length * charLen;");
 
-                builder.Append(Nsd1Compiler.Indent);
-                builder.Append(Nsd1Compiler.Indent);
+                builder.Append(Nsd1Compiler.INDENT);
+                builder.Append(Nsd1Compiler.INDENT);
                 builder.AppendLine("}");
             }
 
-            builder.Append(Nsd1Compiler.Indent);
+            builder.Append(Nsd1Compiler.INDENT);
             builder.AppendLine("}");
             builder.AppendLine();
         }

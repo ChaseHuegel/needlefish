@@ -18,13 +18,13 @@ public class SyntaxTests
     [Test]
     public void Parse()
     {
-        ParseNsdContent(LexerTests.ValidNsd);
+        ParseNsdContent(LexerTests.VALID_NSD);
     }
 
     [Test]
     public void ParseNoWhitespace()
     {
-        ParseNsdContent(LexerTests.ValidNsdNoWhitespace);
+        ParseNsdContent(LexerTests.VALID_NSD_NO_WHITESPACE);
     }
 
     [TestCase("Version", "message test {}")]

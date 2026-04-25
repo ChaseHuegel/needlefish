@@ -62,9 +62,9 @@ internal class ByteConversionTests
         {
             byte* offset = b;
 
-            float g__FloAT_Copy = value;
+            float gFloAtCopy = value;
 
-            *((uint*)offset) = BitConverter.IsLittleEndian ? *(uint*)&g__FloAT_Copy : BinaryPrimitives.ReverseEndianness(*(uint*)&g__FloAT_Copy);
+            *((uint*)offset) = BitConverter.IsLittleEndian ? *(uint*)&gFloAtCopy : BinaryPrimitives.ReverseEndianness(*(uint*)&gFloAtCopy);
             offset += 4;
         }
 

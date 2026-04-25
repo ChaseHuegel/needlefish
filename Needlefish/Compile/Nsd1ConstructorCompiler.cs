@@ -18,7 +18,7 @@ internal class Nsd1ConstructorCompiler : INsdTypeCompiler
 
     public bool CanCompile(TypeDefinition typeDefinition)
     {
-        return typeDefinition.Keyword == Nsd1MessageCompiler.Keyword;
+        return typeDefinition.Keyword == Nsd1MessageCompiler.KEYWORD;
     }
 
     public StringBuilder Compile(TypeDefinition typeDefinition)
@@ -31,7 +31,7 @@ internal class Nsd1ConstructorCompiler : INsdTypeCompiler
             string fieldStr = FieldTemplate.Replace("$field:name", field.Name).Replace("$field:parameter", $"_{field.Name}");
             fieldsBuilder.AppendLine(fieldStr);
         }
-        fieldsBuilder.Replace("\n", "\n" + Nsd1Compiler.Indent);
+        fieldsBuilder.Replace("\n", "\n" + Nsd1Compiler.INDENT);
 
         StringBuilder builder = new();
         builder.AppendLine(ConstructorTemplate);

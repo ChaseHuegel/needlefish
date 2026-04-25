@@ -6,7 +6,7 @@ namespace Needlefish.Compile;
 
 internal class Nsd1Compiler : INsdCompiler
 {
-    internal const string Indent = "    ";
+    internal const string INDENT = "    ";
 
     private static readonly string[] Prepends = [
         "#pragma warning disable CS0219 // Variable is assigned but its value is never used",
@@ -15,7 +15,7 @@ internal class Nsd1Compiler : INsdCompiler
         "using System.Buffers.Binary;",
     ];
 
-    private readonly INsdTypeCompiler[] TypeCompilers = [
+    private readonly INsdTypeCompiler[] _typeCompilers = [
         new Nsd1MessageCompiler(),
         new Nsd1EnumCompiler(),
     ];
@@ -56,14 +56,14 @@ internal class Nsd1Compiler : INsdCompiler
 
         foreach (TypeDefinition typeDefinition in nsd.TypeDefinitions.OrderBy(d => d.Keyword))
         {
-            foreach (INsdTypeCompiler? typeCompiler in TypeCompilers.Where(c => c.CanCompile(typeDefinition)))
+            foreach (INsdTypeCompiler? typeCompiler in _typeCompilers.Where(c => c.CanCompile(typeDefinition)))
             {
                 StringBuilder typeBuilder = typeCompiler.Compile(typeDefinition);
 
                 if (hasNamespace)
                 {
-                    typeBuilder.Insert(0, Indent);
-                    typeBuilder.Replace("\n", "\n" + Indent);
+                    typeBuilder.Insert(0, INDENT);
+                    typeBuilder.Replace("\n", "\n" + INDENT);
                 }
 
                 builder.Append(typeBuilder);

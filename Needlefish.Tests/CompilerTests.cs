@@ -9,7 +9,7 @@ internal class CompilerTests
     [Test]
     public void Compile()
     {
-        Nsd nsd = SyntaxTests.ParseNsdContent(LexerTests.ValidNsd);
+        Nsd nsd = SyntaxTests.ParseNsdContent(LexerTests.VALID_NSD);
 
         var compiler = new Nsd1Compiler();
 

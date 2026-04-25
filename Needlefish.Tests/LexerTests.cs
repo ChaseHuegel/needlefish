@@ -8,9 +8,9 @@ namespace Needlefish.Tests;
 
 public class LexerTests
 {
-    internal const string ValidNsdNoWhitespace = """#version 1.0;#include "header.nsd";#namespace Lexer.Tests;message TestMessage{string? Content;int StatusCode=5;float FloAT;double Double;long Long;ulong uLong;uint Uint=15;ulong Ulong;short Short;ushort UShort;bool Bool;byte Byte;byte[] Bytes=21;string[]? OptionalStrings=25;TestEnum EnumValue=22;}enum TestEnum{Val1;Val2=10;Val3;Val4;}message Submessage{int? OptionalInt;}""";
+    internal const string VALID_NSD_NO_WHITESPACE = """#version 1.0;#include "header.nsd";#namespace Lexer.Tests;message TestMessage{string? Content;int StatusCode=5;float FloAT;double Double;long Long;ulong uLong;uint Uint=15;ulong Ulong;short Short;ushort UShort;bool Bool;byte Byte;byte[] Bytes=21;string[]? OptionalStrings=25;TestEnum EnumValue=22;}enum TestEnum{Val1;Val2=10;Val3;Val4;}message Submessage{int? OptionalInt;}""";
 
-    internal const string ValidNsd = """
+    internal const string VALID_NSD = """
         #version 1.0;
         #namespace Lexer.Tests;
         #include "header.nsd";
@@ -99,7 +99,7 @@ public class LexerTests
     [Test]
     public void Lex()
     {
-        List<Token<TokenType>> tokens = LexerFactory.Lex(ValidNsd);
+        List<Token<TokenType>> tokens = LexerFactory.Lex(VALID_NSD);
 
         foreach (var token in tokens)
         {
@@ -117,7 +117,7 @@ public class LexerTests
     [Test]
     public void LexNoWhitespace()
     {
-        List<Token<TokenType>> tokens = LexerFactory.Lex(ValidNsdNoWhitespace);
+        List<Token<TokenType>> tokens = LexerFactory.Lex(VALID_NSD_NO_WHITESPACE);
 
         foreach (var token in tokens)
         {
