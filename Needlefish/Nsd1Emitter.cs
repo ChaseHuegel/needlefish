@@ -42,23 +42,23 @@ public class Nsd1Emitter
             new(TokenType.Identifier, @"\G[a-zA-Z]*([.][a-zA-Z]|[a-zA-Z0-9_])+"),
     };
 
-    private object Lock = new object();
-    private Lexer<TokenType> Lexer = new(TokenDefinitions);
-    private NsdParser Parser = new();
-    private INsdCompiler Compiler;
+    private readonly object _lock = new();
+    private readonly Lexer<TokenType> _lexer = new(TokenDefinitions);
+    private readonly NsdParser _parser = new();
+    private readonly INsdCompiler _compiler;
 
     public Nsd1Emitter()
     {
-        Compiler = new Nsd1Compiler();
+        _compiler = new Nsd1Compiler();
     }
 
     public string Emit(string name, string source)
     {
-        lock (Lock)
+        lock (_lock)
         {
-            List<Token<TokenType>> tokens = Lexer.Lex(source);
-            Nsd nsd = Parser.Parse(tokens);
-            return Compiler.Compile(nsd, name);
+            List<Token<TokenType>> tokens = _lexer.Lex(source);
+            Nsd nsd = _parser.Parse(tokens);
+            return _compiler.Compile(nsd, name);
         }
     }
 
@@ -66,14 +66,14 @@ public class Nsd1Emitter
     {
         string[] results = new string[sources.Length];
 
-        lock (Lock)
+        lock (_lock)
         {
             for (int i = 0; i < sources.Length; i++)
             {
                 Source source = sources[i];
-                List<Token<TokenType>> tokens = Lexer.Lex(source.Content);
-                Nsd nsd = Parser.Parse(tokens);
-                results[i] = Compiler.Compile(nsd, source.Name);
+                List<Token<TokenType>> tokens = _lexer.Lex(source.Content);
+                Nsd nsd = _parser.Parse(tokens);
+                results[i] = _compiler.Compile(nsd, source.Name);
             }
         }
 

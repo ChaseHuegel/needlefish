@@ -17,7 +17,7 @@ internal class Nsd1Compiler : INsdCompiler
 
     private readonly INsdTypeCompiler[] TypeCompilers = [
         new Nsd1MessageCompiler(),
-        new Nsd1EnumCompiler()
+        new Nsd1EnumCompiler(),
     ];
 
     public float Version => 1;

@@ -5,7 +5,7 @@ namespace Needlefish.Lexing;
 
 internal class Lexer<T>
 {
-    private List<TokenDefinition<T>> _tokenDefinitions;
+    private readonly List<TokenDefinition<T>> _tokenDefinitions;
 
     public Lexer(List<TokenDefinition<T>> tokenDefinitions)
     {

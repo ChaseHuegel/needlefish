@@ -372,7 +372,7 @@ for (int i = 0; i < $field:accessor:base?.Length; i++)
             "short" or "ushort" or "char" => 2,
             "int" or "uint" => 4,
             "long" or "ulong" => 8,
-            _ => -1
+            _ => -1,
         };
     }
 }

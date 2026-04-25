@@ -27,5 +27,5 @@ internal enum TokenType
     Ulong,
     Short,
     UShort,
-    Namespace
+    Namespace,
 }

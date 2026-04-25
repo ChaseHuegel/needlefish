@@ -6,5 +6,5 @@ public enum FieldType
     None,
     Primitive,
     Object,
-    Enum
+    Enum,
 }
