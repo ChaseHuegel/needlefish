@@ -28,7 +28,7 @@ internal partial class NsdParser
     private Token<TokenType> _lookaheadFirst;
     private Token<TokenType> _lookaheadSecond;
 
-    private float _version;
+    private string? _version;
     private readonly List<Define> _defines = new();
     private readonly List<TypeDefinition> _typeDefinitions = new();
 
@@ -366,10 +366,7 @@ internal partial class NsdParser
     private void CollectVersion()
     {
         Define versionDefinition = _defines.FirstOrDefault(define => define.Key == "version");
-        if (!float.TryParse(versionDefinition.Value, out _version) || _version == default)
-        {
-            throw new NsdException("Missing version definition.");
-        }
+        _version = versionDefinition.Value ?? throw new NsdException("Missing version definition.");
     }
 
     private void PostProcess()
@@ -460,7 +457,7 @@ internal partial class NsdParser
             throw new ArgumentException("No nsd tokens to parse.", nameof(tokens));
         }
 
-        _version = default;
+        _version = null;
         _defines.Clear();
         _typeDefinitions.Clear();
 
@@ -475,6 +472,11 @@ internal partial class NsdParser
         Validate();
 
         CollectVersion();
+
+        if (_version == null)
+        {
+            throw new NsdException("Missing version definition.");
+        }
 
         return new Nsd(_version, _defines.ToArray(), _typeDefinitions.ToArray());
     }

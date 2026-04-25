@@ -2,13 +2,13 @@
 
 public readonly struct Nsd
 {
-    public float Version { get; }
+    public string Version { get; }
 
     public Define[] Defines { get; }
 
     public TypeDefinition[] TypeDefinitions { get; }
 
-    public Nsd(float version, Define[] defines, TypeDefinition[] typeDefinitions)
+    public Nsd(string version, Define[] defines, TypeDefinition[] typeDefinitions)
     {
         Version = version;
         Defines = defines;

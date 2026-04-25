@@ -20,7 +20,7 @@ internal class Nsd1Compiler : INsdCompiler
         new Nsd1EnumCompiler(),
     ];
 
-    public float Version => 1;
+    public string Version => "1.1";
 
     public string Compile(Nsd nsd, string? sourceName = null)
     {

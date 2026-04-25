@@ -4,7 +4,7 @@ namespace Needlefish.Compile;
 
 internal interface INsdCompiler
 {
-    float Version { get; }
+    string Version { get; }
 
     string Compile(Nsd nsd, string? sourceName = null);
 }
