@@ -10,7 +10,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  publish-artifact:
+  publish-windows-artifact:
 
     runs-on: ubuntu-latest
 
@@ -20,10 +20,28 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
-    - name: Publish
-      run: dotnet publish -c Release
-    - name: Upload Build Artifact
+    - name: Publish Windows
+      run: dotnet publish -c Release -r win-x64
+    - name: Upload Windows Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: nsdc_artifact
+        name: nsdc_windows
         path: /home/runner/work/needlefish/needlefish/Needlefish.Compiler/bin/Release/net7.0/win-x64/publish/nsdc.exe
+
+  publish-linux-artifact:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+    - name: Publish Linux
+      run: dotnet publish -c Release -r linux-x64
+    - name: Upload Linux Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: nsdc_linux
+        path: /home/runner/work/needlefish/needlefish/Needlefish.Compiler/bin/Release/net7.0/linux-x64/publish/nsdc
