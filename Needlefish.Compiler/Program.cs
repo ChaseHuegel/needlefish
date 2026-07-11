@@ -15,16 +15,22 @@ var outputOption = new Option<DirectoryInfo?>(
             description: "The directory to output generated files to.");
 outputOption.AddAlias("-o");
 
+var partialOption = new Option<bool>(
+    name: "--partial",
+    description: "The generated types will have the `partial` keyword.");
+partialOption.AddAlias("-p");
+
 var rootCommand = new RootCommand("Compile nsd files.");
 rootCommand.AddOption(inputOption);
 rootCommand.AddOption(recursiveOption);
 rootCommand.AddOption(outputOption);
+rootCommand.AddOption(partialOption);
 
-rootCommand.SetHandler(Compile, inputOption, outputOption, recursiveOption);
+rootCommand.SetHandler(Compile, inputOption, outputOption, recursiveOption, partialOption);
 
 return await rootCommand.InvokeAsync(args);
 
-void Compile(DirectoryInfo? inputDir, DirectoryInfo? outputDir, bool recursive)
+void Compile(DirectoryInfo? inputDir, DirectoryInfo? outputDir, bool recursive, bool partial)
 {
     string inputPath = inputDir?.FullName ?? Environment.CurrentDirectory;
     string outputPath = outputDir?.FullName ?? Environment.CurrentDirectory;
@@ -47,7 +53,17 @@ void Compile(DirectoryInfo? inputDir, DirectoryInfo? outputDir, bool recursive)
         Console.WriteLine($"Found nsd: {Path.GetRelativePath(Environment.CurrentDirectory, filePath)}");
     }
 
-    Nsd1Emitter generator = new();
+    var compilerOptions = new CompilerOptions
+    {
+        Partial = partial,
+    };
+
+    var options = new EmitterOptions
+    {
+        CompilerOptions = compilerOptions
+    };
+    
+    Nsd1Emitter generator = new(options);
 
     var sources = nsdFiles.Select(x => new KeyValuePair<string, string>(Path.GetFileNameWithoutExtension(x), File.ReadAllText(x))).ToArray();
 

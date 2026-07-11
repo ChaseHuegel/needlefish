@@ -47,9 +47,9 @@ public class Nsd1Emitter
     private readonly NsdParser _parser = new();
     private readonly INsdCompiler _compiler;
 
-    public Nsd1Emitter()
+    public Nsd1Emitter(EmitterOptions options)
     {
-        _compiler = new Nsd1Compiler();
+        _compiler = new Nsd1Compiler(options.CompilerOptions ?? new CompilerOptions());
     }
 
     public string Emit(string name, string source)

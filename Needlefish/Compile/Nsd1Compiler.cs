@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Needlefish.Compile;
 
-internal class Nsd1Compiler : INsdCompiler
+internal class Nsd1Compiler(in CompilerOptions compilerOptions) : INsdCompiler
 {
     internal const string INDENT = "    ";
 
@@ -16,7 +16,7 @@ internal class Nsd1Compiler : INsdCompiler
     ];
 
     private readonly INsdTypeCompiler[] _typeCompilers = [
-        new Nsd1MessageCompiler(),
+        new Nsd1MessageCompiler(compilerOptions),
         new Nsd1EnumCompiler(),
     ];
 

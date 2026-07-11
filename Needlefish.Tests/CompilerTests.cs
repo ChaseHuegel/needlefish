@@ -11,7 +11,11 @@ internal class CompilerTests
     {
         Nsd nsd = SyntaxTests.ParseNsdContent(LexerTests.VALID_NSD);
 
-        var compiler = new Nsd1Compiler();
+        var options = new CompilerOptions()
+        {
+            Partial = true
+        };
+        var compiler = new Nsd1Compiler(options);
 
         string result = compiler.Compile(nsd, "LexerTests.ValidNsd");
 

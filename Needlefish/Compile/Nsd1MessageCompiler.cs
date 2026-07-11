@@ -5,10 +5,12 @@ using System.Text;
 
 namespace Needlefish.Compile;
 
-internal class Nsd1MessageCompiler : INsdTypeCompiler
+internal class Nsd1MessageCompiler(in CompilerOptions compilerOptions) : INsdTypeCompiler
 {
     internal const string KEYWORD = "message";
 
+    private readonly CompilerOptions _compilerOptions = compilerOptions;
+    
     private readonly INsdTypeCompiler[] _subcompilers = [
         new Nsd1FieldIdentifiersCompiler(),
         new Nsd1FieldsCompiler(),
@@ -41,7 +43,8 @@ internal class Nsd1MessageCompiler : INsdTypeCompiler
     private StringBuilder BuildMessage(TypeDefinition typeDefinition)
     {
         StringBuilder builder = new();
-        builder.AppendLine($"public struct {typeDefinition.Name}");
+        string modifierStr = _compilerOptions.Partial ? "partial " : string.Empty;
+        builder.AppendLine($"public {modifierStr}struct {typeDefinition.Name}");
         builder.AppendLine("{");
 
         foreach (INsdTypeCompiler subcompiler in _subcompilers.Where(c => c.CanCompile(typeDefinition)))
