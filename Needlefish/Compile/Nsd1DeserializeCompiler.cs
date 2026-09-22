@@ -23,6 +23,14 @@ internal class Nsd1DeserializeCompiler : INsdTypeCompiler
     return value;
 }";
     
+    private const string DeserializeSpanOverloadTemplate =
+@"public static $type Deserialize(Span<byte> buffer, int start, int length)
+{
+    $type value = new $type();
+    value.Unpack(buffer, start, length);
+    return value;
+}";
+    
     
     private const string DeserializeReadOnlySpanTemplate =
 @"public static $type Deserialize(ReadOnlySpan<byte> buffer)
@@ -435,6 +443,8 @@ offset += 4;";
         builder.AppendLine(DeserializeTemplate);
         builder.AppendLine();
         builder.AppendLine(DeserializeSpanTemplate);
+        builder.AppendLine();
+        builder.AppendLine(DeserializeSpanOverloadTemplate);
         builder.AppendLine();
         builder.AppendLine(DeserializeReadOnlySpanTemplate);
         builder.AppendLine();
