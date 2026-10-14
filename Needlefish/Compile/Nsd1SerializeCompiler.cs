@@ -7,7 +7,7 @@ namespace Needlefish.Compile;
 internal class Nsd1SerializeCompiler : INsdTypeCompiler
 {
     private const string SerializeTemplate =
-@"public byte[] Serialize()
+@"public readonly byte[] Serialize()
 {
     byte[] buffer = new byte[GetSize()];
     SerializeInto(buffer, 0);
@@ -15,7 +15,7 @@ internal class Nsd1SerializeCompiler : INsdTypeCompiler
 }";
     
     private const string SerializeIntoTemplate =
-@"public unsafe int SerializeInto(byte[] buffer, int start)
+@"public readonly unsafe int SerializeInto(byte[] buffer, int start)
 {
     unchecked
     {
@@ -36,13 +36,13 @@ internal class Nsd1SerializeCompiler : INsdTypeCompiler
 }";
 
     private const string SerializeIntoSpanTemplate = 
-@"public int SerializeInto(Span<byte> buffer)
+@"public readonly int SerializeInto(Span<byte> buffer)
 {
     return SerializeInto(buffer, 0);
 }";
     
     private const string SerializeIntoSpanOverloadTemplate =
-@"public unsafe int SerializeInto(Span<byte> buffer, int start)
+@"public readonly unsafe int SerializeInto(Span<byte> buffer, int start)
 {
     unchecked
     {

@@ -33,7 +33,7 @@ internal class Nsd1GetSizeCompiler : INsdTypeCompiler
     {
         StringBuilder builder = new();
 
-        builder.AppendLine("public int GetSize()");
+        builder.AppendLine("public readonly int GetSize()");
         builder.AppendLine("{");
 
         builder.AppendLine(Nsd1Compiler.INDENT + "#region Helper consts");
