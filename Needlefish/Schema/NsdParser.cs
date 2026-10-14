@@ -66,7 +66,10 @@ internal partial class NsdParser
     {
         if (!TryReadToken(tokenType, out Token<TokenType> token))
         {
-            throw new NsdException(string.Format("Expected ({0}) but found ({1}).", tokenType.ToString(), _lookaheadFirst.Value));
+            throw new NsdException(
+                string.Format("Expected ({0}) but found ({1}).", tokenType.ToString(), _lookaheadFirst.Value),
+                _lookaheadFirst.Position,
+                _lookaheadFirst.Length);
         }
 
         return token;
@@ -101,7 +104,10 @@ internal partial class NsdParser
     {
         if (!TryDiscardToken(tokenType))
         {
-            throw new NsdException(string.Format("Expected ({0}) but found ({1}).", tokenType.ToString(), _lookaheadFirst.Value));
+            throw new NsdException(
+                string.Format("Expected ({0}) but found ({1}).", tokenType.ToString(), _lookaheadFirst.Value),
+                _lookaheadFirst.Position,
+                _lookaheadFirst.Length);
         }
     }
 
@@ -132,9 +138,12 @@ internal partial class NsdParser
     private Token<TokenType> ReadNameIdentifier()
     {
         Token<TokenType> identifier = ReadToken(TokenType.Identifier);
-        if (identifier.Value.Contains('.'))
+        if (identifier.Value.IndexOf('.') >= 0)
         {
-            throw new NsdException(string.Format("Expected a name but found a namespace: \"{0}\".", identifier.Value));
+            throw new NsdException(
+                string.Format("Expected a name but found a namespace: \"{0}\".", identifier.Value),
+                identifier.Position,
+                identifier.Length);
         }
 
         return identifier;
@@ -179,7 +188,7 @@ internal partial class NsdParser
             CloseBrace();
         }
 
-        var typeDefinition = new TypeDefinition(keyword.Value, identifier.Value, valueDefinitions.ToArray());
+        var typeDefinition = new TypeDefinition(keyword.Value, identifier.Value, valueDefinitions.ToArray(), identifier.Position, identifier.Length);
         _typeDefinitions.Add(typeDefinition);
         return true;
     }
@@ -205,13 +214,16 @@ internal partial class NsdParser
             }
             else
             {
-                throw new NsdException(string.Format("Enum values must be integers ranging {0} to {1} ({2}).", int.MinValue, int.MaxValue, identifier.Value));
+                throw new NsdException(
+                    string.Format("Enum values must be integers ranging {0} to {1} ({2}).", int.MinValue, int.MaxValue, identifier.Value),
+                    assignment.Position,
+                    assignment.Length);
             }
         }
 
         Terminate();
 
-        fieldDefinition = new FieldDefinition(FieldType.None, null, identifier.Value, value, false, false);
+        fieldDefinition = new FieldDefinition(FieldType.None, null, identifier.Value, value, false, false, identifier.Position, identifier.Length);
         return true;
     }
 
@@ -254,7 +266,7 @@ internal partial class NsdParser
             CloseBrace();
         }
 
-        var typeDefinition = new TypeDefinition(keyword.Value, identifier.Value, fieldDefinitions.ToArray());
+        var typeDefinition = new TypeDefinition(keyword.Value, identifier.Value, fieldDefinitions.ToArray(), identifier.Position, identifier.Length);
         _typeDefinitions.Add(typeDefinition);
         return true;
     }
@@ -278,7 +290,10 @@ internal partial class NsdParser
         hasWhitespace |= TryDiscardToken(TokenType.Whitespace);
         if (!hasWhitespace)
         {
-            throw new NsdException(string.Format("Expected ({0}) but found ({1}).", TokenType.Whitespace, _lookaheadFirst.Value));
+            throw new NsdException(
+                string.Format("Expected ({0}) but found ({1}).", TokenType.Whitespace, _lookaheadFirst.Value),
+                _lookaheadFirst.Position,
+                _lookaheadFirst.Length);
         }
 
         Token<TokenType> identifier = ReadNameIdentifier();
@@ -295,7 +310,10 @@ internal partial class NsdParser
             }
             else
             {
-                throw new NsdException(string.Format("Field ({2}) must be an integer ranging {0} to {1}.", ushort.MinValue, ushort.MaxValue, identifier.Value));
+                throw new NsdException(
+                    string.Format("Field ({2}) must be an integer ranging {0} to {1}.", ushort.MinValue, ushort.MaxValue, identifier.Value),
+                    assignment.Position,
+                    assignment.Length);
             }
         }
 
@@ -303,7 +321,7 @@ internal partial class NsdParser
 
         FieldType fieldType = token.Type == TokenType.Identifier ? FieldType.Unknown : FieldType.Primitive;
 
-        fieldDefinition = new FieldDefinition(fieldType, token.Value, identifier.Value, id, isOptional, isArray);
+        fieldDefinition = new FieldDefinition(fieldType, token.Value, identifier.Value, id, isOptional, isArray, identifier.Position, identifier.Length);
         return true;
     }
 
@@ -319,7 +337,10 @@ internal partial class NsdParser
             }
         }
 
-        throw new NsdException(string.Format("Unknown field token \"{0}\".", _lookaheadFirst.Value));
+        throw new NsdException(
+            string.Format("Unknown field token \"{0}\".", _lookaheadFirst.Value),
+            _lookaheadFirst.Position,
+            _lookaheadFirst.Length);
     }
 
     /// <summary>
@@ -356,10 +377,13 @@ internal partial class NsdParser
             case "include":
                 DiscardToken(TokenType.Whitespace);
                 var includeValue = ReadToken(TokenType.StringValue);
-                return new Token<TokenType>(TokenType.StringValue, includeValue.Value.Trim('"'));
+                return new Token<TokenType>(TokenType.StringValue, includeValue.Value.Trim('"'), includeValue.Position, includeValue.Length);
 
             default:
-                throw new NsdException(string.Format("Unknown identifier \"{0}\".", identifier.Value));
+                throw new NsdException(
+                    string.Format("Unknown identifier \"{0}\".", identifier.Value),
+                    identifier.Position,
+                    identifier.Length);
         }
     }
 
@@ -407,7 +431,9 @@ internal partial class NsdParser
                     fieldDefinition.Name,
                     currentValue,
                     fieldDefinition.IsOptional,
-                    fieldDefinition.IsArray
+                    fieldDefinition.IsArray,
+                    fieldDefinition.Position,
+                    fieldDefinition.Length
                 );
             }
         }
@@ -422,7 +448,7 @@ internal partial class NsdParser
             List<Exception> exceptions = new List<Exception>();
             foreach (Issue issue in issues.Where(x => x.Level == IssueLevel.Error))
             {
-                exceptions.Add(new NsdException(issue.Message));
+                exceptions.Add(new NsdException(issue.Message, issue.Position, issue.Length));
             }
 
             throw new NsdException("There were one or more syntax errors.", exceptions);
@@ -445,7 +471,10 @@ internal partial class NsdParser
 
             if (!readAny)
             {
-                throw new NsdException(string.Format("Encountered unexpected token: ({0}).", _lookaheadFirst.Value));
+                throw new NsdException(
+                    string.Format("Encountered unexpected token: ({0}).", _lookaheadFirst.Value),
+                    _lookaheadFirst.Position,
+                    _lookaheadFirst.Length);
             }
         }
     }

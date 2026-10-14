@@ -23,7 +23,7 @@ internal class TokenDefinition<T>
             return default;
         }
 
-        var token = new Token<T>(Type, match.Value);
+        var token = new Token<T>(Type, match.Value, startIndex, match.Length);
         return new Match<T>(true, match.Length, token);
     }
 }

@@ -5,7 +5,7 @@ name: release
 
 on:
   push:
-    tags: [ '*' ]
+    tags: [ '*', '!generators-v*' ]
 
 permissions:
   contents: write

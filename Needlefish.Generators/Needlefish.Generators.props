@@ -1,0 +1,17 @@
+<Project>
+
+  <!--
+    Declares the MSBuild properties and item metadata that the Needlefish source generator
+    reads. Values are surfaced to the generator through the compiler's analyzer config.
+
+    Global option:      <NeedlefishPartial>true</NeedlefishPartial>
+    Per-file override:  <NsdFiles Include="Models/AddressBook.nsd" NeedlefishPartial="true" />
+  -->
+
+  <ItemGroup>
+    <CompilerVisibleProperty Include="NeedlefishPartial" />
+    <CompilerVisibleProperty Include="AllowUnsafeBlocks" />
+    <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="NeedlefishPartial" />
+  </ItemGroup>
+
+</Project>

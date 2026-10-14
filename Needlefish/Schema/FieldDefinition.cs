@@ -11,7 +11,22 @@ public readonly struct FieldDefinition
     public bool IsOptional { get; }
     public bool IsArray { get; }
 
-    public FieldDefinition(FieldType type, string? typeName, string name, int? value, bool isOptional, bool isArray)
+    /// <summary>
+    /// 0-based character offset of the field name in the source, or -1 when unknown.
+    /// </summary>
+    public int Position { get; }
+
+    public int Length { get; }
+
+    public FieldDefinition(
+        FieldType type,
+        string? typeName,
+        string name,
+        int? value,
+        bool isOptional,
+        bool isArray,
+        int position = -1,
+        int length = 0)
     {
         Type = type;
         TypeName = typeName;
@@ -19,6 +34,8 @@ public readonly struct FieldDefinition
         Value = value;
         IsOptional = isOptional;
         IsArray = isArray;
+        Position = position;
+        Length = length;
     }
 
     public string GetFullyQualifiedType()

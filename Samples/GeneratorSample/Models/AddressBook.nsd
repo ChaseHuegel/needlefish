@@ -1,0 +1,13 @@
+#version 1.0;
+#namespace Samples.GeneratorSample;
+
+message Person
+{
+    int Id;
+    string Name;
+}
+
+message AddressBook
+{
+    Person[] People;
+}

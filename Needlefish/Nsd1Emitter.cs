@@ -62,6 +62,59 @@ public class Nsd1Emitter
         }
     }
 
+    /// <summary>
+    /// Compiles an nsd source, returning diagnostics instead of throwing when the source is invalid.
+    /// </summary>
+    public NsdEmitResult TryEmit(string name, string source)
+    {
+        lock (_lock)
+        {
+            var diagnostics = new List<NsdDiagnostic>();
+
+            try
+            {
+                List<Token<TokenType>> tokens = _lexer.Lex(source);
+                Nsd nsd = _parser.Parse(tokens);
+                return new NsdEmitResult(_compiler.Compile(nsd, name), Array.Empty<NsdDiagnostic>());
+            }
+            catch (LexException lexException)
+            {
+                diagnostics.Add(new NsdDiagnostic(lexException.Message, NsdDiagnosticLevel.Error, lexException.Position, lexException.Length));
+            }
+            catch (NsdException nsdException)
+            {
+                CollectDiagnostics(nsdException, diagnostics);
+            }
+            catch (FormatException formatException)
+            {
+                diagnostics.Add(new NsdDiagnostic(formatException.Message));
+            }
+
+            return new NsdEmitResult(null, diagnostics.ToArray());
+        }
+    }
+
+    private static void CollectDiagnostics(NsdException exception, List<NsdDiagnostic> diagnostics)
+    {
+        if (exception.InnerExceptions.Count == 0)
+        {
+            diagnostics.Add(new NsdDiagnostic(exception.Message, NsdDiagnosticLevel.Error, exception.Position, exception.Length));
+            return;
+        }
+
+        foreach (Exception innerException in exception.InnerExceptions)
+        {
+            if (innerException is NsdException innerNsdException)
+            {
+                CollectDiagnostics(innerNsdException, diagnostics);
+            }
+            else
+            {
+                diagnostics.Add(new NsdDiagnostic(innerException.Message));
+            }
+        }
+    }
+
     public string[] Emit(Source[] sources)
     {
         string[] results = new string[sources.Length];

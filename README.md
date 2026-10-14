@@ -90,3 +90,40 @@ Once you have `.nsd` files, you need to generate the code to reference, read, an
     > nsdc -r -i $SRC -o $OUTPUT
 
 This will generate `.cs` source code files in the specified output directory which can be added to a C# project to be compiled.
+
+## Source Generator
+C# projects that don't commit generated source can reference the `Needlefish.Generators` package and let the compiler generate the types instead of running `nsdc` as a build step.
+
+```xml
+<ItemGroup>
+  <PackageReference Include="Needlefish.Generators" Version="1.0.0" />
+</ItemGroup>
+```
+
+The package discovers `**/*.nsd` files in the project automatically and generates the same types as `nsdc` during compilation. There is no separate generation step, and editing an `.nsd` file updates IntelliSense without a rebuild. As with `nsdc` output, the project must target a `netstandard2.1`-compatible framework and set `<AllowUnsafeBlocks>true</AllowUnsafeBlocks>`.
+
+### Generator Options
+| Option | Default | Description |
+| --- | --- | --- |
+| `NeedlefishPartial` | `false` | Generates types with the `partial` keyword. |
+
+Set an option project-wide with an MSBuild property:
+
+```xml
+<PropertyGroup>
+  <NeedlefishPartial>true</NeedlefishPartial>
+</PropertyGroup>
+```
+
+Set an option for a single file with metadata on an `NsdFiles` item:
+
+```xml
+<ItemGroup>
+  <NsdFiles Include="Models/AddressBook.nsd" NeedlefishPartial="false" />
+</ItemGroup>
+```
+
+To disable automatic discovery and manage the file list yourself, set `<NeedlefishEnableDefaultItems>false</NeedlefishEnableDefaultItems>` and add the files to `AdditionalFiles`.
+
+### Migrating from nsdc
+Remove any build step that invokes `nsdc` and delete checked-in generated source files, otherwise the same types will be defined twice.

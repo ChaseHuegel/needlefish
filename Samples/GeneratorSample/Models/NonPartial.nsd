@@ -1,0 +1,8 @@
+#version 1.0;
+#namespace Samples.GeneratorSample;
+
+message Point
+{
+    int X;
+    int Y;
+}

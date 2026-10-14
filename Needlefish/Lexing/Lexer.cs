@@ -58,6 +58,9 @@ internal class Lexer<T>
             }
         }
 
-        throw new FormatException($"Encountered unknown Token at ln ({lineCounter}), col ({currentIndex - currentLineIndex + 1}).");
+        throw new LexException(
+            $"Encountered unknown Token at ln ({lineCounter}), col ({currentIndex - currentLineIndex + 1}).",
+            currentIndex,
+            1);
     }
 }

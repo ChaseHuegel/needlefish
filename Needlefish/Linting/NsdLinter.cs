@@ -21,7 +21,7 @@ internal class NsdLinter
         {
             if (field.Type == FieldType.Unknown)
             {
-                issues.Add(new Issue(string.Format("Unknown type ({0}) for field ({1}). Is there a missing include?", field.TypeName, field.Name)));
+                issues.Add(new Issue(string.Format("Unknown type ({0}) for field ({1}). Is there a missing include?", field.TypeName, field.Name), position: field.Position, length: field.Length));
             }
         }
     }
@@ -35,7 +35,7 @@ internal class NsdLinter
             for (int duplicateIndex = 0; duplicateIndex < duplicates.Length; duplicateIndex++)
             {
                 FieldDefinition duplicate = duplicates[duplicateIndex];
-                issues.Add(new Issue(string.Format("Duplicate field value. TypeName: ({0}), Field: ({1}), Value: ({2}).", type.Name, duplicate.Name, duplicate.Value)));
+                issues.Add(new Issue(string.Format("Duplicate field value. TypeName: ({0}), Field: ({1}), Value: ({2}).", type.Name, duplicate.Name, duplicate.Value), position: duplicate.Position, length: duplicate.Length));
             }
         }
     }
@@ -49,7 +49,7 @@ internal class NsdLinter
             for (int i = 0; i < duplicates.Length; i++)
             {
                 FieldDefinition fieldDuplicate = duplicates[i];
-                issues.Add(new Issue(string.Format("Duplicate field. TypeName: ({0}), Field: ({1}).", type.Name, fieldDuplicate.Name)));
+                issues.Add(new Issue(string.Format("Duplicate field. TypeName: ({0}), Field: ({1}).", type.Name, fieldDuplicate.Name), position: fieldDuplicate.Position, length: fieldDuplicate.Length));
             }
         }
     }
@@ -61,17 +61,17 @@ internal class NsdLinter
             FieldDefinition field = type.FieldDefinitions[i];
             if (field.TypeName != null)
             {
-                issues.Add(new Issue(string.Format("Enums may not contain typed fields. Enum: ({0}), Value: ({1}).", type.Name, field.Name)));
+                issues.Add(new Issue(string.Format("Enums may not contain typed fields. Enum: ({0}), Value: ({1}).", type.Name, field.Name), position: field.Position, length: field.Length));
             }
 
             if (field.IsOptional)
             {
-                issues.Add(new Issue(string.Format("Enums fields may not be optional. Enum: ({0}), Value: ({1}).", type.Name, field.Name)));
+                issues.Add(new Issue(string.Format("Enums fields may not be optional. Enum: ({0}), Value: ({1}).", type.Name, field.Name), position: field.Position, length: field.Length));
             }
 
             if (field.IsArray)
             {
-                issues.Add(new Issue(string.Format("Enums fields may not be arrays. Enum: ({0}), Value: ({1}).", type.Name, field.Name)));
+                issues.Add(new Issue(string.Format("Enums fields may not be arrays. Enum: ({0}), Value: ({1}).", type.Name, field.Name), position: field.Position, length: field.Length));
             }
         }
     }
@@ -104,7 +104,7 @@ internal class NsdLinter
             for (int i = 0; i < duplicates.Length; i++)
             {
                 TypeDefinition typeDuplicate = duplicates[i];
-                issues.Add(new Issue(string.Format("Duplicate type. TypeName: ({0}).", typeDuplicate.Name)));
+                issues.Add(new Issue(string.Format("Duplicate type. TypeName: ({0}).", typeDuplicate.Name), position: typeDuplicate.Position, length: typeDuplicate.Length));
             }
         }
     }

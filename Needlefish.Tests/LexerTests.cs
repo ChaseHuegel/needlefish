@@ -135,8 +135,9 @@ public class LexerTests
     [Test]
     public void UnknownTokenThrows()
     {
-        FormatException ex = Assert.Throws<FormatException>(() => LexerFactory.Lex(UnknownTokenNsd));
+        LexException ex = Assert.Throws<LexException>(() => LexerFactory.Lex(UnknownTokenNsd));
 
         Assert.That(ex.Message, Contains.Substring("ln (1), col (3)"));
+        Assert.That(ex.Position, Is.EqualTo(2));
     }
 }

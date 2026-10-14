@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\..\Needlefish.Generators\Needlefish.Generators.props" />
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>Latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <NeedlefishPartial>true</NeedlefishPartial>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!--
+      The generator (and its dependency) must be passed to the compiler as analyzers. NuGet
+      packages do this automatically for every DLL in analyzers/dotnet/cs; for project
+      references each assembly needs OutputItemType="Analyzer".
+    -->
+    <ProjectReference Include="..\..\Needlefish.Generators\Needlefish.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\..\Needlefish\Needlefish.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <!-- Per-file option overrides the project-wide NeedlefishPartial setting. -->
+  <ItemGroup>
+    <NsdFiles Include="Models\NonPartial.nsd" NeedlefishPartial="false" />
+  </ItemGroup>
+
+  <Import Project="..\..\Needlefish.Generators\Needlefish.Generators.targets" />
+
+</Project>

@@ -1,0 +1,29 @@
+<Project>
+
+  <!--
+    Discovers .nsd files automatically and forwards them to the compiler as AdditionalFiles so
+    the source generator (and the IDE) can see them.
+
+    Explicitly listed NsdFiles items are kept as-is and the default glob fills in the rest, so
+    per-file options can be declared as:
+      <NsdFiles Include="Models/AddressBook.nsd" NeedlefishPartial="true" />
+
+    Opt out of the default discovery with:
+      <NeedlefishEnableDefaultItems>false</NeedlefishEnableDefaultItems>
+    and add files to AdditionalFiles manually, or configure them through the NsdFiles item type.
+  -->
+
+  <PropertyGroup>
+    <NeedlefishEnableDefaultItems Condition="'$(NeedlefishEnableDefaultItems)' == ''">true</NeedlefishEnableDefaultItems>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(NeedlefishEnableDefaultItems)' == 'true'">
+    <_NeedlefishExplicitNsdFiles Include="@(NsdFiles)" />
+    <NsdFiles Include="**/*.nsd" Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder);@(_NeedlefishExplicitNsdFiles)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="@(NsdFiles)" />
+  </ItemGroup>
+
+</Project>

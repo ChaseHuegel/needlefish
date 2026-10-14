@@ -1,0 +1,38 @@
+# Packs and publishes the Needlefish.Generators source generator package.
+# Triggered by tags like generators-v1.0.0, or manually with an explicit version.
+
+name: publish nuget
+
+on:
+  push:
+    tags: [ 'generators-v*' ]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Package version (for example 1.0.0)
+        required: true
+
+jobs:
+  publish:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 10.0.x
+    - name: Resolve version
+      id: version
+      shell: bash
+      run: |
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          echo "value=${{ github.event.inputs.version }}" >> "$GITHUB_OUTPUT"
+        else
+          echo "value=${GITHUB_REF_NAME#generators-v}" >> "$GITHUB_OUTPUT"
+        fi
+    - name: Pack
+      run: dotnet pack Needlefish.Generators/Needlefish.Generators.csproj -c Release -p:Version=${{ steps.version.outputs.value }} -o ./artifacts
+    - name: Push to NuGet
+      run: dotnet nuget push ./artifacts/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
