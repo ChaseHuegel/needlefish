@@ -13,7 +13,7 @@ The Needlefish Schema Definition Compiler ("nsdc") is a CLI tool that consumes n
 - Nsdc currently only emits C# code. Other languages may become supported if the need comes up.
 - Nsdc for C# only emits structs but there are plans to introduce a flag to emit classes.
 - Generated C# code has no external dependencies but must be placed into a project that is `netstandard2.1` compatible and allows `unsafe` codeblocks.
-- Included files are compiled on their own and must be part of the compilation, meaning every `.nsd` file under the nsdc input path and every `.nsd` file in a generator project. Types from other namespaces are emitted as fully qualified references.
+- Included files are compiled on their own and must be part of the compilation, meaning every `.nsd` file under the nsdc input path and every `.nsd` file in a generator project.
 - Nsdc may support reading and/or writing other data formats in the future (ex: xml, json).
 - The format trades compression for speed but it aims to not expand your data. When using nsd for storage, the size on disk will be close to the size in memory and smaller than human-readable formats such as JSON or XML.
 
@@ -34,7 +34,7 @@ The `.nsd` file also begins with a namespace declaration to prevent conflicts be
 #namespace Samples.Nsd;
 ```
 
-A file can make the types of another file visible with an include declaration. Include paths are resolved relative to the file that declares them:
+A file can include the types of other files. Include paths are resolved relative to the file that declares them, and includes are transitive:
 
 ```
 #version 1.0;
@@ -42,24 +42,7 @@ A file can make the types of another file visible with an include declaration. I
 #include "PhoneTypes.nsd";
 ```
 
-Included files are compiled on their own, so they declare their own `#version` and `#namespace`, and includes are transitive. An include only makes the included types visible; the generated code of a file still contains only the types that file declares. A field whose type is not declared by the file or one of its includes is an error, as are missing includes and include cycles.
-
-Included types may live in another namespace. An unqualified field type resolves to the current namespace first, and otherwise must be unique across everything the file includes; cross-namespace types are emitted with fully qualified references:
-
-```
-#version 1.0;
-#namespace Samples.Nsd;
-#include "PhoneTypes.nsd";
-
-message Person
-{
-    string Name;
-    PhoneNumber Phone;
-    Samples.Common.Address Address;
-}
-```
-
-When two included files declare the same type name in different namespaces, qualify the reference with the namespace that declares it (`Namespace.Type`, using the full namespace for dotted namespaces). An unqualified reference to a name declared in multiple namespaces is reported as ambiguous.
+Includes are not inlined: each file is compiled on its own, an include only makes types visible to the including file, and included files must be part of the compilation. Types declared in other namespaces are generated as fully qualified references; a name declared in multiple included namespaces can be disambiguated as `Namespace.Type`.
 
 Next is the type definitions:
 - A message contains a set of typed fields and it supports most primitive data types, such as `bool`, `int`, `long` `float`, `double`, and `string`. You can also use other defined types as field types.
