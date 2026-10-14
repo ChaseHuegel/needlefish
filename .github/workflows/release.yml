@@ -1,0 +1,41 @@
+# This workflow creates a GitHub release whenever a tag is pushed.
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
+
+name: release
+
+on:
+  push:
+    tags: [ '*' ]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+    - name: Publish Windows
+      run: dotnet publish -c Release -r win-x64
+    - name: Publish Linux
+      run: dotnet publish -c Release -r linux-x64
+    - name: Package artifacts
+      run: |
+        cd Needlefish.Compiler/bin/Release/net7.0/win-x64/publish
+        zip -r "$GITHUB_WORKSPACE/nsdc_windows.zip" .
+        cd ../../linux-x64/publish
+        zip -r "$GITHUB_WORKSPACE/nsdc_linux.zip" .
+    - name: Create release
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        gh release create "$GITHUB_REF_NAME" \
+          --title "$GITHUB_REF_NAME" \
+          --generate-notes \
+          nsdc_windows.zip nsdc_linux.zip
