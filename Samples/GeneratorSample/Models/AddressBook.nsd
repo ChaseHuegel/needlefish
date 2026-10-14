@@ -1,10 +1,12 @@
 #version 1.0;
 #namespace Samples.GeneratorSample;
+#include "PhoneTypes.nsd";
 
 message Person
 {
     int Id;
     string Name;
+    PhoneNumber? Phone;
 }
 
 message AddressBook

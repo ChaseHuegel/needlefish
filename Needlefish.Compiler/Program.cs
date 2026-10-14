@@ -1,5 +1,7 @@
 ﻿using System.CommandLine;
 using Needlefish;
+using Needlefish.Compiler;
+using Needlefish.Schema;
 
 var inputOption = new Option<DirectoryInfo?>(
             name: "--input",
@@ -28,7 +30,9 @@ rootCommand.AddOption(partialOption);
 
 rootCommand.SetHandler(Compile, inputOption, outputOption, recursiveOption, partialOption);
 
-return await rootCommand.InvokeAsync(args);
+await rootCommand.InvokeAsync(args);
+
+return Environment.ExitCode;
 
 void Compile(DirectoryInfo? inputDir, DirectoryInfo? outputDir, bool recursive, bool partial)
 {
@@ -62,20 +66,48 @@ void Compile(DirectoryInfo? inputDir, DirectoryInfo? outputDir, bool recursive, 
     {
         CompilerOptions = compilerOptions
     };
-    
-    Nsd1Emitter generator = new(options);
 
-    var sources = nsdFiles.Select(x => new KeyValuePair<string, string>(Path.GetFileNameWithoutExtension(x), File.ReadAllText(x))).ToArray();
+    Nsd1Emitter generator = new(options);
+    var resolver = new FileSystemNsdFileResolver();
+    string[] rootPaths = nsdFiles.Select(NsdPaths.Normalize).ToArray();
+
+    var diagnostics = new DiagnosticConsole();
+    bool hasErrors = false;
 
     Directory.CreateDirectory(outputPath);
 
-    foreach (var source in sources)
+    foreach (string filePath in nsdFiles)
     {
-        string result = generator.Emit(source.Key, source.Value);
+        string canonicalPath = NsdPaths.Normalize(filePath);
+        string content = File.ReadAllText(canonicalPath);
+        diagnostics.Register(canonicalPath, content);
 
-        string filePath = Path.Combine(outputPath, source.Key + ".cs");
-        File.WriteAllText(filePath, result);
+        string name = Path.GetFileNameWithoutExtension(canonicalPath);
+        NsdEmitResult result = generator.TryEmit(canonicalPath, content, resolver, rootPaths, name);
 
-        Console.WriteLine($"Generated: {Path.GetRelativePath(Environment.CurrentDirectory, filePath)}");
+        foreach (NsdDiagnostic diagnostic in result.Diagnostics)
+        {
+            diagnostics.Report(diagnostic);
+
+            if (diagnostic.Level == NsdDiagnosticLevel.Error)
+            {
+                hasErrors = true;
+            }
+        }
+
+        if (result.Source == null)
+        {
+            continue;
+        }
+
+        string filePathOut = Path.Combine(outputPath, name + ".cs");
+        File.WriteAllText(filePathOut, result.Source);
+
+        Console.WriteLine($"Generated: {Path.GetRelativePath(Environment.CurrentDirectory, filePathOut)}");
+    }
+
+    if (hasErrors)
+    {
+        Environment.ExitCode = 1;
     }
 }

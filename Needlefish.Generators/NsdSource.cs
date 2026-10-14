@@ -4,6 +4,7 @@ using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
+using Needlefish.Schema;
 
 namespace Needlefish.Generators;
 
@@ -31,6 +32,8 @@ internal sealed class NsdSource : IEquatable<NsdSource?>
         ? StringComparison.OrdinalIgnoreCase
         : StringComparison.Ordinal;
 
+    private readonly SourceText?[] _diagnosticTexts;
+
     public string HintName { get; }
 
     public string FilePath { get; }
@@ -46,17 +49,20 @@ internal sealed class NsdSource : IEquatable<NsdSource?>
         string filePath,
         SourceText? text,
         string? source,
-        GeneratorDiagnostic[] diagnostics)
+        GeneratorDiagnostic[] diagnostics,
+        SourceText?[] diagnosticTexts)
     {
         HintName = hintName;
         FilePath = filePath;
         Text = text;
         Source = source;
         Diagnostics = diagnostics;
+        _diagnosticTexts = diagnosticTexts;
     }
 
     public static NsdSource Create(
         AdditionalText file,
+        NsdFileTable fileTable,
         AnalyzerConfigOptionsProvider options,
         CancellationToken cancellationToken)
     {
@@ -64,6 +70,7 @@ internal sealed class NsdSource : IEquatable<NsdSource?>
         string content = text?.ToString() ?? string.Empty;
 
         var diagnostics = new List<GeneratorDiagnostic>();
+        var diagnosticTexts = new List<SourceText?>();
         var compilerOptions = new CompilerOptions();
 
         if (TryReadBoolOption(file, options, PartialOptionName, PartialPropertyKey, PartialMetadataKey, diagnostics, out bool partial))
@@ -81,18 +88,26 @@ internal sealed class NsdSource : IEquatable<NsdSource?>
                 "The Needlefish generator emits unsafe serialization code. Set <AllowUnsafeBlocks>true</AllowUnsafeBlocks> in the project."));
         }
 
+        while (diagnosticTexts.Count < diagnostics.Count)
+        {
+            diagnosticTexts.Add(null);
+        }
+
         string? relativePath = GetRelativePath(file.Path, options);
+        string canonicalPath = NsdPaths.Normalize(file.Path);
 
         NsdEmitResult result = new Nsd1Emitter(new EmitterOptions
         {
             CompilerOptions = compilerOptions,
-        }).TryEmit(GetDisplayName(file.Path, relativePath), content);
+        }).TryEmit(canonicalPath, content, fileTable, fileTable.RootPaths, GetDisplayName(file.Path, relativePath));
 
         foreach (NsdDiagnostic diagnostic in result.Diagnostics)
         {
             diagnostics.Add(diagnostic.Level == NsdDiagnosticLevel.Error
-                ? GeneratorDiagnostic.Error(NsdDiagnostics.NsdErrorId, diagnostic.Message, diagnostic.Position, diagnostic.Length)
-                : GeneratorDiagnostic.Warning(NsdDiagnostics.NsdWarningId, diagnostic.Message, diagnostic.Position, diagnostic.Length));
+                ? GeneratorDiagnostic.Error(NsdDiagnostics.NsdErrorId, diagnostic.Message, diagnostic.Position, diagnostic.Length, diagnostic.FilePath)
+                : GeneratorDiagnostic.Warning(NsdDiagnostics.NsdWarningId, diagnostic.Message, diagnostic.Position, diagnostic.Length, diagnostic.FilePath));
+
+            diagnosticTexts.Add(diagnostic.FilePath is null ? text : fileTable.GetSourceText(diagnostic.FilePath));
         }
 
         return new NsdSource(
@@ -100,14 +115,19 @@ internal sealed class NsdSource : IEquatable<NsdSource?>
             file.Path,
             text,
             result.Source,
-            diagnostics.ToArray());
+            diagnostics.ToArray(),
+            diagnosticTexts.ToArray());
     }
 
     public void Emit(SourceProductionContext context)
     {
-        foreach (GeneratorDiagnostic diagnostic in Diagnostics)
+        for (int i = 0; i < Diagnostics.Length; i++)
         {
-            context.ReportDiagnostic(NsdDiagnostics.ToDiagnostic(diagnostic, FilePath, Text));
+            GeneratorDiagnostic diagnostic = Diagnostics[i];
+            string path = diagnostic.FilePath ?? FilePath;
+            SourceText? text = i < _diagnosticTexts.Length ? _diagnosticTexts[i] : Text;
+
+            context.ReportDiagnostic(NsdDiagnostics.ToDiagnostic(diagnostic, path, text));
         }
 
         if (Source != null)

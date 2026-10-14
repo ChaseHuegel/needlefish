@@ -30,6 +30,28 @@ internal class SourceGeneratorTests
         }
         """;
 
+    private const string SharedNsd = """
+        #version 1.0;
+        #namespace Test;
+
+        message Order
+        {
+            int Id;
+        }
+        """;
+
+    private const string UsesSharedNsd = """
+        #version 1.0;
+        #namespace Test;
+
+        #include "Shared.nsd";
+
+        message Invoice
+        {
+            Order Order;
+        }
+        """;
+
     private const string SYNTAX_ERROR_NSD = """
         #version 1.0;
         #namespace Test;
@@ -43,14 +65,14 @@ internal class SourceGeneratorTests
     [Test]
     public void GeneratesSameSourceAsNsdc()
     {
-        string expected = new Nsd1Emitter(new EmitterOptions()).Emit("LexerTests.ValidNsd", LexerTests.VALID_NSD);
+        string expected = new Nsd1Emitter(new EmitterOptions()).Emit("Types", TypesNsd);
 
-        GeneratorDriverRunResult result = Run(new[] { new TestFile("/project/LexerTests.ValidNsd.nsd", LexerTests.VALID_NSD) });
+        GeneratorDriverRunResult result = Run(new[] { new TestFile("/project/Types.nsd", TypesNsd) });
 
         Assert.That(result.Diagnostics, Is.Empty);
 
         GeneratedSourceResult source = result.Results[0].GeneratedSources.Single();
-        Assert.That(source.HintName, Is.EqualTo("LexerTests.ValidNsd.g.cs"));
+        Assert.That(source.HintName, Is.EqualTo("Types.g.cs"));
         Assert.That(source.SourceText.ToString(), Is.EqualTo(expected));
     }
 
@@ -159,6 +181,142 @@ internal class SourceGeneratorTests
     }
 
     [Test]
+    public void IncludedTypesAreResolvedAcrossAdditionalFiles()
+    {
+        GeneratorDriverRunResult result = Run(new[]
+        {
+            new TestFile("/project/UsesShared.nsd", UsesSharedNsd),
+            new TestFile("/project/Shared.nsd", SharedNsd),
+        });
+
+        Assert.That(result.Diagnostics, Is.Empty);
+
+        string invoice = result.Results[0].GeneratedSources.Single(s => s.HintName == "UsesShared.g.cs").SourceText.ToString();
+        StringAssert.Contains("public Order Order;", invoice);
+        StringAssert.DoesNotContain("struct Order", invoice);
+
+        string order = result.Results[0].GeneratedSources.Single(s => s.HintName == "Shared.g.cs").SourceText.ToString();
+        StringAssert.Contains("struct Order", order);
+    }
+
+    [Test]
+    public void IncludedEnumAffectsGeneratedCode()
+    {
+        const string shared = """
+            #version 1.0;
+            #namespace Test;
+
+            enum Status { Active; Disabled; }
+            """;
+
+        const string uses = """
+            #version 1.0;
+            #namespace Test;
+
+            #include "Shared.nsd";
+
+            message Record
+            {
+                Status[] Values;
+            }
+            """;
+
+        GeneratorDriverRunResult result = Run(new[]
+        {
+            new TestFile("/project/Uses.nsd", uses),
+            new TestFile("/project/Shared.nsd", shared),
+        });
+
+        Assert.That(result.Diagnostics, Is.Empty);
+
+        string source = result.Results[0].GeneratedSources.Single(s => s.HintName == "Uses.g.cs").SourceText.ToString();
+        StringAssert.Contains("(Values.Length * enumLen)", source);
+    }
+
+    [Test]
+    public void MissingIncludeReportsDiagnosticAtDirective()
+    {
+        GeneratorDriverRunResult result = Run(new[] { new TestFile("/project/UsesShared.nsd", UsesSharedNsd) });
+
+        // The missing include is reported where it is written...
+        Diagnostic directiveDiagnostic = result.Diagnostics.Single(d =>
+            d.Location.GetLineSpan().Path == "/project/UsesShared.nsd"
+            && d.Location.GetLineSpan().StartLinePosition.Line == 3);
+        FileLinePositionSpan span = directiveDiagnostic.Location.GetLineSpan();
+        Assert.That(directiveDiagnostic.Id, Is.EqualTo("NSD1001"));
+        Assert.That(span.StartLinePosition.Character, Is.EqualTo(9));
+        StringAssert.Contains("Shared.nsd", directiveDiagnostic.GetMessage());
+
+        // ...and the field type it was supposed to provide is unknown.
+        Assert.That(result.Diagnostics.Any(d => d.GetMessage().Contains("Unknown type (Order)")), Is.True);
+        Assert.That(result.Results[0].GeneratedSources, Is.Empty);
+    }
+
+    [Test]
+    public void ErrorsInIncludedFileAreReportedAtBothLocations()
+    {
+        const string broken = """
+            #version 1.0;
+            #namespace Test;
+
+            message Order
+            {
+                int x
+            }
+            """;
+
+        GeneratorDriverRunResult result = Run(new[]
+        {
+            new TestFile("/project/UsesShared.nsd", UsesSharedNsd),
+            new TestFile("/project/Shared.nsd", broken),
+        });
+
+        // The problem in the included file is reported for that file.
+        Diagnostic includedError = result.Diagnostics.Single(d =>
+            d.Id == "NSD1001" && d.Location.GetLineSpan().Path == "/project/Shared.nsd");
+        Assert.That(includedError.Location.GetLineSpan().StartLinePosition.Line, Is.EqualTo(6));
+
+        // The includer reports that the include could not be compiled.
+        Diagnostic includerError = result.Diagnostics.First(d =>
+            d.Location.GetLineSpan().Path == "/project/UsesShared.nsd"
+            && d.GetMessage().Contains("Shared.nsd"));
+        StringAssert.Contains("Shared.nsd", includerError.GetMessage());
+
+        Assert.That(result.Results[0].GeneratedSources, Is.Empty);
+    }
+
+    [Test]
+    public void EditingIncludedFileReevaluatesDependents()
+    {
+        var uses = new TestFile("/project/UsesShared.nsd", UsesSharedNsd);
+        var shared = new TestFile("/project/Shared.nsd", SharedNsd);
+
+        ImmutableArray<AdditionalText> additionalTexts = CreateAdditionalTexts(new[] { uses, shared });
+        CSharpGeneratorDriver driver = CreateDriver(additionalTexts, new[] { uses, shared }, null);
+
+        driver = (CSharpGeneratorDriver)driver.RunGenerators(CreateCompilation());
+
+        var updatedText = new InMemoryAdditionalText(
+            shared.Path,
+            SharedNsd.Replace("int Id;", "int Id; string Name;", StringComparison.Ordinal));
+
+        driver = (CSharpGeneratorDriver)driver.ReplaceAdditionalText(additionalTexts[1], updatedText);
+        driver = (CSharpGeneratorDriver)driver.RunGenerators(CreateCompilation());
+        GeneratorDriverRunResult result = driver.GetRunResult();
+
+        IncrementalStepRunReason[] reasons = result.Results[0].TrackedSteps["NsdSource"]
+            .SelectMany(step => step.Outputs)
+            .Select(output => output.Reason)
+            .ToArray();
+
+        // Both roots are re-evaluated against the updated include graph; only the edited file
+        // produces different output.
+        Assert.That(reasons.Length, Is.EqualTo(2));
+        Assert.That(reasons.Count(reason => reason == IncrementalStepRunReason.Modified), Is.EqualTo(1));
+        Assert.That(result.Diagnostics, Is.Empty);
+    }
+
+    [Test]
     public void NonNsdAdditionalFilesAreIgnored()
     {
         GeneratorDriverRunResult result = Run(new[] { new TestFile("/project/readme.txt", "not an nsd") });
@@ -212,7 +370,10 @@ internal class SourceGeneratorTests
         IncrementalStepRunReason[] reasons = steps.SelectMany(step => step.Outputs).Select(output => output.Reason).ToArray();
 
         Assert.That(reasons, Does.Contain(IncrementalStepRunReason.Modified));
-        Assert.That(reasons, Does.Contain(IncrementalStepRunReason.Cached));
+        Assert.That(
+            reasons.Count(reason => reason == IncrementalStepRunReason.Modified),
+            Is.EqualTo(1),
+            "only the changed file should produce different output");
         Assert.That(
             secondResult.Results[0].GeneratedSources.Select(s => s.HintName),
             Is.EquivalentTo(new[] { "First.g.cs", "Second.g.cs" }));

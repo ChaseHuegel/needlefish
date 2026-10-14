@@ -10,7 +10,16 @@ public static class Usage
         {
             People = new[]
             {
-                new Person { Id = 1, Name = "Ada" },
+                new Person
+                {
+                    Id = 1,
+                    Name = "Ada",
+                    Phone = new PhoneNumber
+                    {
+                        Number = "555-0100",
+                        Type = PhoneType.Mobile,
+                    },
+                },
             },
         };
 
@@ -19,6 +28,7 @@ public static class Usage
 
         var point = new Point { X = 3, Y = 4 };
 
-        return decoded.People.Length + point.X + point.Y;
+        PhoneNumber? phone = decoded.People[0].Phone;
+        return decoded.People.Length + point.X + point.Y + (phone?.Number.Length ?? 0);
     }
 }

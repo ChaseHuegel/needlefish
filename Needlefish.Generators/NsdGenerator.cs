@@ -20,11 +20,17 @@ public sealed class NsdGenerator : IIncrementalGenerator
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        IncrementalValuesProvider<NsdSource> sources = context.AdditionalTextsProvider
-            .Collect()
-            .SelectMany(static (files, cancellationToken) => SelectNsdFiles(files, cancellationToken))
+        IncrementalValueProvider<ImmutableArray<AdditionalText>> files = context.AdditionalTextsProvider.Collect();
+
+        IncrementalValueProvider<NsdFileTable> fileTable = files
+            .Select(static (texts, cancellationToken) => NsdFileTable.Create(texts, cancellationToken))
+            .WithTrackingName("NsdFileTable");
+
+        IncrementalValuesProvider<NsdSource> sources = files
+            .SelectMany(static (texts, cancellationToken) => SelectNsdFiles(texts, cancellationToken))
+            .Combine(fileTable)
             .Combine(context.AnalyzerConfigOptionsProvider)
-            .Select(static (pair, cancellationToken) => NsdSource.Create(pair.Left, pair.Right, cancellationToken))
+            .Select(static (pair, cancellationToken) => NsdSource.Create(pair.Left.Left, pair.Left.Right, pair.Right, cancellationToken))
             .WithTrackingName("NsdSource");
 
         context.RegisterSourceOutput(sources, static (productionContext, source) => source.Emit(productionContext));

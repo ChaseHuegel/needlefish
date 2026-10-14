@@ -13,7 +13,7 @@ The Needlefish Schema Definition Compiler ("nsdc") is a CLI tool that consumes n
 - Nsdc currently only emits C# code. Other languages may become supported if the need comes up.
 - Nsdc for C# only emits structs but there are plans to introduce a flag to emit classes.
 - Generated C# code has no external dependencies but must be placed into a project that is `netstandard2.1` compatible and allows `unsafe` codeblocks.
-- Nsdc will support include declarations in the future.
+- Included files are compiled on their own and must be part of the compilation, meaning every `.nsd` file under the nsdc input path and every `.nsd` file in a generator project. Includes across different namespaces are not supported.
 - Nsdc may support reading and/or writing other data formats in the future (ex: xml, json).
 - The format trades compression for speed but it aims to not expand your data. When using nsd for storage, the size on disk will be close to the size in memory and smaller than human-readable formats such as JSON or XML.
 
@@ -33,6 +33,16 @@ The `.nsd` file also begins with a namespace declaration to prevent conflicts be
 #version 1.0;
 #namespace Samples.Nsd;
 ```
+
+A file can make the types of another file visible with an include declaration. Include paths are resolved relative to the file that declares them:
+
+```
+#version 1.0;
+#namespace Samples.Nsd;
+#include "PhoneTypes.nsd";
+```
+
+Included files are compiled on their own, so they declare their own `#version` and `#namespace`, and includes are transitive. A file and everything it includes must declare the same namespace. An include only makes the included types visible; the generated code of a file still contains only the types that file declares. A field whose type is not declared by the file or one of its includes is an error, as are missing includes, include cycles, and namespaces that differ from the including file.
 
 Next is the type definitions:
 - A message contains a set of typed fields and it supports most primitive data types, such as `bool`, `int`, `long` `float`, `double`, and `string`. You can also use other defined types as field types.
@@ -100,7 +110,7 @@ C# projects that don't commit generated source can reference the `Needlefish.Gen
 </ItemGroup>
 ```
 
-The package discovers `**/*.nsd` files in the project automatically and generates the same types as `nsdc` during compilation. There is no separate generation step, and editing an `.nsd` file updates IntelliSense without a rebuild. As with `nsdc` output, the project must target a `netstandard2.1`-compatible framework and set `<AllowUnsafeBlocks>true</AllowUnsafeBlocks>`.
+The package discovers `**/*.nsd` files in the project automatically and generates the same types as `nsdc` during compilation. There is no separate generation step, and editing an `.nsd` file updates IntelliSense without a rebuild. Includes between project files work automatically; included files outside the default glob must be part of the project, for example through an explicit `NsdFiles` item. As with `nsdc` output, the project must target a `netstandard2.1`-compatible framework and set `<AllowUnsafeBlocks>true</AllowUnsafeBlocks>`.
 
 ### Generator Options
 | Option | Default | Description |

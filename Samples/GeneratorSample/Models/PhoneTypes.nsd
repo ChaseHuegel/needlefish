@@ -1,0 +1,15 @@
+#version 1.0;
+#namespace Samples.GeneratorSample;
+
+enum PhoneType
+{
+    Unknown;
+    Mobile;
+    Home;
+}
+
+message PhoneNumber
+{
+    string Number;
+    PhoneType Type;
+}

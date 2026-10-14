@@ -23,15 +23,23 @@ public readonly struct NsdDiagnostic
 
     public int Length { get; }
 
+    /// <summary>
+    /// The file the problem was found in, or <c>null</c> when it belongs to the file being
+    /// compiled.
+    /// </summary>
+    public string? FilePath { get; }
+
     public NsdDiagnostic(
         string message,
         NsdDiagnosticLevel level = NsdDiagnosticLevel.Error,
         int position = -1,
-        int length = 0)
+        int length = 0,
+        string? filePath = null)
     {
         Message = message;
         Level = level;
         Position = position;
         Length = length;
+        FilePath = filePath;
     }
 }

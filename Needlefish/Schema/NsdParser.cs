@@ -1,5 +1,4 @@
 using Needlefish.Lexing;
-using Needlefish.Linting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -357,7 +356,7 @@ internal partial class NsdParser
         Token<TokenType> value = ReadDefineValue(identifier);
         Terminate();
 
-        var define = new Define(identifier.Value, value.Value);
+        var define = new Define(identifier.Value, value.Value, value.Position, value.Length);
         _defines.Add(define);
         return true;
     }
@@ -390,69 +389,7 @@ internal partial class NsdParser
     private void CollectVersion()
     {
         Define versionDefinition = _defines.FirstOrDefault(define => define.Key == "version");
-        _version = versionDefinition.Value ?? throw new NsdException("Missing version definition.");
-    }
-
-    private void PostProcess()
-    {
-        for (int typeIndex = 0; typeIndex < _typeDefinitions.Count; typeIndex++)
-        {
-            TypeDefinition definition = _typeDefinitions[typeIndex];
-
-            int currentValue = -1;
-            for (int fieldIndex = 0; fieldIndex < definition.FieldDefinitions.Length; fieldIndex++)
-            {
-                //  Set field values, incrementing as we go.
-                FieldDefinition fieldDefinition = definition.FieldDefinitions[fieldIndex];
-                if (fieldDefinition.Value.HasValue)
-                {
-                    currentValue = fieldDefinition.Value.Value;
-                }
-                else
-                {
-                    currentValue++;
-                }
-
-                //  Identify fields that have enum or object types.
-                TypeDefinition fieldTypeDefinition = _typeDefinitions.FirstOrDefault(x => x.Name == fieldDefinition.TypeName);
-                FieldType type = fieldDefinition.Type;
-                if (fieldTypeDefinition.Keyword == "enum")
-                {
-                    type = FieldType.Enum;
-                }
-                else if (type == FieldType.Unknown)// if (!string.IsNullOrEmpty(fieldTypeDefinition.Keyword)) TODO re-introduce when supporting includes
-                {
-                    type = FieldType.Object;
-                }
-
-                definition.FieldDefinitions[fieldIndex] = new FieldDefinition(
-                    type,
-                    fieldDefinition.TypeName,
-                    fieldDefinition.Name,
-                    currentValue,
-                    fieldDefinition.IsOptional,
-                    fieldDefinition.IsArray,
-                    fieldDefinition.Position,
-                    fieldDefinition.Length
-                );
-            }
-        }
-    }
-
-    private void Validate()
-    {
-        Issue[] issues = NsdLinter.Lint(_defines, _typeDefinitions);
-
-        if (issues.Length > 0)
-        {
-            List<Exception> exceptions = new List<Exception>();
-            foreach (Issue issue in issues.Where(x => x.Level == IssueLevel.Error))
-            {
-                exceptions.Add(new NsdException(issue.Message, issue.Position, issue.Length));
-            }
-
-            throw new NsdException("There were one or more syntax errors.", exceptions);
-        }
+        _version = versionDefinition.Value;
     }
 
     private void ParseInternal()
@@ -479,7 +416,30 @@ internal partial class NsdParser
         }
     }
 
+    /// <summary>
+    /// Parses a single nsd document. Types declared in the document resolve its own field types;
+    /// include directives are collected but not resolved.
+    /// </summary>
     public Nsd Parse(List<Token<TokenType>> tokens)
+    {
+        Nsd raw = ParseRaw(tokens);
+
+        TypeDefinition[] resolvedTypes = NsdProcessor.ResolveTypeDefinitions(raw.TypeDefinitions, raw.TypeDefinitions);
+        NsdProcessor.ThrowOnIssues(raw.Defines, resolvedTypes);
+
+        if (string.IsNullOrEmpty(raw.Version))
+        {
+            throw new NsdException("Missing version definition.");
+        }
+
+        return new Nsd(raw.Version, raw.Defines, resolvedTypes);
+    }
+
+    /// <summary>
+    /// Parses a single nsd document without resolving field types. Used when the types declared by
+    /// included documents must be known before fields can be resolved.
+    /// </summary>
+    internal Nsd ParseRaw(List<Token<TokenType>> tokens)
     {
         if (tokens == null || tokens.Count == 0)
         {
@@ -496,17 +456,8 @@ internal partial class NsdParser
 
         ParseInternal();
 
-        PostProcess();
-
-        Validate();
-
         CollectVersion();
 
-        if (_version == null)
-        {
-            throw new NsdException("Missing version definition.");
-        }
-
-        return new Nsd(_version, _defines.ToArray(), _typeDefinitions.ToArray());
+        return new Nsd(_version ?? string.Empty, _defines.ToArray(), _typeDefinitions.ToArray());
     }
 }

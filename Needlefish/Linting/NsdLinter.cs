@@ -6,7 +6,7 @@ namespace Needlefish.Linting;
 
 internal class NsdLinter
 {
-    private static void ValidateVersion(List<Issue> issues, List<Define> defines)
+    private static void ValidateVersion(List<Issue> issues, IReadOnlyList<Define> defines)
     {
         Define versionDefinition = defines.FirstOrDefault(define => define.Key == "version");
         if (!float.TryParse(versionDefinition.Value, out _))
@@ -15,7 +15,7 @@ internal class NsdLinter
         }
     }
 
-    private static void ValidateFieldDefinitions(List<Issue> issues, List<TypeDefinition> typeDefinitions)
+    private static void ValidateFieldDefinitions(List<Issue> issues, IReadOnlyList<TypeDefinition> typeDefinitions)
     {
         foreach (FieldDefinition field in typeDefinitions.SelectMany(def => def.FieldDefinitions))
         {
@@ -76,7 +76,7 @@ internal class NsdLinter
         }
     }
 
-    private static void ValidateEnumDefinitions(List<Issue> issues, List<TypeDefinition> typeDefinitions)
+    private static void ValidateEnumDefinitions(List<Issue> issues, IReadOnlyList<TypeDefinition> typeDefinitions)
     {
         foreach (TypeDefinition type in typeDefinitions.Where(def => def.Keyword == "enum"))
         {
@@ -86,7 +86,7 @@ internal class NsdLinter
         }
     }
 
-    private static void ValidateMessageDefinitions(List<Issue> issues, List<TypeDefinition> typeDefinitions)
+    private static void ValidateMessageDefinitions(List<Issue> issues, IReadOnlyList<TypeDefinition> typeDefinitions)
     {
         foreach (TypeDefinition type in typeDefinitions.Where(def => def.Keyword == "message"))
         {
@@ -109,7 +109,7 @@ internal class NsdLinter
         }
     }
 
-    public static Issue[] Lint(List<Define> defines, List<TypeDefinition> typeDefinitions)
+    public static Issue[] Lint(IReadOnlyList<Define> defines, IReadOnlyList<TypeDefinition> typeDefinitions)
     {
         var issues = new List<Issue>();
 

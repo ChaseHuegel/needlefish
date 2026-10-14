@@ -1,8 +1,8 @@
 ﻿using Needlefish.Compile;
-using Needlefish.Lexing;
 using Needlefish.Schema;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Needlefish;
 
@@ -14,37 +14,7 @@ public class Nsd1Emitter
         public string Content = content;
     }
 
-    private static readonly List<TokenDefinition<TokenType>> TokenDefinitions = new()
-    {
-            new(TokenType.Whitespace, @"\G[\s\t\n\r\f\0]+"),
-            new(TokenType.Define, @"\G#"),
-            new(TokenType.Number, @"\G[+-]?\d*\.?\d+"),
-            new(TokenType.Terminate, @"\G;"),
-            new(TokenType.Array, @"\G\[\]"),
-            new(TokenType.Optional, @"\G\?"),
-            new(TokenType.Equals, @"\G="),
-            new(TokenType.OpenBrace, @"\G{"),
-            new(TokenType.CloseBrace, @"\G}"),
-            new(TokenType.Message, @"\Gmessage"),
-            new(TokenType.Enum, @"\Genum"),
-            new(TokenType.String, @"\Gstring"),
-            new(TokenType.Int, @"\Gint"),
-            new(TokenType.Float, @"\Gfloat"),
-            new(TokenType.Double, @"\Gdouble"),
-            new(TokenType.Long, @"\Glong"),
-            new(TokenType.Uint, @"\Guint"),
-            new(TokenType.Bool, @"\Gbool"),
-            new(TokenType.Byte, @"\Gbyte"),
-            new(TokenType.Ulong, @"\Gulong"),
-            new(TokenType.Short, @"\Gshort"),
-            new(TokenType.UShort, @"\Gushort"),
-            new(TokenType.StringValue, @"\G""[^""]*"""),
-            new(TokenType.Identifier, @"\G[a-zA-Z]*([.][a-zA-Z]|[a-zA-Z0-9_])+"),
-    };
-
     private readonly object _lock = new();
-    private readonly Lexer<TokenType> _lexer = new(TokenDefinitions);
-    private readonly NsdParser _parser = new();
     private readonly INsdCompiler _compiler;
 
     public Nsd1Emitter(EmitterOptions options)
@@ -52,66 +22,81 @@ public class Nsd1Emitter
         _compiler = new Nsd1Compiler(options.CompilerOptions ?? new CompilerOptions());
     }
 
+    /// <summary>
+    /// Compiles an nsd source that is not associated with a file on disk. Include directives
+    /// cannot be resolved and are reported as errors.
+    /// </summary>
     public string Emit(string name, string source)
     {
         lock (_lock)
         {
-            List<Token<TokenType>> tokens = _lexer.Lex(source);
-            Nsd nsd = _parser.Parse(tokens);
-            return _compiler.Compile(nsd, name);
+            NsdEmitResult result = TryEmitInternal(name, source, resolver: null, knownRoots: null, outputName: name);
+
+            if (result.Source == null)
+            {
+                NsdDiagnostic diagnostic = result.Diagnostics.FirstOrDefault(d => d.Level == NsdDiagnosticLevel.Error);
+                throw new NsdException(diagnostic.Message, diagnostic.Position, diagnostic.Length);
+            }
+
+            return result.Source;
         }
     }
 
     /// <summary>
-    /// Compiles an nsd source, returning diagnostics instead of throwing when the source is invalid.
+    /// Compiles an nsd source located at <paramref name="filePath"/>, resolving include
+    /// directives with <paramref name="resolver"/>. <paramref name="knownRoots"/> lists the files
+    /// that are compiled as roots themselves so diagnostics from included files can be reported
+    /// once.
+    /// </summary>
+    public string Emit(
+        string filePath,
+        string source,
+        INsdFileResolver? resolver,
+        IReadOnlyCollection<string>? knownRoots = null,
+        string? outputName = null)
+    {
+        lock (_lock)
+        {
+            NsdEmitResult result = TryEmitInternal(filePath, source, resolver, knownRoots, outputName);
+
+            if (result.Source == null)
+            {
+                NsdDiagnostic diagnostic = result.Diagnostics.FirstOrDefault(d => d.Level == NsdDiagnosticLevel.Error);
+                throw new NsdException(diagnostic.Message, diagnostic.Position, diagnostic.Length);
+            }
+
+            return result.Source;
+        }
+    }
+
+    /// <summary>
+    /// Compiles an nsd source that is not associated with a file on disk, returning diagnostics
+    /// instead of throwing when the source is invalid. Include directives cannot be resolved and
+    /// are reported as errors.
     /// </summary>
     public NsdEmitResult TryEmit(string name, string source)
     {
         lock (_lock)
         {
-            var diagnostics = new List<NsdDiagnostic>();
-
-            try
-            {
-                List<Token<TokenType>> tokens = _lexer.Lex(source);
-                Nsd nsd = _parser.Parse(tokens);
-                return new NsdEmitResult(_compiler.Compile(nsd, name), Array.Empty<NsdDiagnostic>());
-            }
-            catch (LexException lexException)
-            {
-                diagnostics.Add(new NsdDiagnostic(lexException.Message, NsdDiagnosticLevel.Error, lexException.Position, lexException.Length));
-            }
-            catch (NsdException nsdException)
-            {
-                CollectDiagnostics(nsdException, diagnostics);
-            }
-            catch (FormatException formatException)
-            {
-                diagnostics.Add(new NsdDiagnostic(formatException.Message));
-            }
-
-            return new NsdEmitResult(null, diagnostics.ToArray());
+            return TryEmitInternal(name, source, resolver: null, knownRoots: null, outputName: name);
         }
     }
 
-    private static void CollectDiagnostics(NsdException exception, List<NsdDiagnostic> diagnostics)
+    /// <summary>
+    /// Compiles an nsd source located at <paramref name="filePath"/>, resolving include
+    /// directives with <paramref name="resolver"/>, and returns diagnostics instead of throwing
+    /// when the source is invalid.
+    /// </summary>
+    public NsdEmitResult TryEmit(
+        string filePath,
+        string source,
+        INsdFileResolver? resolver,
+        IReadOnlyCollection<string>? knownRoots = null,
+        string? outputName = null)
     {
-        if (exception.InnerExceptions.Count == 0)
+        lock (_lock)
         {
-            diagnostics.Add(new NsdDiagnostic(exception.Message, NsdDiagnosticLevel.Error, exception.Position, exception.Length));
-            return;
-        }
-
-        foreach (Exception innerException in exception.InnerExceptions)
-        {
-            if (innerException is NsdException innerNsdException)
-            {
-                CollectDiagnostics(innerNsdException, diagnostics);
-            }
-            else
-            {
-                diagnostics.Add(new NsdDiagnostic(innerException.Message));
-            }
+            return TryEmitInternal(filePath, source, resolver, knownRoots, outputName);
         }
     }
 
@@ -124,12 +109,47 @@ public class Nsd1Emitter
             for (int i = 0; i < sources.Length; i++)
             {
                 Source source = sources[i];
-                List<Token<TokenType>> tokens = _lexer.Lex(source.Content);
-                Nsd nsd = _parser.Parse(tokens);
-                results[i] = _compiler.Compile(nsd, source.Name);
+                NsdEmitResult result = TryEmitInternal(source.Name, source.Content, resolver: null, knownRoots: null, outputName: source.Name);
+
+                if (result.Source == null)
+                {
+                    NsdDiagnostic diagnostic = result.Diagnostics.FirstOrDefault(d => d.Level == NsdDiagnosticLevel.Error);
+                    throw new NsdException(diagnostic.Message, diagnostic.Position, diagnostic.Length);
+                }
+
+                results[i] = result.Source;
             }
         }
 
         return results;
+    }
+
+    private NsdEmitResult TryEmitInternal(
+        string filePath,
+        string source,
+        INsdFileResolver? resolver,
+        IReadOnlyCollection<string>? knownRoots,
+        string? outputName)
+    {
+        var diagnostics = new List<NsdDiagnostic>();
+
+        try
+        {
+            NsdIncludeCompiler.NsdIncludeResult result = NsdIncludeCompiler.Prepare(filePath, source, resolver, knownRoots);
+            diagnostics.AddRange(result.Diagnostics);
+
+            if (result.Root == null)
+            {
+                return new NsdEmitResult(null, diagnostics.ToArray());
+            }
+
+            return new NsdEmitResult(_compiler.Compile(result.Root.Value, outputName ?? filePath), diagnostics.ToArray());
+        }
+        catch (FormatException formatException)
+        {
+            diagnostics.Add(new NsdDiagnostic(formatException.Message));
+        }
+
+        return new NsdEmitResult(null, diagnostics.ToArray());
     }
 }
