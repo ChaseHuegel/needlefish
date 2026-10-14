@@ -9,6 +9,7 @@ internal class Nsd1Compiler(in CompilerOptions compilerOptions) : INsdCompiler
     internal const string INDENT = "    ";
 
     private static readonly string[] Prepends = [
+        "#nullable enable",
         "#pragma warning disable CS0219 // Variable is assigned but its value is never used",
         "#pragma warning disable CS8602 // Dereference of a possibly null reference.",
         "using System;",

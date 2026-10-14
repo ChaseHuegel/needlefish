@@ -41,6 +41,17 @@ internal class CompilerTests
     }
 
     [Test]
+    public void GeneratesNullableEnableDirective()
+    {
+        Nsd nsd = SyntaxTests.ParseNsdContent(LexerTests.VALID_NSD);
+
+        var compiler = new Nsd1Compiler(new CompilerOptions());
+        string result = compiler.Compile(nsd, "LexerTests.ValidNsd");
+
+        StringAssert.Contains("#nullable enable", result);
+    }
+
+    [Test]
     public void ArrayBoundsCheckUsesFixedElementSize()
     {
         const string nsd = """
