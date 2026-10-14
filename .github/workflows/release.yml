@@ -20,14 +20,14 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: 10.0.x
     - name: Publish Windows
-      run: dotnet publish -c Release -r win-x64
+      run: dotnet publish Needlefish.Compiler/Needlefish.Compiler.csproj -c Release -r win-x64
     - name: Publish Linux
-      run: dotnet publish -c Release -r linux-x64
+      run: dotnet publish Needlefish.Compiler/Needlefish.Compiler.csproj -c Release -r linux-x64
     - name: Package artifacts
       run: |
-        cd Needlefish.Compiler/bin/Release/net7.0/win-x64/publish
+        cd Needlefish.Compiler/bin/Release/net10.0/win-x64/publish
         zip -r "$GITHUB_WORKSPACE/nsdc_windows.zip" .
         cd ../../linux-x64/publish
         zip -r "$GITHUB_WORKSPACE/nsdc_linux.zip" .
