@@ -234,6 +234,43 @@ internal class SourceGeneratorTests
     }
 
     [Test]
+    public void CrossNamespaceIncludesGenerateQualifiedReferences()
+    {
+        const string otherNamespace = """
+            #version 1.0;
+            #namespace Other;
+
+            message Order
+            {
+                int Id;
+            }
+            """;
+
+        const string uses = """
+            #version 1.0;
+            #namespace Test;
+
+            #include "Shared.nsd";
+
+            message Invoice
+            {
+                Order Order;
+            }
+            """;
+
+        GeneratorDriverRunResult result = Run(new[]
+        {
+            new TestFile("/project/Uses.nsd", uses),
+            new TestFile("/project/Shared.nsd", otherNamespace),
+        });
+
+        Assert.That(result.Diagnostics, Is.Empty);
+
+        string source = result.Results[0].GeneratedSources.Single(s => s.HintName == "Uses.g.cs").SourceText.ToString();
+        StringAssert.Contains("public global::Other.Order Order;", source);
+    }
+
+    [Test]
     public void MissingIncludeReportsDiagnosticAtDirective()
     {
         GeneratorDriverRunResult result = Run(new[] { new TestFile("/project/UsesShared.nsd", UsesSharedNsd) });

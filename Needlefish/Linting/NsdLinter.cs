@@ -15,17 +15,6 @@ internal class NsdLinter
         }
     }
 
-    private static void ValidateFieldDefinitions(List<Issue> issues, IReadOnlyList<TypeDefinition> typeDefinitions)
-    {
-        foreach (FieldDefinition field in typeDefinitions.SelectMany(def => def.FieldDefinitions))
-        {
-            if (field.Type == FieldType.Unknown)
-            {
-                issues.Add(new Issue(string.Format("Unknown type ({0}) for field ({1}). Is there a missing include?", field.TypeName, field.Name), position: field.Position, length: field.Length));
-            }
-        }
-    }
-
     private static void ValidateNoValueDuplicates(List<Issue> issues, TypeDefinition type)
     {
         FieldDefinition[] duplicates = type.FieldDefinitions.GroupBy(f => f.Value).Where(g => g.Count() > 1).SelectMany(g => g).ToArray();
@@ -115,7 +104,6 @@ internal class NsdLinter
 
         ValidateVersion(issues, defines);
         ValidateNoTypeDuplicates(issues, typeDefinitions);
-        ValidateFieldDefinitions(issues, typeDefinitions);
         ValidateMessageDefinitions(issues, typeDefinitions);
         ValidateEnumDefinitions(issues, typeDefinitions);
 

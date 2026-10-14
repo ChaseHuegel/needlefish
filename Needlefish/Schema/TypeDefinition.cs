@@ -6,6 +6,11 @@ public readonly struct TypeDefinition
 
     public string Name { get; }
 
+    /// <summary>
+    /// The namespace the type is declared in, or an empty string for the global namespace.
+    /// </summary>
+    public string Namespace { get; }
+
     public FieldDefinition[] FieldDefinitions { get; }
 
     /// <summary>
@@ -20,12 +25,22 @@ public readonly struct TypeDefinition
         string name,
         FieldDefinition[] fieldDefinitions,
         int position = -1,
-        int length = 0)
+        int length = 0,
+        string namespaceName = "")
     {
         Keyword = keyword;
         Name = name;
+        Namespace = namespaceName;
         FieldDefinitions = fieldDefinitions;
         Position = position;
         Length = length;
+    }
+
+    /// <summary>
+    /// The type name qualified with its namespace, for example <c>Other.Namespace.Foo</c>.
+    /// </summary>
+    public string GetQualifiedName()
+    {
+        return string.IsNullOrEmpty(Namespace) ? Name : Namespace + "." + Name;
     }
 }

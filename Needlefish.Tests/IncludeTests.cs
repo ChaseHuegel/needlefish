@@ -51,6 +51,9 @@ internal class IncludeTests
         StringAssert.Contains("public SharedEnum[] Values;", result.Source);
         StringAssert.Contains("(Values.Length * enumLen)", result.Source);
 
+        // Same namespace references stay unqualified.
+        StringAssert.DoesNotContain("global::", result.Source);
+
         // Included types are compiled as their own document.
         StringAssert.DoesNotContain("struct SharedMessage", result.Source);
         StringAssert.DoesNotContain("enum SharedEnum", result.Source);
@@ -190,7 +193,7 @@ internal class IncludeTests
     }
 
     [Test]
-    public void NamespaceMismatchReportsError()
+    public void CrossNamespaceIncludeQualifiesGeneratedReferences()
     {
         const string root = """
             #version 1.0;
@@ -199,7 +202,112 @@ internal class IncludeTests
 
             message Root
             {
-                Shared Shared;
+                Shared Value;
+                Shared[] Items;
+                Status State;
+            }
+            """;
+
+        const string shared = """
+            #version 1.0;
+            #namespace Other;
+
+            message Shared
+            {
+                int Id;
+            }
+
+            enum Status
+            {
+                Active;
+                Disabled;
+            }
+            """;
+
+        NsdEmitResult result = Emit(root, (SharedPath, shared));
+
+        Assert.That(result.Source, Is.Not.Null);
+        Assert.That(result.Diagnostics, Is.Empty);
+
+        StringAssert.Contains("public global::Other.Shared Value;", result.Source);
+        StringAssert.Contains("public global::Other.Shared[] Items;", result.Source);
+        StringAssert.Contains("global::Other.Status _State", result.Source);
+        StringAssert.Contains("new global::Other.Shared[", result.Source);
+        StringAssert.Contains("(global::Other.Status)", result.Source);
+    }
+
+    [Test]
+    public void QualifiedReferenceDisambiguatesDuplicateNames()
+    {
+        const string root = """
+            #version 1.0;
+            #namespace Test;
+            #include "Left.nsd";
+            #include "Right.nsd";
+
+            message Root
+            {
+                Left.Shared LeftItem;
+                Right.Shared RightItem;
+            }
+            """;
+
+        NsdEmitResult result = Emit(
+            root,
+            ("/project/Left.nsd", NamespaceLeftNsd),
+            ("/project/Right.nsd", NamespaceRightNsd));
+
+        Assert.That(result.Source, Is.Not.Null);
+        Assert.That(result.Diagnostics, Is.Empty);
+
+        StringAssert.Contains("public global::Left.Shared LeftItem;", result.Source);
+        StringAssert.Contains("public global::Right.Shared RightItem;", result.Source);
+    }
+
+    [Test]
+    public void AmbiguousSimpleNameReportsError()
+    {
+        const string root = """
+            #version 1.0;
+            #namespace Test;
+            #include "Left.nsd";
+            #include "Right.nsd";
+
+            message Root
+            {
+                Shared Value;
+            }
+            """;
+
+        NsdEmitResult result = Emit(
+            root,
+            ("/project/Left.nsd", NamespaceLeftNsd),
+            ("/project/Right.nsd", NamespaceRightNsd));
+
+        Assert.That(result.Source, Is.Null);
+
+        NsdDiagnostic diagnostic = result.Diagnostics.Single(d => d.Level == NsdDiagnosticLevel.Error);
+        StringAssert.Contains("Ambiguous type (Shared)", diagnostic.Message);
+        StringAssert.Contains("'Left.Shared'", diagnostic.Message);
+        StringAssert.Contains("'Right.Shared'", diagnostic.Message);
+    }
+
+    [Test]
+    public void SimpleNamePrefersCurrentNamespace()
+    {
+        const string root = """
+            #version 1.0;
+            #namespace Test;
+            #include "Shared.nsd";
+
+            message Shared
+            {
+                int Id;
+            }
+
+            message Root
+            {
+                Shared Value;
             }
             """;
 
@@ -215,12 +323,74 @@ internal class IncludeTests
 
         NsdEmitResult result = Emit(root, (SharedPath, shared));
 
-        Assert.That(result.Source, Is.Null);
+        Assert.That(result.Source, Is.Not.Null);
+        Assert.That(result.Diagnostics, Is.Empty);
 
-        NsdDiagnostic diagnostic = result.Diagnostics.Single(d => d.Message.Contains("namespace", StringComparison.Ordinal) && d.Level == NsdDiagnosticLevel.Error);
-        Assert.That(diagnostic.FilePath, Is.EqualTo(NsdPaths.Normalize(RootPath)));
-        StringAssert.Contains("namespace 'Other'", diagnostic.Message);
-        StringAssert.Contains("namespace 'Test'", diagnostic.Message);
+        StringAssert.Contains("public Shared Value;", result.Source);
+        StringAssert.DoesNotContain("global::Other.Shared", result.Source);
+    }
+
+    [Test]
+    public void GlobalNamespaceIncludeQualifiesGeneratedReferences()
+    {
+        const string root = """
+            #version 1.0;
+            #namespace Test;
+            #include "Shared.nsd";
+
+            message Root
+            {
+                Shared Value;
+            }
+            """;
+
+        const string shared = """
+            #version 1.0;
+
+            message Shared
+            {
+                int Id;
+            }
+            """;
+
+        NsdEmitResult result = Emit(root, (SharedPath, shared));
+
+        Assert.That(result.Source, Is.Not.Null);
+        Assert.That(result.Diagnostics, Is.Empty);
+
+        StringAssert.Contains("public global::Shared Value;", result.Source);
+    }
+
+    [Test]
+    public void DottedNamespaceQualifiedReference()
+    {
+        const string root = """
+            #version 1.0;
+            #namespace Test;
+            #include "Shared.nsd";
+
+            message Root
+            {
+                Other.Types.Shared Value;
+            }
+            """;
+
+        const string shared = """
+            #version 1.0;
+            #namespace Other.Types;
+
+            message Shared
+            {
+                int Id;
+            }
+            """;
+
+        NsdEmitResult result = Emit(root, (SharedPath, shared));
+
+        Assert.That(result.Source, Is.Not.Null);
+        Assert.That(result.Diagnostics, Is.Empty);
+
+        StringAssert.Contains("public global::Other.Types.Shared Value;", result.Source);
     }
 
     [Test]
@@ -252,7 +422,7 @@ internal class IncludeTests
         Assert.That(result.Source, Is.Null);
 
         NsdDiagnostic diagnostic = result.Diagnostics.Single(d => d.Level == NsdDiagnosticLevel.Error);
-        StringAssert.Contains("Duplicate type (Shared)", diagnostic.Message);
+        StringAssert.Contains("Duplicate type (Test.Shared)", diagnostic.Message);
         StringAssert.Contains("Root.nsd", diagnostic.Message);
         StringAssert.Contains("Shared.nsd", diagnostic.Message);
         Assert.That(diagnostic.FilePath, Is.EqualTo(NsdPaths.Normalize(RootPath)));
@@ -310,7 +480,7 @@ internal class IncludeTests
 
         Assert.That(result.Source, Is.Null);
 
-        NsdDiagnostic diagnostic = result.Diagnostics.First(d => d.Message.Contains("Duplicate type (Shared)", StringComparison.Ordinal));
+        NsdDiagnostic diagnostic = result.Diagnostics.First(d => d.Message.Contains("Duplicate type (Test.Shared)", StringComparison.Ordinal));
         Assert.That(diagnostic.FilePath, Is.EqualTo(NsdPaths.Normalize(RootPath)));
         Assert.That(diagnostic.Position, Is.EqualTo(root.IndexOf("\"Right.nsd\"", StringComparison.Ordinal)));
         StringAssert.Contains("Left.nsd", diagnostic.Message);
@@ -426,6 +596,26 @@ internal class IncludeTests
     }
 
     private const string SharedPath = "/project/Shared.nsd";
+
+    private const string NamespaceLeftNsd = """
+        #version 1.0;
+        #namespace Left;
+
+        message Shared
+        {
+            int Id;
+        }
+        """;
+
+    private const string NamespaceRightNsd = """
+        #version 1.0;
+        #namespace Right;
+
+        message Shared
+        {
+            int Id;
+        }
+        """;
 
     private const string Shared = """
         #version 1.0;

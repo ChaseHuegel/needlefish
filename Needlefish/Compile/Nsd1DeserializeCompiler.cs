@@ -601,7 +601,7 @@ offset += 4;";
 
         text = text.Replace("$field:name", field.Name);
         text = text.Replace("$field:accessor", GetFieldAccessor(field));
-        text = text.Replace("$field:type", field.TypeName);
+        text = text.Replace("$field:type", field.GetTypeReference());
         text = text.Replace("$field:size", SizeOfPrimitive(field).ToString());
 
         return new StringBuilder(text);

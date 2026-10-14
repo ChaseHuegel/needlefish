@@ -1,4 +1,5 @@
 using Needlefish.Lexing;
+using Needlefish.Linting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -392,6 +393,24 @@ internal partial class NsdParser
         _version = versionDefinition.Value;
     }
 
+    private void CollectNamespace()
+    {
+        Define namespaceDefinition = _defines.FirstOrDefault(define => define.Key == "namespace");
+        string namespaceName = namespaceDefinition.Value ?? string.Empty;
+
+        for (int i = 0; i < _typeDefinitions.Count; i++)
+        {
+            TypeDefinition typeDefinition = _typeDefinitions[i];
+            _typeDefinitions[i] = new TypeDefinition(
+                typeDefinition.Keyword,
+                typeDefinition.Name,
+                typeDefinition.FieldDefinitions,
+                typeDefinition.Position,
+                typeDefinition.Length,
+                namespaceName);
+        }
+    }
+
     private void ParseInternal()
     {
         while (_tokenStack.Count > 0 || !TryDiscardToken(TokenType.Undefined))
@@ -424,8 +443,13 @@ internal partial class NsdParser
     {
         Nsd raw = ParseRaw(tokens);
 
-        TypeDefinition[] resolvedTypes = NsdProcessor.ResolveTypeDefinitions(raw.TypeDefinitions, raw.TypeDefinitions);
-        NsdProcessor.ThrowOnIssues(raw.Defines, resolvedTypes);
+        Define namespaceDefinition = raw.Defines.FirstOrDefault(define => define.Key == "namespace");
+        string namespaceName = namespaceDefinition.Value ?? string.Empty;
+
+        var issues = new List<Issue>();
+        TypeDefinition[] resolvedTypes = NsdProcessor.ResolveTypeDefinitions(raw.TypeDefinitions, raw.TypeDefinitions, namespaceName, issues);
+        issues.AddRange(NsdLinter.Lint(raw.Defines, resolvedTypes));
+        NsdProcessor.ThrowOnIssues(issues);
 
         if (string.IsNullOrEmpty(raw.Version))
         {
@@ -457,6 +481,7 @@ internal partial class NsdParser
         ParseInternal();
 
         CollectVersion();
+        CollectNamespace();
 
         return new Nsd(_version ?? string.Empty, _defines.ToArray(), _typeDefinitions.ToArray());
     }

@@ -229,9 +229,16 @@ internal static class NsdIncludeCompiler
                 .SelectMany(file => file.Raw!.Value.TypeDefinitions)
                 .ToArray();
 
-            node.ResolvedTypes = NsdProcessor.ResolveTypeDefinitions(node.Raw.Value.TypeDefinitions, visibleTypes);
+            var issues = new List<Issue>();
+            node.ResolvedTypes = NsdProcessor.ResolveTypeDefinitions(
+                node.Raw.Value.TypeDefinitions,
+                visibleTypes,
+                GetNamespace(node.Raw.Value),
+                issues);
 
-            foreach (Issue issue in NsdLinter.Lint(node.Raw.Value.Defines, node.ResolvedTypes))
+            issues.AddRange(NsdLinter.Lint(node.Raw.Value.Defines, node.ResolvedTypes));
+
+            foreach (Issue issue in issues)
             {
                 var diagnostic = new NsdDiagnostic(
                     issue.Message,
@@ -256,8 +263,6 @@ internal static class NsdIncludeCompiler
 
         private void ValidateIncludes(Node node)
         {
-            string ownNamespace = GetNamespace(node.Raw!.Value);
-
             foreach (IncludeEdge edge in node.Includes)
             {
                 if (edge.Target == null || edge.Failure != null)
@@ -269,24 +274,6 @@ internal static class NsdIncludeCompiler
                 {
                     AddError(node, IncludeErrorSummary(edge.Target), edge.Position, edge.Length);
                     continue;
-                }
-
-                if (edge.Target.Raw != null)
-                {
-                    string targetNamespace = GetNamespace(edge.Target.Raw.Value);
-                    if (!string.Equals(ownNamespace, targetNamespace, StringComparison.Ordinal))
-                    {
-                        AddError(
-                            node,
-                            string.Format(
-                                "Included file '{0}' declares {1} but this file declares {2}.",
-                                edge.Path,
-                                DescribeNamespace(targetNamespace),
-                                DescribeNamespace(ownNamespace)),
-                            edge.Position,
-                            edge.Length);
-                        continue;
-                    }
                 }
 
                 if (_knownRoots.Count > 0 && !edge.Target.IsKnownRoot)
@@ -305,7 +292,7 @@ internal static class NsdIncludeCompiler
 
         private void DetectDuplicateTypes(Node node, List<Node> closure)
         {
-            var owners = new Dictionary<string, Node>(StringComparer.Ordinal);
+            var owners = new Dictionary<(string Namespace, string Name), Node>();
 
             foreach (Node file in closure)
             {
@@ -316,7 +303,7 @@ internal static class NsdIncludeCompiler
 
                 foreach (TypeDefinition type in file.Raw.Value.TypeDefinitions)
                 {
-                    if (owners.TryGetValue(type.Name, out Node? first))
+                    if (owners.TryGetValue((type.Namespace, type.Name), out Node? first))
                     {
                         // Duplicates within a single document are reported by the linter for that
                         // document, so only cross document duplicates are handled here.
@@ -327,7 +314,7 @@ internal static class NsdIncludeCompiler
 
                         string message = string.Format(
                             "Duplicate type ({0}). Declared in '{1}' and '{2}'.",
-                            type.Name,
+                            type.GetQualifiedName(),
                             DisplayPath(first.Path),
                             DisplayPath(file.Path));
 
@@ -344,7 +331,7 @@ internal static class NsdIncludeCompiler
                     }
                     else
                     {
-                        owners.Add(type.Name, file);
+                        owners.Add((type.Namespace, type.Name), file);
                     }
                 }
             }
@@ -426,11 +413,6 @@ internal static class NsdIncludeCompiler
         {
             Define namespaceDefine = nsd.Defines.FirstOrDefault(define => define.Key == "namespace");
             return namespaceDefine.Value ?? string.Empty;
-        }
-
-        private static string DescribeNamespace(string ns)
-        {
-            return string.IsNullOrWhiteSpace(ns) ? "no namespace" : string.Format("namespace '{0}'", ns);
         }
 
         private static string IncludeErrorSummary(Node target)

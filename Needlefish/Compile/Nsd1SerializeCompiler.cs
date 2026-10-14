@@ -316,7 +316,7 @@ for (int i = 0; i < $field:accessor:base?.Length; i++)
         builder.Replace("$field:qualified_type", field.GetFullyQualifiedType());
         builder.Replace("$field:accessor:base", GetBaseAccessor(field));
         builder.Replace("$field:accessor:context", GetContextAccessor(field));
-        builder.Replace("$field:type", field.TypeName);
+        builder.Replace("$field:type", field.GetTypeReference());
         builder.Replace("$field:size", SizeOfPrimitive(field).ToString());
 
         return builder;
