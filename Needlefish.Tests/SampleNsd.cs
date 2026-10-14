@@ -8,6 +8,7 @@
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
 using System;
 using System.Buffers.Binary;
+using System.IO;
 
 namespace Lexer.Tests
 {
@@ -742,6 +743,16 @@ namespace Lexer.Tests
         {
             unchecked
             {
+                if (buffer.Length == 0 || length == 0)
+                {
+                    return 0;
+                }
+
+                if (length < 0 || length > buffer.Length - start)
+                {
+                    throw new InvalidDataException("Malformed input: start and length exceed the buffer.");
+                }
+
                 fixed (byte* b = &buffer[start])
                 {
                     byte* end = b + length;
@@ -779,7 +790,7 @@ namespace Lexer.Tests
                     bool g__OptionalSubmessages_Read = false;
 
 
-                    while (readsCompleted < 29 && offset + 2 < end)
+                    while (readsCompleted < 29 && offset + 2 <= end)
                     {
                         ushort id = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
                         offset += 2;
@@ -793,13 +804,28 @@ namespace Lexer.Tests
                                     break;
                                 }
 
+                                if (offset + 1 > end)
+                                {
+                                    throw new InvalidDataException("Malformed input: field 'Content' is truncated.");
+                                }
+
                                 bool g__Content_HasValue = *((byte*)offset) == 0 ? false : true;
                                 offset += 1;
 
                                 if (g__Content_HasValue)
                                 {
+                                    if (offset + 2 > end)
+                                    {
+                                        throw new InvalidDataException("Malformed input: field 'Content' is truncated.");
+                                    }
+
                                     ushort g__Content_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
                                     offset += 2;
+
+                                    if (offset + 2 * g__Content_Length > end)
+                                    {
+                                        throw new InvalidDataException("Malformed input: field 'Content' is truncated.");
+                                    }
 
                                     if (g__Content_Length == 0)
                                     {
@@ -831,7 +857,6 @@ namespace Lexer.Tests
                                 readsCompleted++;
                                 break;
                             #endregion
-
                             #region Deserialize Body
                             case Body_ID:
                                 if (g__Body_Read)
@@ -839,8 +864,18 @@ namespace Lexer.Tests
                                     break;
                                 }
 
+                                if (offset + 2 > end)
+                                {
+                                    throw new InvalidDataException("Malformed input: field 'Body' is truncated.");
+                                }
+
                                 ushort g__Body_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
                                 offset += 2;
+
+                                if (offset + 2 * g__Body_Length > end)
+                                {
+                                    throw new InvalidDataException("Malformed input: field 'Body' is truncated.");
+                                }
 
                                 if (g__Body_Length == 0)
                                 {
@@ -867,12 +902,16 @@ namespace Lexer.Tests
                                 readsCompleted++;
                                 break;
                             #endregion
-
                             #region Deserialize FloAT
                             case FloAT_ID:
                                 if (g__FloAT_Read)
                                 {
                                     break;
+                                }
+
+                                if (offset + 4 > end)
+                                {
+                                    throw new InvalidDataException("Malformed input: field 'FloAT' is truncated.");
                                 }
 
                                 uint g__FloAT_Raw = BitConverter.IsLittleEndian ? *((uint*)offset) : BinaryPrimitives.ReverseEndianness(*((uint*)offset));
@@ -884,12 +923,16 @@ namespace Lexer.Tests
                                 readsCompleted++;
                                 break;
                             #endregion
-
                             #region Deserialize Double
                             case Double_ID:
                                 if (g__Double_Read)
                                 {
                                     break;
+                                }
+
+                                if (offset + 8 > end)
+                                {
+                                    throw new InvalidDataException("Malformed input: field 'Double' is truncated.");
                                 }
 
                                 ulong g__Double_Raw = BitConverter.IsLittleEndian ? *((ulong*)offset) : BinaryPrimitives.ReverseEndianness(*((ulong*)offset));
@@ -901,12 +944,16 @@ namespace Lexer.Tests
                                 readsCompleted++;
                                 break;
                             #endregion
-
                             #region Deserialize Long
                             case Long_ID:
                                 if (g__Long_Read)
                                 {
                                     break;
+                                }
+
+                                if (offset + 8 > end)
+                                {
+                                    throw new InvalidDataException("Malformed input: field 'Long' is truncated.");
                                 }
 
                                 Long = BitConverter.IsLittleEndian ? *((long*)offset) : BinaryPrimitives.ReverseEndianness(*((long*)offset));
@@ -917,12 +964,16 @@ namespace Lexer.Tests
                                 readsCompleted++;
                                 break;
                             #endregion
-
                             #region Deserialize uLong
                             case uLong_ID:
                                 if (g__uLong_Read)
                                 {
                                     break;
+                                }
+
+                                if (offset + 8 > end)
+                                {
+                                    throw new InvalidDataException("Malformed input: field 'uLong' is truncated.");
                                 }
 
                                 uLong = BitConverter.IsLittleEndian ? *((ulong*)offset) : BinaryPrimitives.ReverseEndianness(*((ulong*)offset));
@@ -933,12 +984,16 @@ namespace Lexer.Tests
                                 readsCompleted++;
                                 break;
                             #endregion
-
                             #region Deserialize Ulong
                             case Ulong_ID:
                                 if (g__Ulong_Read)
                                 {
                                     break;
+                                }
+
+                                if (offset + 8 > end)
+                                {
+                                    throw new InvalidDataException("Malformed input: field 'Ulong' is truncated.");
                                 }
 
                                 Ulong = BitConverter.IsLittleEndian ? *((ulong*)offset) : BinaryPrimitives.ReverseEndianness(*((ulong*)offset));
@@ -949,12 +1004,16 @@ namespace Lexer.Tests
                                 readsCompleted++;
                                 break;
                             #endregion
-
                             #region Deserialize Short
                             case Short_ID:
                                 if (g__Short_Read)
                                 {
                                     break;
+                                }
+
+                                if (offset + 2 > end)
+                                {
+                                    throw new InvalidDataException("Malformed input: field 'Short' is truncated.");
                                 }
 
                                 Short = BitConverter.IsLittleEndian ? *((short*)offset) : BinaryPrimitives.ReverseEndianness(*((short*)offset));
@@ -965,12 +1024,16 @@ namespace Lexer.Tests
                                 readsCompleted++;
                                 break;
                             #endregion
-
                             #region Deserialize UShort
                             case UShort_ID:
                                 if (g__UShort_Read)
                                 {
                                     break;
+                                }
+
+                                if (offset + 2 > end)
+                                {
+                                    throw new InvalidDataException("Malformed input: field 'UShort' is truncated.");
                                 }
 
                                 UShort = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
@@ -981,12 +1044,16 @@ namespace Lexer.Tests
                                 readsCompleted++;
                                 break;
                             #endregion
-
                             #region Deserialize Bool
                             case Bool_ID:
                                 if (g__Bool_Read)
                                 {
                                     break;
+                                }
+
+                                if (offset + 1 > end)
+                                {
+                                    throw new InvalidDataException("Malformed input: field 'Bool' is truncated.");
                                 }
 
                                 Bool = *((byte*)offset) == 0 ? false : true;
@@ -997,12 +1064,16 @@ namespace Lexer.Tests
                                 readsCompleted++;
                                 break;
                             #endregion
-
                             #region Deserialize Byte
                             case Byte_ID:
                                 if (g__Byte_Read)
                                 {
                                     break;
+                                }
+
+                                if (offset + 1 > end)
+                                {
+                                    throw new InvalidDataException("Malformed input: field 'Byte' is truncated.");
                                 }
 
                                 Byte = BitConverter.IsLittleEndian ? *((byte*)offset) : BinaryPrimitives.ReverseEndianness(*((byte*)offset));
@@ -1013,7 +1084,6 @@ namespace Lexer.Tests
                                 readsCompleted++;
                                 break;
                             #endregion
-
                             #region Deserialize Bytes
                             case Bytes_ID:
                                 if (g__Bytes_Read)
@@ -1021,8 +1091,18 @@ namespace Lexer.Tests
                                     break;
                                 }
 
+                                if (offset + 2 > end)
+                                {
+                                    throw new InvalidDataException("Malformed input: field 'Bytes' is truncated.");
+                                }
+
                                 ushort g__Bytes_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
                                 offset += 2;
+                                if (offset + g__Bytes_Length * 1 > end)
+                                {
+                                    throw new InvalidDataException("Malformed input: field 'Bytes' is truncated.");
+                                }
+
 
                                 if (g__Bytes_Length == 0)
                                 {
@@ -1034,6 +1114,11 @@ namespace Lexer.Tests
 
                                     for (int i = 0; i < g__Bytes_Length; i++)
                                     {
+                                        if (offset + 1 > end)
+                                        {
+                                            throw new InvalidDataException("Malformed input: field 'Bytes' is truncated.");
+                                        }
+
                                         Bytes[i] = BitConverter.IsLittleEndian ? *((byte*)offset) : BinaryPrimitives.ReverseEndianness(*((byte*)offset));
                                         offset += 1;
                                     }
@@ -1044,7 +1129,6 @@ namespace Lexer.Tests
                                 readsCompleted++;
                                 break;
                             #endregion
-
                             #region Deserialize OptionalStrings
                             case OptionalStrings_ID:
                                 if (g__OptionalStrings_Read)
@@ -1052,11 +1136,21 @@ namespace Lexer.Tests
                                     break;
                                 }
 
+                                if (offset + 1 > end)
+                                {
+                                    throw new InvalidDataException("Malformed input: field 'OptionalStrings' is truncated.");
+                                }
+
                                 bool g__OptionalStrings_HasValue = *((byte*)offset) == 0 ? false : true;
                                 offset += 1;
 
                                 if (g__OptionalStrings_HasValue)
                                 {
+                                    if (offset + 2 > end)
+                                    {
+                                        throw new InvalidDataException("Malformed input: field 'OptionalStrings' is truncated.");
+                                    }
+
                                     ushort g__OptionalStrings_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
                                     offset += 2;
 
@@ -1070,8 +1164,18 @@ namespace Lexer.Tests
 
                                         for (int i = 0; i < g__OptionalStrings_Length; i++)
                                         {
+                                            if (offset + 2 > end)
+                                            {
+                                                throw new InvalidDataException("Malformed input: field 'OptionalStrings' is truncated.");
+                                            }
+
                                             ushort g__OptionalStrings_i_length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
                                             offset += 2;
+
+                                            if (offset + 2 * g__OptionalStrings_i_length > end)
+                                            {
+                                                throw new InvalidDataException("Malformed input: field 'OptionalStrings' is truncated.");
+                                            }
 
                                             char* chars = (char*)offset;
                                             if (!BitConverter.IsLittleEndian)
@@ -1094,12 +1198,16 @@ namespace Lexer.Tests
                                 readsCompleted++;
                                 break;
                             #endregion
-
                             #region Deserialize Int
                             case Int_ID:
                                 if (g__Int_Read)
                                 {
                                     break;
+                                }
+
+                                if (offset + 4 > end)
+                                {
+                                    throw new InvalidDataException("Malformed input: field 'Int' is truncated.");
                                 }
 
                                 Int = BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset));
@@ -1110,7 +1218,6 @@ namespace Lexer.Tests
                                 readsCompleted++;
                                 break;
                             #endregion
-
                             #region Deserialize OptionalInt
                             case OptionalInt_ID:
                                 if (g__OptionalInt_Read)
@@ -1118,11 +1225,21 @@ namespace Lexer.Tests
                                     break;
                                 }
 
+                                if (offset + 1 > end)
+                                {
+                                    throw new InvalidDataException("Malformed input: field 'OptionalInt' is truncated.");
+                                }
+
                                 bool g__OptionalInt_HasValue = *((byte*)offset) == 0 ? false : true;
                                 offset += 1;
 
                                 if (g__OptionalInt_HasValue)
                                 {
+                                    if (offset + 4 > end)
+                                    {
+                                        throw new InvalidDataException("Malformed input: field 'OptionalInt' is truncated.");
+                                    }
+
                                     OptionalInt = BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset));
                                     offset += 4;
                                 }
@@ -1136,7 +1253,6 @@ namespace Lexer.Tests
                                 readsCompleted++;
                                 break;
                             #endregion
-
                             #region Deserialize Ints
                             case Ints_ID:
                                 if (g__Ints_Read)
@@ -1144,8 +1260,18 @@ namespace Lexer.Tests
                                     break;
                                 }
 
+                                if (offset + 2 > end)
+                                {
+                                    throw new InvalidDataException("Malformed input: field 'Ints' is truncated.");
+                                }
+
                                 ushort g__Ints_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
                                 offset += 2;
+                                if (offset + g__Ints_Length * 4 > end)
+                                {
+                                    throw new InvalidDataException("Malformed input: field 'Ints' is truncated.");
+                                }
+
 
                                 if (g__Ints_Length == 0)
                                 {
@@ -1157,6 +1283,11 @@ namespace Lexer.Tests
 
                                     for (int i = 0; i < g__Ints_Length; i++)
                                     {
+                                        if (offset + 4 > end)
+                                        {
+                                            throw new InvalidDataException("Malformed input: field 'Ints' is truncated.");
+                                        }
+
                                         Ints[i] = BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset));
                                         offset += 4;
                                     }
@@ -1167,7 +1298,6 @@ namespace Lexer.Tests
                                 readsCompleted++;
                                 break;
                             #endregion
-
                             #region Deserialize OptionalInts
                             case OptionalInts_ID:
                                 if (g__OptionalInts_Read)
@@ -1175,13 +1305,28 @@ namespace Lexer.Tests
                                     break;
                                 }
 
+                                if (offset + 1 > end)
+                                {
+                                    throw new InvalidDataException("Malformed input: field 'OptionalInts' is truncated.");
+                                }
+
                                 bool g__OptionalInts_HasValue = *((byte*)offset) == 0 ? false : true;
                                 offset += 1;
 
                                 if (g__OptionalInts_HasValue)
                                 {
+                                    if (offset + 2 > end)
+                                    {
+                                        throw new InvalidDataException("Malformed input: field 'OptionalInts' is truncated.");
+                                    }
+
                                     ushort g__OptionalInts_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
                                     offset += 2;
+                                    if (offset + g__OptionalInts_Length * 4 > end)
+                                    {
+                                        throw new InvalidDataException("Malformed input: field 'OptionalInts' is truncated.");
+                                    }
+
 
                                     if (g__OptionalInts_Length == 0)
                                     {
@@ -1193,6 +1338,11 @@ namespace Lexer.Tests
 
                                         for (int i = 0; i < g__OptionalInts_Length; i++)
                                         {
+                                            if (offset + 4 > end)
+                                            {
+                                                throw new InvalidDataException("Malformed input: field 'OptionalInts' is truncated.");
+                                            }
+
                                             OptionalInts[i] = BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset));
                                             offset += 4;
                                         }
@@ -1208,12 +1358,16 @@ namespace Lexer.Tests
                                 readsCompleted++;
                                 break;
                             #endregion
-
                             #region Deserialize UInt
                             case UInt_ID:
                                 if (g__UInt_Read)
                                 {
                                     break;
+                                }
+
+                                if (offset + 4 > end)
+                                {
+                                    throw new InvalidDataException("Malformed input: field 'UInt' is truncated.");
                                 }
 
                                 UInt = BitConverter.IsLittleEndian ? *((uint*)offset) : BinaryPrimitives.ReverseEndianness(*((uint*)offset));
@@ -1224,7 +1378,6 @@ namespace Lexer.Tests
                                 readsCompleted++;
                                 break;
                             #endregion
-
                             #region Deserialize OptionalUInt
                             case OptionalUInt_ID:
                                 if (g__OptionalUInt_Read)
@@ -1232,11 +1385,21 @@ namespace Lexer.Tests
                                     break;
                                 }
 
+                                if (offset + 1 > end)
+                                {
+                                    throw new InvalidDataException("Malformed input: field 'OptionalUInt' is truncated.");
+                                }
+
                                 bool g__OptionalUInt_HasValue = *((byte*)offset) == 0 ? false : true;
                                 offset += 1;
 
                                 if (g__OptionalUInt_HasValue)
                                 {
+                                    if (offset + 4 > end)
+                                    {
+                                        throw new InvalidDataException("Malformed input: field 'OptionalUInt' is truncated.");
+                                    }
+
                                     OptionalUInt = BitConverter.IsLittleEndian ? *((uint*)offset) : BinaryPrimitives.ReverseEndianness(*((uint*)offset));
                                     offset += 4;
                                 }
@@ -1250,7 +1413,6 @@ namespace Lexer.Tests
                                 readsCompleted++;
                                 break;
                             #endregion
-
                             #region Deserialize UInts
                             case UInts_ID:
                                 if (g__UInts_Read)
@@ -1258,8 +1420,18 @@ namespace Lexer.Tests
                                     break;
                                 }
 
+                                if (offset + 2 > end)
+                                {
+                                    throw new InvalidDataException("Malformed input: field 'UInts' is truncated.");
+                                }
+
                                 ushort g__UInts_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
                                 offset += 2;
+                                if (offset + g__UInts_Length * 4 > end)
+                                {
+                                    throw new InvalidDataException("Malformed input: field 'UInts' is truncated.");
+                                }
+
 
                                 if (g__UInts_Length == 0)
                                 {
@@ -1271,6 +1443,11 @@ namespace Lexer.Tests
 
                                     for (int i = 0; i < g__UInts_Length; i++)
                                     {
+                                        if (offset + 4 > end)
+                                        {
+                                            throw new InvalidDataException("Malformed input: field 'UInts' is truncated.");
+                                        }
+
                                         UInts[i] = BitConverter.IsLittleEndian ? *((uint*)offset) : BinaryPrimitives.ReverseEndianness(*((uint*)offset));
                                         offset += 4;
                                     }
@@ -1281,7 +1458,6 @@ namespace Lexer.Tests
                                 readsCompleted++;
                                 break;
                             #endregion
-
                             #region Deserialize OptionalUInts
                             case OptionalUInts_ID:
                                 if (g__OptionalUInts_Read)
@@ -1289,13 +1465,28 @@ namespace Lexer.Tests
                                     break;
                                 }
 
+                                if (offset + 1 > end)
+                                {
+                                    throw new InvalidDataException("Malformed input: field 'OptionalUInts' is truncated.");
+                                }
+
                                 bool g__OptionalUInts_HasValue = *((byte*)offset) == 0 ? false : true;
                                 offset += 1;
 
                                 if (g__OptionalUInts_HasValue)
                                 {
+                                    if (offset + 2 > end)
+                                    {
+                                        throw new InvalidDataException("Malformed input: field 'OptionalUInts' is truncated.");
+                                    }
+
                                     ushort g__OptionalUInts_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
                                     offset += 2;
+                                    if (offset + g__OptionalUInts_Length * 4 > end)
+                                    {
+                                        throw new InvalidDataException("Malformed input: field 'OptionalUInts' is truncated.");
+                                    }
+
 
                                     if (g__OptionalUInts_Length == 0)
                                     {
@@ -1307,6 +1498,11 @@ namespace Lexer.Tests
 
                                         for (int i = 0; i < g__OptionalUInts_Length; i++)
                                         {
+                                            if (offset + 4 > end)
+                                            {
+                                                throw new InvalidDataException("Malformed input: field 'OptionalUInts' is truncated.");
+                                            }
+
                                             OptionalUInts[i] = BitConverter.IsLittleEndian ? *((uint*)offset) : BinaryPrimitives.ReverseEndianness(*((uint*)offset));
                                             offset += 4;
                                         }
@@ -1322,12 +1518,16 @@ namespace Lexer.Tests
                                 readsCompleted++;
                                 break;
                             #endregion
-
                             #region Deserialize Enum
                             case Enum_ID:
                                 if (g__Enum_Read)
                                 {
                                     break;
+                                }
+
+                                if (offset + 4 > end)
+                                {
+                                    throw new InvalidDataException("Malformed input: field 'Enum' is truncated.");
                                 }
 
                                 Enum = (TestEnum)(BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset)));
@@ -1338,7 +1538,6 @@ namespace Lexer.Tests
                                 readsCompleted++;
                                 break;
                             #endregion
-
                             #region Deserialize OptionalEnum
                             case OptionalEnum_ID:
                                 if (g__OptionalEnum_Read)
@@ -1346,11 +1545,21 @@ namespace Lexer.Tests
                                     break;
                                 }
 
+                                if (offset + 1 > end)
+                                {
+                                    throw new InvalidDataException("Malformed input: field 'OptionalEnum' is truncated.");
+                                }
+
                                 bool g__OptionalEnum_HasValue = *((byte*)offset) == 0 ? false : true;
                                 offset += 1;
 
                                 if (g__OptionalEnum_HasValue)
                                 {
+                                    if (offset + 4 > end)
+                                    {
+                                        throw new InvalidDataException("Malformed input: field 'OptionalEnum' is truncated.");
+                                    }
+
                                     OptionalEnum = (TestEnum)(BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset)));
                                     offset += 4;
                                 }
@@ -1364,7 +1573,6 @@ namespace Lexer.Tests
                                 readsCompleted++;
                                 break;
                             #endregion
-
                             #region Deserialize Enums
                             case Enums_ID:
                                 if (g__Enums_Read)
@@ -1372,8 +1580,18 @@ namespace Lexer.Tests
                                     break;
                                 }
 
+                                if (offset + 2 > end)
+                                {
+                                    throw new InvalidDataException("Malformed input: field 'Enums' is truncated.");
+                                }
+
                                 ushort g__Enums_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
                                 offset += 2;
+                                if (offset + g__Enums_Length * 4 > end)
+                                {
+                                    throw new InvalidDataException("Malformed input: field 'Enums' is truncated.");
+                                }
+
 
                                 if (g__Enums_Length == 0)
                                 {
@@ -1385,6 +1603,11 @@ namespace Lexer.Tests
 
                                     for (int i = 0; i < g__Enums_Length; i++)
                                     {
+                                        if (offset + 4 > end)
+                                        {
+                                            throw new InvalidDataException("Malformed input: field 'Enums' is truncated.");
+                                        }
+
                                         Enums[i] = (TestEnum)(BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset)));
                                         offset += 4;
                                     }
@@ -1395,7 +1618,6 @@ namespace Lexer.Tests
                                 readsCompleted++;
                                 break;
                             #endregion
-
                             #region Deserialize OptionalEnums
                             case OptionalEnums_ID:
                                 if (g__OptionalEnums_Read)
@@ -1403,13 +1625,28 @@ namespace Lexer.Tests
                                     break;
                                 }
 
+                                if (offset + 1 > end)
+                                {
+                                    throw new InvalidDataException("Malformed input: field 'OptionalEnums' is truncated.");
+                                }
+
                                 bool g__OptionalEnums_HasValue = *((byte*)offset) == 0 ? false : true;
                                 offset += 1;
 
                                 if (g__OptionalEnums_HasValue)
                                 {
+                                    if (offset + 2 > end)
+                                    {
+                                        throw new InvalidDataException("Malformed input: field 'OptionalEnums' is truncated.");
+                                    }
+
                                     ushort g__OptionalEnums_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
                                     offset += 2;
+                                    if (offset + g__OptionalEnums_Length * 4 > end)
+                                    {
+                                        throw new InvalidDataException("Malformed input: field 'OptionalEnums' is truncated.");
+                                    }
+
 
                                     if (g__OptionalEnums_Length == 0)
                                     {
@@ -1421,6 +1658,11 @@ namespace Lexer.Tests
 
                                         for (int i = 0; i < g__OptionalEnums_Length; i++)
                                         {
+                                            if (offset + 4 > end)
+                                            {
+                                                throw new InvalidDataException("Malformed input: field 'OptionalEnums' is truncated.");
+                                            }
+
                                             OptionalEnums[i] = (TestEnum)(BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset)));
                                             offset += 4;
                                         }
@@ -1436,7 +1678,6 @@ namespace Lexer.Tests
                                 readsCompleted++;
                                 break;
                             #endregion
-
                             #region Deserialize Submessage
                             case Submessage_ID:
                                 if (g__Submessage_Read)
@@ -1444,9 +1685,20 @@ namespace Lexer.Tests
                                     break;
                                 }
 
+                                if (offset + 2 > end)
+                                {
+                                    throw new InvalidDataException("Malformed input: field 'Submessage' is truncated.");
+                                }
+
                                 ushort g__Submessage_ObjectLength = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
                                 offset += 2;
-                                int g__Submessage_Start = (int)(offset - b);
+
+                                if (offset + g__Submessage_ObjectLength > end)
+                                {
+                                    throw new InvalidDataException("Malformed input: field 'Submessage' is truncated.");
+                                }
+
+                                int g__Submessage_Start = start + (int)(offset - b);
                                 Submessage.Unpack(buffer, g__Submessage_Start, g__Submessage_ObjectLength);
                                 offset += g__Submessage_ObjectLength;
 
@@ -1455,7 +1707,6 @@ namespace Lexer.Tests
                                 readsCompleted++;
                                 break;
                             #endregion
-
                             #region Deserialize OptionalSubmessage
                             case OptionalSubmessage_ID:
                                 if (g__OptionalSubmessage_Read)
@@ -1463,14 +1714,30 @@ namespace Lexer.Tests
                                     break;
                                 }
 
+                                if (offset + 1 > end)
+                                {
+                                    throw new InvalidDataException("Malformed input: field 'OptionalSubmessage' is truncated.");
+                                }
+
                                 bool g__OptionalSubmessage_HasValue = *((byte*)offset) == 0 ? false : true;
                                 offset += 1;
 
                                 if (g__OptionalSubmessage_HasValue)
                                 {
+                                    if (offset + 2 > end)
+                                    {
+                                        throw new InvalidDataException("Malformed input: field 'OptionalSubmessage' is truncated.");
+                                    }
+
                                     ushort g__OptionalSubmessage_ObjectLength = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
                                     offset += 2;
-                                    int g__OptionalSubmessage_Start = (int)(offset - b);
+
+                                    if (offset + g__OptionalSubmessage_ObjectLength > end)
+                                    {
+                                        throw new InvalidDataException("Malformed input: field 'OptionalSubmessage' is truncated.");
+                                    }
+
+                                    int g__OptionalSubmessage_Start = start + (int)(offset - b);
                                     if (OptionalSubmessage == null)
                                     {
                                         OptionalSubmessage = Submessage.Deserialize(buffer, g__OptionalSubmessage_Start, g__OptionalSubmessage_ObjectLength);
@@ -1491,7 +1758,6 @@ namespace Lexer.Tests
                                 readsCompleted++;
                                 break;
                             #endregion
-
                             #region Deserialize Submessages
                             case Submessages_ID:
                                 if (g__Submessages_Read)
@@ -1499,8 +1765,14 @@ namespace Lexer.Tests
                                     break;
                                 }
 
+                                if (offset + 2 > end)
+                                {
+                                    throw new InvalidDataException("Malformed input: field 'Submessages' is truncated.");
+                                }
+
                                 ushort g__Submessages_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
                                 offset += 2;
+
 
                                 if (g__Submessages_Length == 0)
                                 {
@@ -1512,9 +1784,20 @@ namespace Lexer.Tests
 
                                     for (int i = 0; i < g__Submessages_Length; i++)
                                     {
+                                        if (offset + 2 > end)
+                                        {
+                                            throw new InvalidDataException("Malformed input: field 'Submessages' is truncated.");
+                                        }
+
                                         ushort g__Submessages_ObjectLength = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
                                         offset += 2;
-                                        int g__Submessages_Start = (int)(offset - b);
+
+                                        if (offset + g__Submessages_ObjectLength > end)
+                                        {
+                                            throw new InvalidDataException("Malformed input: field 'Submessages' is truncated.");
+                                        }
+
+                                        int g__Submessages_Start = start + (int)(offset - b);
                                         Submessages[i].Unpack(buffer, g__Submessages_Start, g__Submessages_ObjectLength);
                                         offset += g__Submessages_ObjectLength;
                                     }
@@ -1525,7 +1808,6 @@ namespace Lexer.Tests
                                 readsCompleted++;
                                 break;
                             #endregion
-
                             #region Deserialize OptionalSubmessages
                             case OptionalSubmessages_ID:
                                 if (g__OptionalSubmessages_Read)
@@ -1533,13 +1815,24 @@ namespace Lexer.Tests
                                     break;
                                 }
 
+                                if (offset + 1 > end)
+                                {
+                                    throw new InvalidDataException("Malformed input: field 'OptionalSubmessages' is truncated.");
+                                }
+
                                 bool g__OptionalSubmessages_HasValue = *((byte*)offset) == 0 ? false : true;
                                 offset += 1;
 
                                 if (g__OptionalSubmessages_HasValue)
                                 {
+                                    if (offset + 2 > end)
+                                    {
+                                        throw new InvalidDataException("Malformed input: field 'OptionalSubmessages' is truncated.");
+                                    }
+
                                     ushort g__OptionalSubmessages_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
                                     offset += 2;
+
 
                                     if (g__OptionalSubmessages_Length == 0)
                                     {
@@ -1551,9 +1844,20 @@ namespace Lexer.Tests
 
                                         for (int i = 0; i < g__OptionalSubmessages_Length; i++)
                                         {
+                                            if (offset + 2 > end)
+                                            {
+                                                throw new InvalidDataException("Malformed input: field 'OptionalSubmessages' is truncated.");
+                                            }
+
                                             ushort g__OptionalSubmessages_ObjectLength = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
                                             offset += 2;
-                                            int g__OptionalSubmessages_Start = (int)(offset - b);
+
+                                            if (offset + g__OptionalSubmessages_ObjectLength > end)
+                                            {
+                                                throw new InvalidDataException("Malformed input: field 'OptionalSubmessages' is truncated.");
+                                            }
+
+                                            int g__OptionalSubmessages_Start = start + (int)(offset - b);
                                             OptionalSubmessages[i].Unpack(buffer, g__OptionalSubmessages_Start, g__OptionalSubmessages_ObjectLength);
                                             offset += g__OptionalSubmessages_ObjectLength;
                                         }
@@ -1568,8 +1872,7 @@ namespace Lexer.Tests
                                 g__OptionalSubmessages_Read = true;
                                 readsCompleted++;
                                 break;
-                                #endregion
-
+                            #endregion
 
                         }
                     }
@@ -1680,6 +1983,16 @@ namespace Lexer.Tests
         {
             unchecked
             {
+                if (buffer.Length == 0 || length == 0)
+                {
+                    return 0;
+                }
+
+                if (length < 0 || length > buffer.Length - start)
+                {
+                    throw new InvalidDataException("Malformed input: start and length exceed the buffer.");
+                }
+
                 fixed (byte* b = &buffer[start])
                 {
                     byte* end = b + length;
@@ -1689,7 +2002,7 @@ namespace Lexer.Tests
                     bool g__OptionalInt_Read = false;
 
 
-                    while (readsCompleted < 1 && offset + 2 < end)
+                    while (readsCompleted < 1 && offset + 2 <= end)
                     {
                         ushort id = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
                         offset += 2;
@@ -1703,11 +2016,21 @@ namespace Lexer.Tests
                                     break;
                                 }
 
+                                if (offset + 1 > end)
+                                {
+                                    throw new InvalidDataException("Malformed input: field 'OptionalInt' is truncated.");
+                                }
+
                                 bool g__OptionalInt_HasValue = *((byte*)offset) == 0 ? false : true;
                                 offset += 1;
 
                                 if (g__OptionalInt_HasValue)
                                 {
+                                    if (offset + 4 > end)
+                                    {
+                                        throw new InvalidDataException("Malformed input: field 'OptionalInt' is truncated.");
+                                    }
+
                                     OptionalInt = BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset));
                                     offset += 4;
                                 }
@@ -1720,8 +2043,7 @@ namespace Lexer.Tests
                                 g__OptionalInt_Read = true;
                                 readsCompleted++;
                                 break;
-                                #endregion
-
+                            #endregion
 
                         }
                     }

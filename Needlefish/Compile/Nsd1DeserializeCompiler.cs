@@ -58,6 +58,11 @@ internal class Nsd1DeserializeCompiler : INsdTypeCompiler
             return 0;
         }
 
+        if (length < 0 || length > buffer.Length - start)
+        {
+            throw new InvalidDataException(""Malformed input: start and length exceed the buffer."");
+        }
+
         fixed (byte* b = &buffer[start])
         {
             byte* end = b + length;
@@ -66,7 +71,7 @@ internal class Nsd1DeserializeCompiler : INsdTypeCompiler
             int readsCompleted = 0;
             $deserialize:reads
 
-            while (readsCompleted < $fields:count && offset + 2 < end)
+            while (readsCompleted < $fields:count && offset + 2 <= end)
             {
                 ushort id = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
                 offset += 2;
@@ -105,6 +110,11 @@ internal class Nsd1DeserializeCompiler : INsdTypeCompiler
             return 0;
         }
 
+        if (length < 0 || length > buffer.Length - start)
+        {
+            throw new InvalidDataException(""Malformed input: start and length exceed the buffer."");
+        }
+
         fixed (byte* b = &buffer[start])
         {
             byte* end = b + length;
@@ -113,7 +123,7 @@ internal class Nsd1DeserializeCompiler : INsdTypeCompiler
             int readsCompleted = 0;
             $deserialize:reads
 
-            while (readsCompleted < $fields:count && offset + 2 < end)
+            while (readsCompleted < $fields:count && offset + 2 <= end)
             {
                 ushort id = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
                 offset += 2;
@@ -140,6 +150,11 @@ internal class Nsd1DeserializeCompiler : INsdTypeCompiler
             return 0;
         }
 
+        if (length < 0 || length > buffer.Length - start)
+        {
+            throw new InvalidDataException(""Malformed input: start and length exceed the buffer."");
+        }
+
         fixed (byte* b = &buffer[start])
         {
             byte* end = b + length;
@@ -148,7 +163,7 @@ internal class Nsd1DeserializeCompiler : INsdTypeCompiler
             int readsCompleted = 0;
             $deserialize:reads
 
-            while (readsCompleted < $fields:count && offset + 2 < end)
+            while (readsCompleted < $fields:count && offset + 2 <= end)
             {
                 ushort id = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
                 offset += 2;
@@ -186,7 +201,12 @@ case $field:name_ID:
 @"$deserialize:value";
 
     private const string OptionalFieldTemplate =
-@"bool g__$field:name_HasValue = *((byte*)offset) == 0 ? false : true;
+@"if (offset + 1 > end)
+{
+    throw new InvalidDataException(""Malformed input: field '$field:name' is truncated."");
+}
+
+bool g__$field:name_HasValue = *((byte*)offset) == 0 ? false : true;
 offset += 1;
 
 if (g__$field:name_HasValue)
@@ -200,6 +220,7 @@ else
 
     private const string ArrayFieldTemplate =
 @"$deserialize:header:length
+$deserialize:check:array
 
 if (g__$field:name_Length == 0)
 {
@@ -216,12 +237,18 @@ else
 }";
 
     private const string OptionalArrayFieldTemplate =
-@"bool g__$field:name_HasValue = *((byte*)offset) == 0 ? false : true;
+@"if (offset + 1 > end)
+{
+    throw new InvalidDataException(""Malformed input: field '$field:name' is truncated."");
+}
+
+bool g__$field:name_HasValue = *((byte*)offset) == 0 ? false : true;
 offset += 1;
 
 if (g__$field:name_HasValue)
 {
     $deserialize:header:length
+    $deserialize:check:array
 
     if (g__$field:name_Length == 0)
     {
@@ -245,6 +272,11 @@ else
     private const string StringTemplate =
 @"$deserialize:header:length
 
+if (offset + 2 * g__$field:name_Length > end)
+{
+    throw new InvalidDataException(""Malformed input: field '$field:name' is truncated."");
+}
+
 if (g__$field:name_Length == 0)
 {
     $field:accessor = string.Empty;
@@ -266,12 +298,22 @@ else
 }";
 
     private const string OptionalStringTemplate =
-@"bool g__$field:name_HasValue = *((byte*)offset) == 0 ? false : true;
+@"if (offset + 1 > end)
+{
+    throw new InvalidDataException(""Malformed input: field '$field:name' is truncated."");
+}
+
+bool g__$field:name_HasValue = *((byte*)offset) == 0 ? false : true;
 offset += 1;
 
 if (g__$field:name_HasValue)
 {
     $deserialize:header:length
+
+    if (offset + 2 * g__$field:name_Length > end)
+    {
+        throw new InvalidDataException(""Malformed input: field '$field:name' is truncated."");
+    }
 
     if (g__$field:name_Length == 0)
     {
@@ -311,8 +353,18 @@ else
 
     for (int i = 0; i < g__$field:name_Length; i++)
     {
+        if (offset + 2 > end)
+        {
+            throw new InvalidDataException(""Malformed input: field '$field:name' is truncated."");
+        }
+
         ushort g__$field:name_i_length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
         offset += 2;
+
+        if (offset + 2 * g__$field:name_i_length > end)
+        {
+            throw new InvalidDataException(""Malformed input: field '$field:name' is truncated."");
+        }
 
         char* chars = (char*)offset;
         if (!BitConverter.IsLittleEndian)
@@ -330,7 +382,12 @@ else
 }";
 
     private const string OptionalStringArrayTemplate =
-@"bool g__$field:name_HasValue = *((byte*)offset) == 0 ? false : true;
+@"if (offset + 1 > end)
+{
+    throw new InvalidDataException(""Malformed input: field '$field:name' is truncated."");
+}
+
+bool g__$field:name_HasValue = *((byte*)offset) == 0 ? false : true;
 offset += 1;
 
 if (g__$field:name_HasValue)
@@ -347,8 +404,18 @@ if (g__$field:name_HasValue)
 
         for (int i = 0; i < g__$field:name_Length; i++)
         {
+            if (offset + 2 > end)
+            {
+                throw new InvalidDataException(""Malformed input: field '$field:name' is truncated."");
+            }
+
             ushort g__$field:name_i_length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
             offset += 2;
+
+            if (offset + 2 * g__$field:name_i_length > end)
+            {
+                throw new InvalidDataException(""Malformed input: field '$field:name' is truncated."");
+            }
 
             char* chars = (char*)offset;
             if (!BitConverter.IsLittleEndian)
@@ -367,37 +434,84 @@ if (g__$field:name_HasValue)
 }";
 
     private const string LengthHeaderTemplate =
-@"ushort g__$field:name_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
+@"if (offset + 2 > end)
+{
+    throw new InvalidDataException(""Malformed input: field '$field:name' is truncated."");
+}
+
+ushort g__$field:name_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
 offset += 2;";
 
     private const string DefaultValueTemplate =
-@"$field:accessor = BitConverter.IsLittleEndian ? *(($field:type*)offset) : BinaryPrimitives.ReverseEndianness(*(($field:type*)offset));
+@"if (offset + $field:size > end)
+{
+    throw new InvalidDataException(""Malformed input: field '$field:name' is truncated."");
+}
+
+$field:accessor = BitConverter.IsLittleEndian ? *(($field:type*)offset) : BinaryPrimitives.ReverseEndianness(*(($field:type*)offset));
 offset += $field:size;";
 
     private const string FloatValueTemplate =
-@"uint g__$field:name_Raw = BitConverter.IsLittleEndian ? *((uint*)offset) : BinaryPrimitives.ReverseEndianness(*((uint*)offset));
+@"if (offset + 4 > end)
+{
+    throw new InvalidDataException(""Malformed input: field '$field:name' is truncated."");
+}
+
+uint g__$field:name_Raw = BitConverter.IsLittleEndian ? *((uint*)offset) : BinaryPrimitives.ReverseEndianness(*((uint*)offset));
 $field:accessor = *(float*)&g__$field:name_Raw;
 offset += 4;";
 
     private const string DoubleValueTemplate =
-@"ulong g__$field:name_Raw = BitConverter.IsLittleEndian ? *((ulong*)offset) : BinaryPrimitives.ReverseEndianness(*((ulong*)offset));
+@"if (offset + 8 > end)
+{
+    throw new InvalidDataException(""Malformed input: field '$field:name' is truncated."");
+}
+
+ulong g__$field:name_Raw = BitConverter.IsLittleEndian ? *((ulong*)offset) : BinaryPrimitives.ReverseEndianness(*((ulong*)offset));
 $field:accessor = *(double*)&g__$field:name_Raw;
 offset += 8;";
 
     private const string BoolValueTemplate =
-@"$field:accessor = *((byte*)offset) == 0 ? false : true;
+@"if (offset + $field:size > end)
+{
+    throw new InvalidDataException(""Malformed input: field '$field:name' is truncated."");
+}
+
+$field:accessor = *((byte*)offset) == 0 ? false : true;
 offset += $field:size;";
 
     private const string ObjectValueTemplate =
-@"ushort g__$field:name_ObjectLength = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
+@"if (offset + 2 > end)
+{
+    throw new InvalidDataException(""Malformed input: field '$field:name' is truncated."");
+}
+
+ushort g__$field:name_ObjectLength = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
 offset += 2;
+
+if (offset + g__$field:name_ObjectLength > end)
+{
+    throw new InvalidDataException(""Malformed input: field '$field:name' is truncated."");
+}
+
 int g__$field:name_Start = start + (int)(offset - b);
 $field:accessor.Unpack(buffer, g__$field:name_Start, g__$field:name_ObjectLength);
 offset += g__$field:name_ObjectLength;";
 
     private const string OptionalObjectValueTemplate =
-@"ushort g__$field:name_ObjectLength = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
+@"if (offset + 2 > end)
+{
+    throw new InvalidDataException(""Malformed input: field '$field:name' is truncated."");
+}
+
+ushort g__$field:name_ObjectLength = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
 offset += 2;
+
+if (offset + g__$field:name_ObjectLength > end)
+{
+    throw new InvalidDataException(""Malformed input: field '$field:name' is truncated."");
+}
+
 int g__$field:name_Start = start + (int)(offset - b);
 if ($field:accessor == null)
 {
@@ -410,7 +524,12 @@ else
 offset += g__$field:name_ObjectLength;";
 
     private const string EnumValueTemplate =
-@"$field:accessor = ($field:type)(BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset)));
+@"if (offset + 4 > end)
+{
+    throw new InvalidDataException(""Malformed input: field '$field:name' is truncated."");
+}
+
+$field:accessor = ($field:type)(BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset)));
 offset += 4;";
 
     public bool CanCompile(TypeDefinition typeDefinition)
@@ -474,19 +593,33 @@ offset += 4;";
 
     private StringBuilder CompileFieldCase(FieldDefinition field)
     {
-        StringBuilder builder = new();
+        string text = CaseTemplate.Replace("$deserialize:field", CompileFieldDeserialize(field).ToString());
 
-        builder.AppendLine(CaseTemplate.Replace("$deserialize:field", CompileFieldDeserialize(field).ToString()));
+        text = ReplaceIndented(text, "$deserialize:header:length", LengthHeaderTemplate);
+        text = ReplaceIndented(text, "$deserialize:value", GetFieldDeserializeValueTemplate(field));
+        text = ReplaceIndented(text, "$deserialize:check:array", GetArrayBoundsCheck(field));
 
-        builder.Replace("$deserialize:header:length", LengthHeaderTemplate);
-        builder.Replace("$deserialize:value", GetFieldDeserializeValueTemplate(field));
+        text = text.Replace("$field:name", field.Name);
+        text = text.Replace("$field:accessor", GetFieldAccessor(field));
+        text = text.Replace("$field:type", field.TypeName);
+        text = text.Replace("$field:size", SizeOfPrimitive(field).ToString());
 
-        builder.Replace("$field:name", field.Name);
-        builder.Replace("$field:accessor", GetFieldAccessor(field));
-        builder.Replace("$field:type", field.TypeName);
-        builder.Replace("$field:size", SizeOfPrimitive(field).ToString());
+        return new StringBuilder(text);
+    }
 
-        return builder;
+    private static string ReplaceIndented(string text, string placeholder, string template)
+    {
+        int index = 0;
+        while ((index = text.IndexOf(placeholder, index, StringComparison.Ordinal)) >= 0)
+        {
+            int lineStart = text.LastIndexOf('\n', index) + 1;
+            int column = index - lineStart;
+            string indented = template.Replace("\n", "\n" + new string(' ', column));
+            text = text.Remove(index, placeholder.Length).Insert(index, indented);
+            index += indented.Length;
+        }
+
+        return text;
     }
 
     private StringBuilder CompileFieldDeserialize(FieldDefinition field)
@@ -564,6 +697,30 @@ offset += 4;";
             default:
                 throw new NotSupportedException($"{field.TypeName} deserialization is not supported.");
         }
+    }
+
+    private string GetArrayBoundsCheck(FieldDefinition field)
+    {
+        if (field.Type == FieldType.Object)
+        {
+            return string.Empty;
+        }
+
+        int elementSize = field.Type switch
+        {
+            FieldType.Enum => 4,
+            FieldType.Primitive => field.TypeName switch
+            {
+                "float" => 4,
+                "double" => 8,
+                _ => SizeOfPrimitive(field),
+            },
+            _ => SizeOfPrimitive(field),
+        };
+        return "if (offset + g__$field:name_Length * " + elementSize + " > end)" + "\n" +
+               "{" + "\n" +
+               "    throw new InvalidDataException(\"Malformed input: field '$field:name' is truncated.\");" + "\n" +
+               "}" + "\n";
     }
 
     private int SizeOfPrimitive(FieldDefinition field)

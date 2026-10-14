@@ -13,6 +13,7 @@ internal class Nsd1Compiler(in CompilerOptions compilerOptions) : INsdCompiler
         "#pragma warning disable CS8602 // Dereference of a possibly null reference.",
         "using System;",
         "using System.Buffers.Binary;",
+        "using System.IO;",
     ];
 
     private readonly INsdTypeCompiler[] _typeCompilers = [
