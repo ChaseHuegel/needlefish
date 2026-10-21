@@ -115,24 +115,24 @@ internal class Nsd1GetSizeCompiler : INsdTypeCompiler
             builder.Append(Nsd1Compiler.INDENT);
             builder.AppendLine("{");
 
-            if (fieldDefinition.Type == FieldType.Object && !fieldDefinition.IsOptional && fieldDefinition.IsArray)
+            if (fieldDefinition.Type == FieldType.Object && fieldDefinition.IsArray && !fieldDefinition.IsOptional)
+            {
+                AppendObjectArrayElementLoop(builder, fieldDefinition);
+
+                builder.Append(Nsd1Compiler.INDENT);
+                builder.AppendLine("}");
+                builder.AppendLine();
+                continue;
+            }
+
+            if (fieldDefinition.Type == FieldType.Object && fieldDefinition.IsArray && fieldDefinition.IsOptional)
             {
                 builder.Append(Nsd1Compiler.INDENT);
                 builder.Append(Nsd1Compiler.INDENT);
-                builder.AppendLine($"for (int i = 0; i < {fieldDefinition.Name}.Length; i++)");
+                builder.AppendLine($"length += optionalFieldLen + arrayHeaderLen;");
 
-                builder.Append(Nsd1Compiler.INDENT);
-                builder.Append(Nsd1Compiler.INDENT);
-                builder.AppendLine("{");
-
-                builder.Append(Nsd1Compiler.INDENT);
-                builder.Append(Nsd1Compiler.INDENT);
-                builder.Append(Nsd1Compiler.INDENT);
-                builder.AppendLine($"length += arrayHeaderLen + {fieldDefinition.Name}[i].GetSize();");
-
-                builder.Append(Nsd1Compiler.INDENT);
-                builder.Append(Nsd1Compiler.INDENT);
-                builder.AppendLine("}");
+                builder.AppendLine();
+                AppendObjectArrayElementLoop(builder, fieldDefinition);
 
                 builder.Append(Nsd1Compiler.INDENT);
                 builder.AppendLine("}");
@@ -195,26 +195,6 @@ internal class Nsd1GetSizeCompiler : INsdTypeCompiler
 
             builder.AppendLine(";");
 
-            if (fieldDefinition.Type == FieldType.Object && fieldDefinition.IsArray)
-            {
-                builder.Append(Nsd1Compiler.INDENT);
-                builder.Append(Nsd1Compiler.INDENT);
-                builder.AppendLine($"for (int i = 0; i < {fieldDefinition.Name}.Length; i++)");
-
-                builder.Append(Nsd1Compiler.INDENT);
-                builder.Append(Nsd1Compiler.INDENT);
-                builder.AppendLine("{");
-
-                builder.Append(Nsd1Compiler.INDENT);
-                builder.Append(Nsd1Compiler.INDENT);
-                builder.Append(Nsd1Compiler.INDENT);
-                builder.AppendLine($"length += arrayHeaderLen + {fieldDefinition.Name}[i].GetSize();");
-
-                builder.Append(Nsd1Compiler.INDENT);
-                builder.Append(Nsd1Compiler.INDENT);
-                builder.AppendLine("}");
-            }
-
             if (fieldDefinition.TypeName == "string" && fieldDefinition.IsArray)
             {
                 builder.Append(Nsd1Compiler.INDENT);
@@ -228,7 +208,7 @@ internal class Nsd1GetSizeCompiler : INsdTypeCompiler
                 builder.Append(Nsd1Compiler.INDENT);
                 builder.Append(Nsd1Compiler.INDENT);
                 builder.Append(Nsd1Compiler.INDENT);
-                builder.AppendLine($"length += {GetFieldTypeMinLenValue(fieldDefinition)} + {fieldDefinition.Name}[i].Length * charLen;");
+                builder.AppendLine($"length += {GetFieldTypeMinLenValue(fieldDefinition)} + ({fieldDefinition.Name}[i]?.Length ?? 0) * charLen;");
 
                 builder.Append(Nsd1Compiler.INDENT);
                 builder.Append(Nsd1Compiler.INDENT);
@@ -239,6 +219,26 @@ internal class Nsd1GetSizeCompiler : INsdTypeCompiler
             builder.AppendLine("}");
             builder.AppendLine();
         }
+    }
+
+    private static void AppendObjectArrayElementLoop(StringBuilder builder, FieldDefinition fieldDefinition)
+    {
+        builder.Append(Nsd1Compiler.INDENT);
+        builder.Append(Nsd1Compiler.INDENT);
+        builder.AppendLine($"for (int i = 0; i < {fieldDefinition.Name}.Length; i++)");
+
+        builder.Append(Nsd1Compiler.INDENT);
+        builder.Append(Nsd1Compiler.INDENT);
+        builder.AppendLine("{");
+
+        builder.Append(Nsd1Compiler.INDENT);
+        builder.Append(Nsd1Compiler.INDENT);
+        builder.Append(Nsd1Compiler.INDENT);
+        builder.AppendLine($"length += arrayHeaderLen + {fieldDefinition.Name}[i].GetSize();");
+
+        builder.Append(Nsd1Compiler.INDENT);
+        builder.Append(Nsd1Compiler.INDENT);
+        builder.AppendLine("}");
     }
 
     private static IEnumerable<FieldDefinition> GetMinLenEligableFields(TypeDefinition typeDefinition)

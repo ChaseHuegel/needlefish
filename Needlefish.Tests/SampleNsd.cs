@@ -203,7 +203,7 @@ namespace Lexer.Tests
                 length += optionalFieldLen + arrayHeaderLen + 0;
                 for (int i = 0; i < OptionalStrings.Length; i++)
                 {
-                    length += arrayHeaderLen + OptionalStrings[i].Length * charLen;
+                    length += arrayHeaderLen + (OptionalStrings[i]?.Length ?? 0) * charLen;
                 }
             }
         
@@ -269,7 +269,8 @@ namespace Lexer.Tests
         
             if (OptionalSubmessages != null)
             {
-                length += optionalFieldLen + arrayHeaderLen + (OptionalSubmessages.Length * 0);
+                length += optionalFieldLen + arrayHeaderLen;
+        
                 for (int i = 0; i < OptionalSubmessages.Length; i++)
                 {
                     length += arrayHeaderLen + OptionalSubmessages[i].GetSize();
@@ -290,452 +291,7 @@ namespace Lexer.Tests
         
         public readonly unsafe int SerializeInto(byte[] buffer, int start)
         {
-            unchecked
-            {
-                if (buffer.Length == 0)
-                {
-                    return 0;
-                }
-        
-                fixed (byte* b = &buffer[start])
-                {
-                    byte* offset = b;
-        
-                    #region Serialize Content
-                    string? g__Content = Content;
-                    if (g__Content != null)
-                    {
-                        *((ushort*)offset) = BitConverter.IsLittleEndian ? Content_ID : BinaryPrimitives.ReverseEndianness(Content_ID);
-                        offset += 2;
-                    
-                        *((byte*)offset) = (byte)1;
-                        offset += 1;
-                    
-                        *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)(g__Content?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)(g__Content?.Length ?? 0));
-                        offset += 2;
-                    
-                        for (int i = 0; i < g__Content?.Length; i++)
-                        {
-                            *((char*)offset) = BitConverter.IsLittleEndian ? g__Content[i] : (char)BinaryPrimitives.ReverseEndianness(g__Content[i]);
-                            offset += 2;
-                        }
-                    }
-                    #endregion
-                    
-                    #region Serialize Body
-                    string g__Body = Body;
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? Body_ID : BinaryPrimitives.ReverseEndianness(Body_ID);
-                        offset += 2;
-                    
-                    if (g__Body != null)
-                    {
-                        *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)(g__Body?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)(g__Body?.Length ?? 0));
-                        offset += 2;
-                    
-                        for (int i = 0; i < g__Body.Length; i++)
-                        {
-                            *((char*)offset) = BitConverter.IsLittleEndian ? g__Body[i] : (char)BinaryPrimitives.ReverseEndianness(g__Body[i]);
-                            offset += 2;
-                        }
-                    }
-                    else
-                    {
-                        *((ushort*)offset) = (ushort)0;
-                        offset += 2;
-                    }
-                    #endregion
-                    
-                    #region Serialize FloAT
-                    float g__FloAT = FloAT;
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? FloAT_ID : BinaryPrimitives.ReverseEndianness(FloAT_ID);
-                        offset += 2;
-                    
-                    float g__FloAT_Copy = g__FloAT;
-                    *((float*)offset) = BitConverter.IsLittleEndian ? g__FloAT : BinaryPrimitives.ReverseEndianness(*(uint*)&g__FloAT_Copy);
-                        offset += 4;
-                    #endregion
-                    
-                    #region Serialize Double
-                    double g__Double = Double;
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? Double_ID : BinaryPrimitives.ReverseEndianness(Double_ID);
-                        offset += 2;
-                    
-                    double g__Double_Copy = g__Double;
-                    *((double*)offset) = BitConverter.IsLittleEndian ? g__Double : BinaryPrimitives.ReverseEndianness(*(ulong*)&g__Double_Copy);
-                        offset += 8;
-                    #endregion
-                    
-                    #region Serialize Long
-                    long g__Long = Long;
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? Long_ID : BinaryPrimitives.ReverseEndianness(Long_ID);
-                        offset += 2;
-                    
-                    *((long*)offset) = BitConverter.IsLittleEndian ? g__Long : BinaryPrimitives.ReverseEndianness(g__Long);
-                        offset += 8;
-                    #endregion
-                    
-                    #region Serialize uLong
-                    ulong g__uLong = uLong;
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? uLong_ID : BinaryPrimitives.ReverseEndianness(uLong_ID);
-                        offset += 2;
-                    
-                    *((ulong*)offset) = BitConverter.IsLittleEndian ? g__uLong : BinaryPrimitives.ReverseEndianness(g__uLong);
-                        offset += 8;
-                    #endregion
-                    
-                    #region Serialize Ulong
-                    ulong g__Ulong = Ulong;
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? Ulong_ID : BinaryPrimitives.ReverseEndianness(Ulong_ID);
-                        offset += 2;
-                    
-                    *((ulong*)offset) = BitConverter.IsLittleEndian ? g__Ulong : BinaryPrimitives.ReverseEndianness(g__Ulong);
-                        offset += 8;
-                    #endregion
-                    
-                    #region Serialize Short
-                    short g__Short = Short;
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? Short_ID : BinaryPrimitives.ReverseEndianness(Short_ID);
-                        offset += 2;
-                    
-                    *((short*)offset) = BitConverter.IsLittleEndian ? g__Short : BinaryPrimitives.ReverseEndianness(g__Short);
-                        offset += 2;
-                    #endregion
-                    
-                    #region Serialize UShort
-                    ushort g__UShort = UShort;
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? UShort_ID : BinaryPrimitives.ReverseEndianness(UShort_ID);
-                        offset += 2;
-                    
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? g__UShort : BinaryPrimitives.ReverseEndianness(g__UShort);
-                        offset += 2;
-                    #endregion
-                    
-                    #region Serialize Bool
-                    bool g__Bool = Bool;
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? Bool_ID : BinaryPrimitives.ReverseEndianness(Bool_ID);
-                        offset += 2;
-                    
-                    *((bool*)offset) = g__Bool;
-                        offset += 1;
-                    #endregion
-                    
-                    #region Serialize Byte
-                    byte g__Byte = Byte;
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? Byte_ID : BinaryPrimitives.ReverseEndianness(Byte_ID);
-                        offset += 2;
-                    
-                    *((byte*)offset) = BitConverter.IsLittleEndian ? g__Byte : BinaryPrimitives.ReverseEndianness(g__Byte);
-                        offset += 1;
-                    #endregion
-                    
-                    #region Serialize Bytes
-                    byte[] g__Bytes = Bytes;
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? Bytes_ID : BinaryPrimitives.ReverseEndianness(Bytes_ID);
-                        offset += 2;
-                    
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)(g__Bytes?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)(g__Bytes?.Length ?? 0));
-                        offset += 2;
-                    
-                    for (int i = 0; i < g__Bytes?.Length; i++)
-                    {
-                        *((byte*)offset) = BitConverter.IsLittleEndian ? g__Bytes[i] : BinaryPrimitives.ReverseEndianness(g__Bytes[i]);
-                        offset += 1;
-                    }
-                    #endregion
-                    
-                    #region Serialize OptionalStrings
-                    string[]? g__OptionalStrings = OptionalStrings;
-                    if (g__OptionalStrings != null)
-                    {
-                        *((ushort*)offset) = BitConverter.IsLittleEndian ? OptionalStrings_ID : BinaryPrimitives.ReverseEndianness(OptionalStrings_ID);
-                        offset += 2;
-                    
-                        *((byte*)offset) = (byte)1;
-                        offset += 1;
-                    
-                        *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)(g__OptionalStrings?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)(g__OptionalStrings?.Length ?? 0));
-                        offset += 2;
-                    
-                        for (int i = 0; i < g__OptionalStrings?.Length; i++)
-                        {
-                            string item = g__OptionalStrings[i];
-                    
-                            *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)(item?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)(item?.Length ?? 0));
-                            offset += 2;
-                    
-                            if (item != null)
-                            {
-                                for (int n = 0; n < item.Length; n++)
-                                {
-                                    *((char*)offset) = BitConverter.IsLittleEndian ? item[n] : (char)BinaryPrimitives.ReverseEndianness(item[n]);
-                                    offset += 2;
-                                }
-                            }
-                        }
-                    }
-                    #endregion
-                    
-                    #region Serialize Int
-                    int g__Int = Int;
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? Int_ID : BinaryPrimitives.ReverseEndianness(Int_ID);
-                        offset += 2;
-                    
-                    *((int*)offset) = BitConverter.IsLittleEndian ? g__Int : BinaryPrimitives.ReverseEndianness(g__Int);
-                        offset += 4;
-                    #endregion
-                    
-                    #region Serialize OptionalInt
-                    int? g__OptionalInt = OptionalInt;
-                    if (g__OptionalInt != null)
-                    {
-                        *((ushort*)offset) = BitConverter.IsLittleEndian ? OptionalInt_ID : BinaryPrimitives.ReverseEndianness(OptionalInt_ID);
-                        offset += 2;
-                    
-                        *((byte*)offset) = (byte)1;
-                        offset += 1;
-                    
-                        *((int*)offset) = BitConverter.IsLittleEndian ? g__OptionalInt.Value : BinaryPrimitives.ReverseEndianness(g__OptionalInt.Value);
-                        offset += 4;
-                    }
-                    #endregion
-                    
-                    #region Serialize Ints
-                    int[] g__Ints = Ints;
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? Ints_ID : BinaryPrimitives.ReverseEndianness(Ints_ID);
-                        offset += 2;
-                    
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)(g__Ints?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)(g__Ints?.Length ?? 0));
-                        offset += 2;
-                    
-                    for (int i = 0; i < g__Ints?.Length; i++)
-                    {
-                        *((int*)offset) = BitConverter.IsLittleEndian ? g__Ints[i] : BinaryPrimitives.ReverseEndianness(g__Ints[i]);
-                        offset += 4;
-                    }
-                    #endregion
-                    
-                    #region Serialize OptionalInts
-                    int[]? g__OptionalInts = OptionalInts;
-                    if (g__OptionalInts != null)
-                    {
-                        *((ushort*)offset) = BitConverter.IsLittleEndian ? OptionalInts_ID : BinaryPrimitives.ReverseEndianness(OptionalInts_ID);
-                        offset += 2;
-                    
-                        *((byte*)offset) = (byte)1;
-                        offset += 1;
-                    
-                        *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)(g__OptionalInts?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)(g__OptionalInts?.Length ?? 0));
-                        offset += 2;
-                    
-                        for (int i = 0; i < g__OptionalInts?.Length; i++)
-                        {
-                            *((int*)offset) = BitConverter.IsLittleEndian ? g__OptionalInts[i] : BinaryPrimitives.ReverseEndianness(g__OptionalInts[i]);
-                        offset += 4;
-                        }
-                    }
-                    #endregion
-                    
-                    #region Serialize UInt
-                    uint g__UInt = UInt;
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? UInt_ID : BinaryPrimitives.ReverseEndianness(UInt_ID);
-                        offset += 2;
-                    
-                    *((uint*)offset) = BitConverter.IsLittleEndian ? g__UInt : BinaryPrimitives.ReverseEndianness(g__UInt);
-                        offset += 4;
-                    #endregion
-                    
-                    #region Serialize OptionalUInt
-                    uint? g__OptionalUInt = OptionalUInt;
-                    if (g__OptionalUInt != null)
-                    {
-                        *((ushort*)offset) = BitConverter.IsLittleEndian ? OptionalUInt_ID : BinaryPrimitives.ReverseEndianness(OptionalUInt_ID);
-                        offset += 2;
-                    
-                        *((byte*)offset) = (byte)1;
-                        offset += 1;
-                    
-                        *((uint*)offset) = BitConverter.IsLittleEndian ? g__OptionalUInt.Value : BinaryPrimitives.ReverseEndianness(g__OptionalUInt.Value);
-                        offset += 4;
-                    }
-                    #endregion
-                    
-                    #region Serialize UInts
-                    uint[] g__UInts = UInts;
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? UInts_ID : BinaryPrimitives.ReverseEndianness(UInts_ID);
-                        offset += 2;
-                    
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)(g__UInts?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)(g__UInts?.Length ?? 0));
-                        offset += 2;
-                    
-                    for (int i = 0; i < g__UInts?.Length; i++)
-                    {
-                        *((uint*)offset) = BitConverter.IsLittleEndian ? g__UInts[i] : BinaryPrimitives.ReverseEndianness(g__UInts[i]);
-                        offset += 4;
-                    }
-                    #endregion
-                    
-                    #region Serialize OptionalUInts
-                    uint[]? g__OptionalUInts = OptionalUInts;
-                    if (g__OptionalUInts != null)
-                    {
-                        *((ushort*)offset) = BitConverter.IsLittleEndian ? OptionalUInts_ID : BinaryPrimitives.ReverseEndianness(OptionalUInts_ID);
-                        offset += 2;
-                    
-                        *((byte*)offset) = (byte)1;
-                        offset += 1;
-                    
-                        *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)(g__OptionalUInts?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)(g__OptionalUInts?.Length ?? 0));
-                        offset += 2;
-                    
-                        for (int i = 0; i < g__OptionalUInts?.Length; i++)
-                        {
-                            *((uint*)offset) = BitConverter.IsLittleEndian ? g__OptionalUInts[i] : BinaryPrimitives.ReverseEndianness(g__OptionalUInts[i]);
-                        offset += 4;
-                        }
-                    }
-                    #endregion
-                    
-                    #region Serialize Enum
-                    TestEnum g__Enum = Enum;
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? Enum_ID : BinaryPrimitives.ReverseEndianness(Enum_ID);
-                        offset += 2;
-                    
-                    *((int*)offset) = BitConverter.IsLittleEndian ? (int)g__Enum : BinaryPrimitives.ReverseEndianness((int)g__Enum);
-                        offset += 4;
-                    #endregion
-                    
-                    #region Serialize OptionalEnum
-                    TestEnum? g__OptionalEnum = OptionalEnum;
-                    if (g__OptionalEnum != null)
-                    {
-                        *((ushort*)offset) = BitConverter.IsLittleEndian ? OptionalEnum_ID : BinaryPrimitives.ReverseEndianness(OptionalEnum_ID);
-                        offset += 2;
-                    
-                        *((byte*)offset) = (byte)1;
-                        offset += 1;
-                    
-                        *((int*)offset) = BitConverter.IsLittleEndian ? (int)g__OptionalEnum.Value : BinaryPrimitives.ReverseEndianness((int)g__OptionalEnum.Value);
-                        offset += 4;
-                    }
-                    #endregion
-                    
-                    #region Serialize Enums
-                    TestEnum[] g__Enums = Enums;
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? Enums_ID : BinaryPrimitives.ReverseEndianness(Enums_ID);
-                        offset += 2;
-                    
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)(g__Enums?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)(g__Enums?.Length ?? 0));
-                        offset += 2;
-                    
-                    for (int i = 0; i < g__Enums?.Length; i++)
-                    {
-                        *((int*)offset) = BitConverter.IsLittleEndian ? (int)g__Enums[i] : BinaryPrimitives.ReverseEndianness((int)g__Enums[i]);
-                        offset += 4;
-                    }
-                    #endregion
-                    
-                    #region Serialize OptionalEnums
-                    TestEnum[]? g__OptionalEnums = OptionalEnums;
-                    if (g__OptionalEnums != null)
-                    {
-                        *((ushort*)offset) = BitConverter.IsLittleEndian ? OptionalEnums_ID : BinaryPrimitives.ReverseEndianness(OptionalEnums_ID);
-                        offset += 2;
-                    
-                        *((byte*)offset) = (byte)1;
-                        offset += 1;
-                    
-                        *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)(g__OptionalEnums?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)(g__OptionalEnums?.Length ?? 0));
-                        offset += 2;
-                    
-                        for (int i = 0; i < g__OptionalEnums?.Length; i++)
-                        {
-                            *((int*)offset) = BitConverter.IsLittleEndian ? (int)g__OptionalEnums[i] : BinaryPrimitives.ReverseEndianness((int)g__OptionalEnums[i]);
-                        offset += 4;
-                        }
-                    }
-                    #endregion
-                    
-                    #region Serialize Submessage
-                    Submessage g__Submessage = Submessage;
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? Submessage_ID : BinaryPrimitives.ReverseEndianness(Submessage_ID);
-                        offset += 2;
-                    
-                    ushort g__Submessage_ObjectLength = (ushort)g__Submessage.GetSize();
-                        * ((ushort*)offset) = BitConverter.IsLittleEndian ? g__Submessage_ObjectLength : BinaryPrimitives.ReverseEndianness(g__Submessage_ObjectLength);
-                        offset += 2;
-                    
-                        g__Submessage.SerializeInto(buffer, start + (int)(offset - b));
-                        offset += g__Submessage_ObjectLength;
-                    #endregion
-                    
-                    #region Serialize OptionalSubmessage
-                    Submessage? g__OptionalSubmessage = OptionalSubmessage;
-                    if (g__OptionalSubmessage != null)
-                    {
-                        *((ushort*)offset) = BitConverter.IsLittleEndian ? OptionalSubmessage_ID : BinaryPrimitives.ReverseEndianness(OptionalSubmessage_ID);
-                        offset += 2;
-                    
-                        *((byte*)offset) = (byte)1;
-                        offset += 1;
-                    
-                        ushort g__OptionalSubmessage_ObjectLength = (ushort)g__OptionalSubmessage.Value.GetSize();
-                        * ((ushort*)offset) = BitConverter.IsLittleEndian ? g__OptionalSubmessage_ObjectLength : BinaryPrimitives.ReverseEndianness(g__OptionalSubmessage_ObjectLength);
-                        offset += 2;
-                    
-                        g__OptionalSubmessage.Value.SerializeInto(buffer, start + (int)(offset - b));
-                        offset += g__OptionalSubmessage_ObjectLength;
-                    }
-                    #endregion
-                    
-                    #region Serialize Submessages
-                    Submessage[] g__Submessages = Submessages;
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? Submessages_ID : BinaryPrimitives.ReverseEndianness(Submessages_ID);
-                        offset += 2;
-                    
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)(g__Submessages?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)(g__Submessages?.Length ?? 0));
-                        offset += 2;
-                    
-                    for (int i = 0; i < g__Submessages?.Length; i++)
-                    {
-                        ushort g__Submessages_ObjectLength = (ushort)g__Submessages[i].GetSize();
-                        * ((ushort*)offset) = BitConverter.IsLittleEndian ? g__Submessages_ObjectLength : BinaryPrimitives.ReverseEndianness(g__Submessages_ObjectLength);
-                        offset += 2;
-                    
-                        g__Submessages[i].SerializeInto(buffer, start + (int)(offset - b));
-                        offset += g__Submessages_ObjectLength;
-                    }
-                    #endregion
-                    
-                    #region Serialize OptionalSubmessages
-                    Submessage[]? g__OptionalSubmessages = OptionalSubmessages;
-                    if (g__OptionalSubmessages != null)
-                    {
-                        *((ushort*)offset) = BitConverter.IsLittleEndian ? OptionalSubmessages_ID : BinaryPrimitives.ReverseEndianness(OptionalSubmessages_ID);
-                        offset += 2;
-                    
-                        *((byte*)offset) = (byte)1;
-                        offset += 1;
-                    
-                        *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)(g__OptionalSubmessages?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)(g__OptionalSubmessages?.Length ?? 0));
-                        offset += 2;
-                    
-                        for (int i = 0; i < g__OptionalSubmessages?.Length; i++)
-                        {
-                            ushort g__OptionalSubmessages_ObjectLength = (ushort)g__OptionalSubmessages[i].GetSize();
-                        * ((ushort*)offset) = BitConverter.IsLittleEndian ? g__OptionalSubmessages_ObjectLength : BinaryPrimitives.ReverseEndianness(g__OptionalSubmessages_ObjectLength);
-                        offset += 2;
-                    
-                        g__OptionalSubmessages[i].SerializeInto(buffer, start + (int)(offset - b));
-                        offset += g__OptionalSubmessages_ObjectLength;
-                        }
-                    }
-                    #endregion
-                    
-                    
-        
-                    return (int)(offset - b);
-                }
-            }
+            return SerializeInto(buffer.AsSpan(), start);
         }
         
         public readonly int SerializeInto(Span<byte> buffer)
@@ -752,444 +308,730 @@ namespace Lexer.Tests
                     return 0;
                 }
         
-                fixed (byte* b = &buffer[start])
+                fixed (byte* g__offset = &buffer[start])
                 {
-                    byte* offset = b;
+                    return SerializeCore(g__offset);
+                }
+            }
+        }
         
-                    #region Serialize Content
-                    string? g__Content = Content;
-                    if (g__Content != null)
+        internal readonly unsafe int SerializeCore(byte* offset)
+        {
+            unchecked
+            {
+                byte* g__serializeStart = offset;
+        
+                #region Serialize Content
+                string? g__Content = Content;
+                
+                if (g__Content != null)
+                {
+                    *((ushort*)offset) = BitConverter.IsLittleEndian ? Content_ID : BinaryPrimitives.ReverseEndianness(Content_ID);
+                    offset += 2;
+                    *((byte*)offset) = (byte)1;
+                    offset += 1;
+                
+                    int g__Content_Length = g__Content.Length;
+                    if (g__Content_Length > ushort.MaxValue)
                     {
-                        *((ushort*)offset) = BitConverter.IsLittleEndian ? Content_ID : BinaryPrimitives.ReverseEndianness(Content_ID);
-                        offset += 2;
+                        throw new InvalidOperationException("Field 'Content' exceeds the maximum encodable length of 65535.");
+                    }
                     
-                        *((byte*)offset) = (byte)1;
-                        offset += 1;
+                    *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)g__Content_Length : BinaryPrimitives.ReverseEndianness((ushort)g__Content_Length);
+                    offset += 2;
                     
-                        *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)(g__Content?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)(g__Content?.Length ?? 0));
-                        offset += 2;
-                    
-                        for (int i = 0; i < g__Content?.Length; i++)
+                    if (g__Content_Length != 0)
+                    {
+                        if (BitConverter.IsLittleEndian && g__Content_Length >= 32)
                         {
-                            *((char*)offset) = BitConverter.IsLittleEndian ? g__Content[i] : (char)BinaryPrimitives.ReverseEndianness(g__Content[i]);
-                            offset += 2;
+                            fixed (char* g__Content_Chars = g__Content)
+                            {
+                                long g__Content_Bytes = (long)g__Content_Length * 2;
+                                Buffer.MemoryCopy(g__Content_Chars, offset, g__Content_Bytes, g__Content_Bytes);
+                            }
+                    
+                            offset += g__Content_Length * 2;
+                        }
+                        else
+                        {
+                            for (int i = 0; i < g__Content_Length; i++)
+                            {
+                                *((char*)offset) = BitConverter.IsLittleEndian ? g__Content[i] : (char)BinaryPrimitives.ReverseEndianness(g__Content[i]);
+                                offset += 2;
+                            }
                         }
                     }
-                    #endregion
-                    
-                    #region Serialize Body
-                    string g__Body = Body;
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? Body_ID : BinaryPrimitives.ReverseEndianness(Body_ID);
-                        offset += 2;
-                    
-                    if (g__Body != null)
+                }
+                #endregion
+                
+                #region Serialize Body
+                string g__Body = Body;
+                
+                *((ushort*)offset) = BitConverter.IsLittleEndian ? Body_ID : BinaryPrimitives.ReverseEndianness(Body_ID);
+                offset += 2;
+                
+                int g__Body_Length = g__Body?.Length ?? 0;
+                if (g__Body_Length > ushort.MaxValue)
+                {
+                    throw new InvalidOperationException("Field 'Body' exceeds the maximum encodable length of 65535.");
+                }
+                
+                *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)g__Body_Length : BinaryPrimitives.ReverseEndianness((ushort)g__Body_Length);
+                offset += 2;
+                
+                if (g__Body_Length != 0)
+                {
+                    if (BitConverter.IsLittleEndian && g__Body_Length >= 32)
                     {
-                        *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)(g__Body?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)(g__Body?.Length ?? 0));
-                        offset += 2;
-                    
-                        for (int i = 0; i < g__Body.Length; i++)
+                        fixed (char* g__Body_Chars = g__Body)
+                        {
+                            long g__Body_Bytes = (long)g__Body_Length * 2;
+                            Buffer.MemoryCopy(g__Body_Chars, offset, g__Body_Bytes, g__Body_Bytes);
+                        }
+                
+                        offset += g__Body_Length * 2;
+                    }
+                    else
+                    {
+                        for (int i = 0; i < g__Body_Length; i++)
                         {
                             *((char*)offset) = BitConverter.IsLittleEndian ? g__Body[i] : (char)BinaryPrimitives.ReverseEndianness(g__Body[i]);
                             offset += 2;
                         }
                     }
+                }
+                #endregion
+                
+                #region Serialize FloAT
+                float g__FloAT = FloAT;
+                
+                *((ushort*)offset) = BitConverter.IsLittleEndian ? FloAT_ID : BinaryPrimitives.ReverseEndianness(FloAT_ID);
+                offset += 2;
+                
+                float g__FloAT_Copy = g__FloAT;
+                *((uint*)offset) = BitConverter.IsLittleEndian ? *(uint*)&g__FloAT_Copy : BinaryPrimitives.ReverseEndianness(*(uint*)&g__FloAT_Copy);
+                offset += 4;
+                #endregion
+                
+                #region Serialize Double
+                double g__Double = Double;
+                
+                *((ushort*)offset) = BitConverter.IsLittleEndian ? Double_ID : BinaryPrimitives.ReverseEndianness(Double_ID);
+                offset += 2;
+                
+                double g__Double_Copy = g__Double;
+                *((ulong*)offset) = BitConverter.IsLittleEndian ? *(ulong*)&g__Double_Copy : BinaryPrimitives.ReverseEndianness(*(ulong*)&g__Double_Copy);
+                offset += 8;
+                #endregion
+                
+                #region Serialize Long
+                long g__Long = Long;
+                
+                *((ushort*)offset) = BitConverter.IsLittleEndian ? Long_ID : BinaryPrimitives.ReverseEndianness(Long_ID);
+                offset += 2;
+                
+                *((long*)offset) = BitConverter.IsLittleEndian ? g__Long : BinaryPrimitives.ReverseEndianness(g__Long);
+                offset += 8;
+                #endregion
+                
+                #region Serialize uLong
+                ulong g__uLong = uLong;
+                
+                *((ushort*)offset) = BitConverter.IsLittleEndian ? uLong_ID : BinaryPrimitives.ReverseEndianness(uLong_ID);
+                offset += 2;
+                
+                *((ulong*)offset) = BitConverter.IsLittleEndian ? g__uLong : BinaryPrimitives.ReverseEndianness(g__uLong);
+                offset += 8;
+                #endregion
+                
+                #region Serialize Ulong
+                ulong g__Ulong = Ulong;
+                
+                *((ushort*)offset) = BitConverter.IsLittleEndian ? Ulong_ID : BinaryPrimitives.ReverseEndianness(Ulong_ID);
+                offset += 2;
+                
+                *((ulong*)offset) = BitConverter.IsLittleEndian ? g__Ulong : BinaryPrimitives.ReverseEndianness(g__Ulong);
+                offset += 8;
+                #endregion
+                
+                #region Serialize Short
+                short g__Short = Short;
+                
+                *((ushort*)offset) = BitConverter.IsLittleEndian ? Short_ID : BinaryPrimitives.ReverseEndianness(Short_ID);
+                offset += 2;
+                
+                *((short*)offset) = BitConverter.IsLittleEndian ? g__Short : BinaryPrimitives.ReverseEndianness(g__Short);
+                offset += 2;
+                #endregion
+                
+                #region Serialize UShort
+                ushort g__UShort = UShort;
+                
+                *((ushort*)offset) = BitConverter.IsLittleEndian ? UShort_ID : BinaryPrimitives.ReverseEndianness(UShort_ID);
+                offset += 2;
+                
+                *((ushort*)offset) = BitConverter.IsLittleEndian ? g__UShort : BinaryPrimitives.ReverseEndianness(g__UShort);
+                offset += 2;
+                #endregion
+                
+                #region Serialize Bool
+                bool g__Bool = Bool;
+                
+                *((ushort*)offset) = BitConverter.IsLittleEndian ? Bool_ID : BinaryPrimitives.ReverseEndianness(Bool_ID);
+                offset += 2;
+                
+                *((bool*)offset) = g__Bool;
+                offset += 1;
+                #endregion
+                
+                #region Serialize Byte
+                byte g__Byte = Byte;
+                
+                *((ushort*)offset) = BitConverter.IsLittleEndian ? Byte_ID : BinaryPrimitives.ReverseEndianness(Byte_ID);
+                offset += 2;
+                
+                *((byte*)offset) = BitConverter.IsLittleEndian ? g__Byte : BinaryPrimitives.ReverseEndianness(g__Byte);
+                offset += 1;
+                #endregion
+                
+                #region Serialize Bytes
+                byte[] g__Bytes = Bytes;
+                
+                *((ushort*)offset) = BitConverter.IsLittleEndian ? Bytes_ID : BinaryPrimitives.ReverseEndianness(Bytes_ID);
+                offset += 2;
+                
+                int g__Bytes_Length = g__Bytes?.Length ?? 0;
+                if (g__Bytes_Length > ushort.MaxValue)
+                {
+                    throw new InvalidOperationException("Field 'Bytes' exceeds the maximum encodable length of 65535.");
+                }
+                
+                *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)g__Bytes_Length : BinaryPrimitives.ReverseEndianness((ushort)g__Bytes_Length);
+                offset += 2;
+                
+                if (g__Bytes_Length != 0)
+                {
+                    if (BitConverter.IsLittleEndian && g__Bytes_Length >= 64)
+                    {
+                        fixed (byte* g__Bytes_Ptr = g__Bytes)
+                        {
+                            long g__Bytes_Bytes = (long)g__Bytes_Length * 1;
+                            Buffer.MemoryCopy(g__Bytes_Ptr, offset, g__Bytes_Bytes, g__Bytes_Bytes);
+                        }
+                
+                        offset += g__Bytes_Length * 1;
+                    }
                     else
                     {
-                        *((ushort*)offset) = (ushort)0;
-                        offset += 2;
-                    }
-                    #endregion
-                    
-                    #region Serialize FloAT
-                    float g__FloAT = FloAT;
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? FloAT_ID : BinaryPrimitives.ReverseEndianness(FloAT_ID);
-                        offset += 2;
-                    
-                    float g__FloAT_Copy = g__FloAT;
-                    *((float*)offset) = BitConverter.IsLittleEndian ? g__FloAT : BinaryPrimitives.ReverseEndianness(*(uint*)&g__FloAT_Copy);
-                        offset += 4;
-                    #endregion
-                    
-                    #region Serialize Double
-                    double g__Double = Double;
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? Double_ID : BinaryPrimitives.ReverseEndianness(Double_ID);
-                        offset += 2;
-                    
-                    double g__Double_Copy = g__Double;
-                    *((double*)offset) = BitConverter.IsLittleEndian ? g__Double : BinaryPrimitives.ReverseEndianness(*(ulong*)&g__Double_Copy);
-                        offset += 8;
-                    #endregion
-                    
-                    #region Serialize Long
-                    long g__Long = Long;
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? Long_ID : BinaryPrimitives.ReverseEndianness(Long_ID);
-                        offset += 2;
-                    
-                    *((long*)offset) = BitConverter.IsLittleEndian ? g__Long : BinaryPrimitives.ReverseEndianness(g__Long);
-                        offset += 8;
-                    #endregion
-                    
-                    #region Serialize uLong
-                    ulong g__uLong = uLong;
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? uLong_ID : BinaryPrimitives.ReverseEndianness(uLong_ID);
-                        offset += 2;
-                    
-                    *((ulong*)offset) = BitConverter.IsLittleEndian ? g__uLong : BinaryPrimitives.ReverseEndianness(g__uLong);
-                        offset += 8;
-                    #endregion
-                    
-                    #region Serialize Ulong
-                    ulong g__Ulong = Ulong;
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? Ulong_ID : BinaryPrimitives.ReverseEndianness(Ulong_ID);
-                        offset += 2;
-                    
-                    *((ulong*)offset) = BitConverter.IsLittleEndian ? g__Ulong : BinaryPrimitives.ReverseEndianness(g__Ulong);
-                        offset += 8;
-                    #endregion
-                    
-                    #region Serialize Short
-                    short g__Short = Short;
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? Short_ID : BinaryPrimitives.ReverseEndianness(Short_ID);
-                        offset += 2;
-                    
-                    *((short*)offset) = BitConverter.IsLittleEndian ? g__Short : BinaryPrimitives.ReverseEndianness(g__Short);
-                        offset += 2;
-                    #endregion
-                    
-                    #region Serialize UShort
-                    ushort g__UShort = UShort;
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? UShort_ID : BinaryPrimitives.ReverseEndianness(UShort_ID);
-                        offset += 2;
-                    
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? g__UShort : BinaryPrimitives.ReverseEndianness(g__UShort);
-                        offset += 2;
-                    #endregion
-                    
-                    #region Serialize Bool
-                    bool g__Bool = Bool;
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? Bool_ID : BinaryPrimitives.ReverseEndianness(Bool_ID);
-                        offset += 2;
-                    
-                    *((bool*)offset) = g__Bool;
-                        offset += 1;
-                    #endregion
-                    
-                    #region Serialize Byte
-                    byte g__Byte = Byte;
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? Byte_ID : BinaryPrimitives.ReverseEndianness(Byte_ID);
-                        offset += 2;
-                    
-                    *((byte*)offset) = BitConverter.IsLittleEndian ? g__Byte : BinaryPrimitives.ReverseEndianness(g__Byte);
-                        offset += 1;
-                    #endregion
-                    
-                    #region Serialize Bytes
-                    byte[] g__Bytes = Bytes;
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? Bytes_ID : BinaryPrimitives.ReverseEndianness(Bytes_ID);
-                        offset += 2;
-                    
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)(g__Bytes?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)(g__Bytes?.Length ?? 0));
-                        offset += 2;
-                    
-                    for (int i = 0; i < g__Bytes?.Length; i++)
-                    {
-                        *((byte*)offset) = BitConverter.IsLittleEndian ? g__Bytes[i] : BinaryPrimitives.ReverseEndianness(g__Bytes[i]);
-                        offset += 1;
-                    }
-                    #endregion
-                    
-                    #region Serialize OptionalStrings
-                    string[]? g__OptionalStrings = OptionalStrings;
-                    if (g__OptionalStrings != null)
-                    {
-                        *((ushort*)offset) = BitConverter.IsLittleEndian ? OptionalStrings_ID : BinaryPrimitives.ReverseEndianness(OptionalStrings_ID);
-                        offset += 2;
-                    
-                        *((byte*)offset) = (byte)1;
-                        offset += 1;
-                    
-                        *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)(g__OptionalStrings?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)(g__OptionalStrings?.Length ?? 0));
-                        offset += 2;
-                    
-                        for (int i = 0; i < g__OptionalStrings?.Length; i++)
+                        for (int i = 0; i < g__Bytes_Length; i++)
                         {
-                            string item = g__OptionalStrings[i];
+                            *((byte*)offset) = BitConverter.IsLittleEndian ? g__Bytes[i] : BinaryPrimitives.ReverseEndianness(g__Bytes[i]);
+                            offset += 1;
+                        }
+                    }
+                }
+                #endregion
+                
+                #region Serialize OptionalStrings
+                string[]? g__OptionalStrings = OptionalStrings;
+                
+                if (g__OptionalStrings != null)
+                {
+                    *((ushort*)offset) = BitConverter.IsLittleEndian ? OptionalStrings_ID : BinaryPrimitives.ReverseEndianness(OptionalStrings_ID);
+                    offset += 2;
+                    *((byte*)offset) = (byte)1;
+                    offset += 1;
+                
+                    int g__OptionalStrings_Length = g__OptionalStrings.Length;
+                    if (g__OptionalStrings_Length > ushort.MaxValue)
+                    {
+                        throw new InvalidOperationException("Field 'OptionalStrings' exceeds the maximum encodable length of 65535.");
+                    }
                     
-                            *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)(item?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)(item?.Length ?? 0));
+                    *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)g__OptionalStrings_Length : BinaryPrimitives.ReverseEndianness((ushort)g__OptionalStrings_Length);
+                    offset += 2;
+                    
+                    if (g__OptionalStrings_Length != 0)
+                    {
+                        for (int i = 0; i < g__OptionalStrings_Length; i++)
+                        {
+                            string g__OptionalStrings_Item = g__OptionalStrings[i];
+                            int g__OptionalStrings_ItemLength = g__OptionalStrings_Item?.Length ?? 0;
+                            if (g__OptionalStrings_ItemLength > ushort.MaxValue)
+                            {
+                                throw new InvalidOperationException("Field 'OptionalStrings' exceeds the maximum encodable length of 65535.");
+                            }
+                    
+                            *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)g__OptionalStrings_ItemLength : BinaryPrimitives.ReverseEndianness((ushort)g__OptionalStrings_ItemLength);
                             offset += 2;
                     
-                            if (item != null)
+                            if (g__OptionalStrings_ItemLength != 0)
                             {
-                                for (int n = 0; n < item.Length; n++)
+                                if (BitConverter.IsLittleEndian && g__OptionalStrings_ItemLength >= 32)
                                 {
-                                    *((char*)offset) = BitConverter.IsLittleEndian ? item[n] : (char)BinaryPrimitives.ReverseEndianness(item[n]);
-                                    offset += 2;
+                                    fixed (char* g__OptionalStrings_ItemChars = g__OptionalStrings_Item)
+                                    {
+                                        long g__OptionalStrings_ItemBytes = (long)g__OptionalStrings_ItemLength * 2;
+                                        Buffer.MemoryCopy(g__OptionalStrings_ItemChars, offset, g__OptionalStrings_ItemBytes, g__OptionalStrings_ItemBytes);
+                                    }
+                    
+                                    offset += g__OptionalStrings_ItemLength * 2;
+                                }
+                                else
+                                {
+                                    for (int n = 0; n < g__OptionalStrings_ItemLength; n++)
+                                    {
+                                        *((char*)offset) = BitConverter.IsLittleEndian ? g__OptionalStrings_Item[n] : (char)BinaryPrimitives.ReverseEndianness(g__OptionalStrings_Item[n]);
+                                        offset += 2;
+                                    }
                                 }
                             }
                         }
                     }
-                    #endregion
-                    
-                    #region Serialize Int
-                    int g__Int = Int;
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? Int_ID : BinaryPrimitives.ReverseEndianness(Int_ID);
-                        offset += 2;
-                    
-                    *((int*)offset) = BitConverter.IsLittleEndian ? g__Int : BinaryPrimitives.ReverseEndianness(g__Int);
-                        offset += 4;
-                    #endregion
-                    
-                    #region Serialize OptionalInt
-                    int? g__OptionalInt = OptionalInt;
-                    if (g__OptionalInt != null)
+                }
+                #endregion
+                
+                #region Serialize Int
+                int g__Int = Int;
+                
+                *((ushort*)offset) = BitConverter.IsLittleEndian ? Int_ID : BinaryPrimitives.ReverseEndianness(Int_ID);
+                offset += 2;
+                
+                *((int*)offset) = BitConverter.IsLittleEndian ? g__Int : BinaryPrimitives.ReverseEndianness(g__Int);
+                offset += 4;
+                #endregion
+                
+                #region Serialize OptionalInt
+                int? g__OptionalInt = OptionalInt;
+                
+                if (g__OptionalInt != null)
+                {
+                    *((ushort*)offset) = BitConverter.IsLittleEndian ? OptionalInt_ID : BinaryPrimitives.ReverseEndianness(OptionalInt_ID);
+                    offset += 2;
+                    *((byte*)offset) = (byte)1;
+                    offset += 1;
+                
+                    *((int*)offset) = BitConverter.IsLittleEndian ? g__OptionalInt.Value : BinaryPrimitives.ReverseEndianness(g__OptionalInt.Value);
+                    offset += 4;
+                }
+                #endregion
+                
+                #region Serialize Ints
+                int[] g__Ints = Ints;
+                
+                *((ushort*)offset) = BitConverter.IsLittleEndian ? Ints_ID : BinaryPrimitives.ReverseEndianness(Ints_ID);
+                offset += 2;
+                
+                int g__Ints_Length = g__Ints?.Length ?? 0;
+                if (g__Ints_Length > ushort.MaxValue)
+                {
+                    throw new InvalidOperationException("Field 'Ints' exceeds the maximum encodable length of 65535.");
+                }
+                
+                *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)g__Ints_Length : BinaryPrimitives.ReverseEndianness((ushort)g__Ints_Length);
+                offset += 2;
+                
+                if (g__Ints_Length != 0)
+                {
+                    if (BitConverter.IsLittleEndian && g__Ints_Length >= 16)
                     {
-                        *((ushort*)offset) = BitConverter.IsLittleEndian ? OptionalInt_ID : BinaryPrimitives.ReverseEndianness(OptionalInt_ID);
-                        offset += 2;
-                    
-                        *((byte*)offset) = (byte)1;
-                        offset += 1;
-                    
-                        *((int*)offset) = BitConverter.IsLittleEndian ? g__OptionalInt.Value : BinaryPrimitives.ReverseEndianness(g__OptionalInt.Value);
-                        offset += 4;
-                    }
-                    #endregion
-                    
-                    #region Serialize Ints
-                    int[] g__Ints = Ints;
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? Ints_ID : BinaryPrimitives.ReverseEndianness(Ints_ID);
-                        offset += 2;
-                    
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)(g__Ints?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)(g__Ints?.Length ?? 0));
-                        offset += 2;
-                    
-                    for (int i = 0; i < g__Ints?.Length; i++)
-                    {
-                        *((int*)offset) = BitConverter.IsLittleEndian ? g__Ints[i] : BinaryPrimitives.ReverseEndianness(g__Ints[i]);
-                        offset += 4;
-                    }
-                    #endregion
-                    
-                    #region Serialize OptionalInts
-                    int[]? g__OptionalInts = OptionalInts;
-                    if (g__OptionalInts != null)
-                    {
-                        *((ushort*)offset) = BitConverter.IsLittleEndian ? OptionalInts_ID : BinaryPrimitives.ReverseEndianness(OptionalInts_ID);
-                        offset += 2;
-                    
-                        *((byte*)offset) = (byte)1;
-                        offset += 1;
-                    
-                        *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)(g__OptionalInts?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)(g__OptionalInts?.Length ?? 0));
-                        offset += 2;
-                    
-                        for (int i = 0; i < g__OptionalInts?.Length; i++)
+                        fixed (int* g__Ints_Ptr = g__Ints)
                         {
-                            *((int*)offset) = BitConverter.IsLittleEndian ? g__OptionalInts[i] : BinaryPrimitives.ReverseEndianness(g__OptionalInts[i]);
-                        offset += 4;
+                            long g__Ints_Bytes = (long)g__Ints_Length * 4;
+                            Buffer.MemoryCopy(g__Ints_Ptr, offset, g__Ints_Bytes, g__Ints_Bytes);
+                        }
+                
+                        offset += g__Ints_Length * 4;
+                    }
+                    else
+                    {
+                        for (int i = 0; i < g__Ints_Length; i++)
+                        {
+                            *((int*)offset) = BitConverter.IsLittleEndian ? g__Ints[i] : BinaryPrimitives.ReverseEndianness(g__Ints[i]);
+                            offset += 4;
                         }
                     }
-                    #endregion
-                    
-                    #region Serialize UInt
-                    uint g__UInt = UInt;
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? UInt_ID : BinaryPrimitives.ReverseEndianness(UInt_ID);
-                        offset += 2;
-                    
-                    *((uint*)offset) = BitConverter.IsLittleEndian ? g__UInt : BinaryPrimitives.ReverseEndianness(g__UInt);
-                        offset += 4;
-                    #endregion
-                    
-                    #region Serialize OptionalUInt
-                    uint? g__OptionalUInt = OptionalUInt;
-                    if (g__OptionalUInt != null)
+                }
+                #endregion
+                
+                #region Serialize OptionalInts
+                int[]? g__OptionalInts = OptionalInts;
+                
+                if (g__OptionalInts != null)
+                {
+                    *((ushort*)offset) = BitConverter.IsLittleEndian ? OptionalInts_ID : BinaryPrimitives.ReverseEndianness(OptionalInts_ID);
+                    offset += 2;
+                    *((byte*)offset) = (byte)1;
+                    offset += 1;
+                
+                    int g__OptionalInts_Length = g__OptionalInts.Length;
+                    if (g__OptionalInts_Length > ushort.MaxValue)
                     {
-                        *((ushort*)offset) = BitConverter.IsLittleEndian ? OptionalUInt_ID : BinaryPrimitives.ReverseEndianness(OptionalUInt_ID);
-                        offset += 2;
-                    
-                        *((byte*)offset) = (byte)1;
-                        offset += 1;
-                    
-                        *((uint*)offset) = BitConverter.IsLittleEndian ? g__OptionalUInt.Value : BinaryPrimitives.ReverseEndianness(g__OptionalUInt.Value);
-                        offset += 4;
+                        throw new InvalidOperationException("Field 'OptionalInts' exceeds the maximum encodable length of 65535.");
                     }
-                    #endregion
                     
-                    #region Serialize UInts
-                    uint[] g__UInts = UInts;
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? UInts_ID : BinaryPrimitives.ReverseEndianness(UInts_ID);
-                        offset += 2;
+                    *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)g__OptionalInts_Length : BinaryPrimitives.ReverseEndianness((ushort)g__OptionalInts_Length);
+                    offset += 2;
                     
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)(g__UInts?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)(g__UInts?.Length ?? 0));
-                        offset += 2;
-                    
-                    for (int i = 0; i < g__UInts?.Length; i++)
+                    if (g__OptionalInts_Length != 0)
                     {
-                        *((uint*)offset) = BitConverter.IsLittleEndian ? g__UInts[i] : BinaryPrimitives.ReverseEndianness(g__UInts[i]);
-                        offset += 4;
-                    }
-                    #endregion
-                    
-                    #region Serialize OptionalUInts
-                    uint[]? g__OptionalUInts = OptionalUInts;
-                    if (g__OptionalUInts != null)
-                    {
-                        *((ushort*)offset) = BitConverter.IsLittleEndian ? OptionalUInts_ID : BinaryPrimitives.ReverseEndianness(OptionalUInts_ID);
-                        offset += 2;
-                    
-                        *((byte*)offset) = (byte)1;
-                        offset += 1;
-                    
-                        *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)(g__OptionalUInts?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)(g__OptionalUInts?.Length ?? 0));
-                        offset += 2;
-                    
-                        for (int i = 0; i < g__OptionalUInts?.Length; i++)
+                        if (BitConverter.IsLittleEndian && g__OptionalInts_Length >= 16)
                         {
-                            *((uint*)offset) = BitConverter.IsLittleEndian ? g__OptionalUInts[i] : BinaryPrimitives.ReverseEndianness(g__OptionalUInts[i]);
-                        offset += 4;
+                            fixed (int* g__OptionalInts_Ptr = g__OptionalInts)
+                            {
+                                long g__OptionalInts_Bytes = (long)g__OptionalInts_Length * 4;
+                                Buffer.MemoryCopy(g__OptionalInts_Ptr, offset, g__OptionalInts_Bytes, g__OptionalInts_Bytes);
+                            }
+                    
+                            offset += g__OptionalInts_Length * 4;
+                        }
+                        else
+                        {
+                            for (int i = 0; i < g__OptionalInts_Length; i++)
+                            {
+                                *((int*)offset) = BitConverter.IsLittleEndian ? g__OptionalInts[i] : BinaryPrimitives.ReverseEndianness(g__OptionalInts[i]);
+                                offset += 4;
+                            }
                         }
                     }
-                    #endregion
-                    
-                    #region Serialize Enum
-                    TestEnum g__Enum = Enum;
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? Enum_ID : BinaryPrimitives.ReverseEndianness(Enum_ID);
-                        offset += 2;
-                    
-                    *((int*)offset) = BitConverter.IsLittleEndian ? (int)g__Enum : BinaryPrimitives.ReverseEndianness((int)g__Enum);
-                        offset += 4;
-                    #endregion
-                    
-                    #region Serialize OptionalEnum
-                    TestEnum? g__OptionalEnum = OptionalEnum;
-                    if (g__OptionalEnum != null)
+                }
+                #endregion
+                
+                #region Serialize UInt
+                uint g__UInt = UInt;
+                
+                *((ushort*)offset) = BitConverter.IsLittleEndian ? UInt_ID : BinaryPrimitives.ReverseEndianness(UInt_ID);
+                offset += 2;
+                
+                *((uint*)offset) = BitConverter.IsLittleEndian ? g__UInt : BinaryPrimitives.ReverseEndianness(g__UInt);
+                offset += 4;
+                #endregion
+                
+                #region Serialize OptionalUInt
+                uint? g__OptionalUInt = OptionalUInt;
+                
+                if (g__OptionalUInt != null)
+                {
+                    *((ushort*)offset) = BitConverter.IsLittleEndian ? OptionalUInt_ID : BinaryPrimitives.ReverseEndianness(OptionalUInt_ID);
+                    offset += 2;
+                    *((byte*)offset) = (byte)1;
+                    offset += 1;
+                
+                    *((uint*)offset) = BitConverter.IsLittleEndian ? g__OptionalUInt.Value : BinaryPrimitives.ReverseEndianness(g__OptionalUInt.Value);
+                    offset += 4;
+                }
+                #endregion
+                
+                #region Serialize UInts
+                uint[] g__UInts = UInts;
+                
+                *((ushort*)offset) = BitConverter.IsLittleEndian ? UInts_ID : BinaryPrimitives.ReverseEndianness(UInts_ID);
+                offset += 2;
+                
+                int g__UInts_Length = g__UInts?.Length ?? 0;
+                if (g__UInts_Length > ushort.MaxValue)
+                {
+                    throw new InvalidOperationException("Field 'UInts' exceeds the maximum encodable length of 65535.");
+                }
+                
+                *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)g__UInts_Length : BinaryPrimitives.ReverseEndianness((ushort)g__UInts_Length);
+                offset += 2;
+                
+                if (g__UInts_Length != 0)
+                {
+                    if (BitConverter.IsLittleEndian && g__UInts_Length >= 16)
                     {
-                        *((ushort*)offset) = BitConverter.IsLittleEndian ? OptionalEnum_ID : BinaryPrimitives.ReverseEndianness(OptionalEnum_ID);
-                        offset += 2;
-                    
-                        *((byte*)offset) = (byte)1;
-                        offset += 1;
-                    
-                        *((int*)offset) = BitConverter.IsLittleEndian ? (int)g__OptionalEnum.Value : BinaryPrimitives.ReverseEndianness((int)g__OptionalEnum.Value);
-                        offset += 4;
-                    }
-                    #endregion
-                    
-                    #region Serialize Enums
-                    TestEnum[] g__Enums = Enums;
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? Enums_ID : BinaryPrimitives.ReverseEndianness(Enums_ID);
-                        offset += 2;
-                    
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)(g__Enums?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)(g__Enums?.Length ?? 0));
-                        offset += 2;
-                    
-                    for (int i = 0; i < g__Enums?.Length; i++)
-                    {
-                        *((int*)offset) = BitConverter.IsLittleEndian ? (int)g__Enums[i] : BinaryPrimitives.ReverseEndianness((int)g__Enums[i]);
-                        offset += 4;
-                    }
-                    #endregion
-                    
-                    #region Serialize OptionalEnums
-                    TestEnum[]? g__OptionalEnums = OptionalEnums;
-                    if (g__OptionalEnums != null)
-                    {
-                        *((ushort*)offset) = BitConverter.IsLittleEndian ? OptionalEnums_ID : BinaryPrimitives.ReverseEndianness(OptionalEnums_ID);
-                        offset += 2;
-                    
-                        *((byte*)offset) = (byte)1;
-                        offset += 1;
-                    
-                        *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)(g__OptionalEnums?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)(g__OptionalEnums?.Length ?? 0));
-                        offset += 2;
-                    
-                        for (int i = 0; i < g__OptionalEnums?.Length; i++)
+                        fixed (uint* g__UInts_Ptr = g__UInts)
                         {
-                            *((int*)offset) = BitConverter.IsLittleEndian ? (int)g__OptionalEnums[i] : BinaryPrimitives.ReverseEndianness((int)g__OptionalEnums[i]);
-                        offset += 4;
+                            long g__UInts_Bytes = (long)g__UInts_Length * 4;
+                            Buffer.MemoryCopy(g__UInts_Ptr, offset, g__UInts_Bytes, g__UInts_Bytes);
+                        }
+                
+                        offset += g__UInts_Length * 4;
+                    }
+                    else
+                    {
+                        for (int i = 0; i < g__UInts_Length; i++)
+                        {
+                            *((uint*)offset) = BitConverter.IsLittleEndian ? g__UInts[i] : BinaryPrimitives.ReverseEndianness(g__UInts[i]);
+                            offset += 4;
                         }
                     }
-                    #endregion
-                    
-                    #region Serialize Submessage
-                    Submessage g__Submessage = Submessage;
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? Submessage_ID : BinaryPrimitives.ReverseEndianness(Submessage_ID);
-                        offset += 2;
-                    
-                    ushort g__Submessage_ObjectLength = (ushort)g__Submessage.GetSize();
-                        * ((ushort*)offset) = BitConverter.IsLittleEndian ? g__Submessage_ObjectLength : BinaryPrimitives.ReverseEndianness(g__Submessage_ObjectLength);
-                        offset += 2;
-                    
-                        g__Submessage.SerializeInto(buffer, start + (int)(offset - b));
-                        offset += g__Submessage_ObjectLength;
-                    #endregion
-                    
-                    #region Serialize OptionalSubmessage
-                    Submessage? g__OptionalSubmessage = OptionalSubmessage;
-                    if (g__OptionalSubmessage != null)
+                }
+                #endregion
+                
+                #region Serialize OptionalUInts
+                uint[]? g__OptionalUInts = OptionalUInts;
+                
+                if (g__OptionalUInts != null)
+                {
+                    *((ushort*)offset) = BitConverter.IsLittleEndian ? OptionalUInts_ID : BinaryPrimitives.ReverseEndianness(OptionalUInts_ID);
+                    offset += 2;
+                    *((byte*)offset) = (byte)1;
+                    offset += 1;
+                
+                    int g__OptionalUInts_Length = g__OptionalUInts.Length;
+                    if (g__OptionalUInts_Length > ushort.MaxValue)
                     {
-                        *((ushort*)offset) = BitConverter.IsLittleEndian ? OptionalSubmessage_ID : BinaryPrimitives.ReverseEndianness(OptionalSubmessage_ID);
-                        offset += 2;
-                    
-                        *((byte*)offset) = (byte)1;
-                        offset += 1;
-                    
-                        ushort g__OptionalSubmessage_ObjectLength = (ushort)g__OptionalSubmessage.Value.GetSize();
-                        * ((ushort*)offset) = BitConverter.IsLittleEndian ? g__OptionalSubmessage_ObjectLength : BinaryPrimitives.ReverseEndianness(g__OptionalSubmessage_ObjectLength);
-                        offset += 2;
-                    
-                        g__OptionalSubmessage.Value.SerializeInto(buffer, start + (int)(offset - b));
-                        offset += g__OptionalSubmessage_ObjectLength;
+                        throw new InvalidOperationException("Field 'OptionalUInts' exceeds the maximum encodable length of 65535.");
                     }
-                    #endregion
                     
-                    #region Serialize Submessages
-                    Submessage[] g__Submessages = Submessages;
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? Submessages_ID : BinaryPrimitives.ReverseEndianness(Submessages_ID);
-                        offset += 2;
+                    *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)g__OptionalUInts_Length : BinaryPrimitives.ReverseEndianness((ushort)g__OptionalUInts_Length);
+                    offset += 2;
                     
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)(g__Submessages?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)(g__Submessages?.Length ?? 0));
-                        offset += 2;
-                    
-                    for (int i = 0; i < g__Submessages?.Length; i++)
+                    if (g__OptionalUInts_Length != 0)
                     {
-                        ushort g__Submessages_ObjectLength = (ushort)g__Submessages[i].GetSize();
-                        * ((ushort*)offset) = BitConverter.IsLittleEndian ? g__Submessages_ObjectLength : BinaryPrimitives.ReverseEndianness(g__Submessages_ObjectLength);
-                        offset += 2;
+                        if (BitConverter.IsLittleEndian && g__OptionalUInts_Length >= 16)
+                        {
+                            fixed (uint* g__OptionalUInts_Ptr = g__OptionalUInts)
+                            {
+                                long g__OptionalUInts_Bytes = (long)g__OptionalUInts_Length * 4;
+                                Buffer.MemoryCopy(g__OptionalUInts_Ptr, offset, g__OptionalUInts_Bytes, g__OptionalUInts_Bytes);
+                            }
                     
-                        g__Submessages[i].SerializeInto(buffer, start + (int)(offset - b));
+                            offset += g__OptionalUInts_Length * 4;
+                        }
+                        else
+                        {
+                            for (int i = 0; i < g__OptionalUInts_Length; i++)
+                            {
+                                *((uint*)offset) = BitConverter.IsLittleEndian ? g__OptionalUInts[i] : BinaryPrimitives.ReverseEndianness(g__OptionalUInts[i]);
+                                offset += 4;
+                            }
+                        }
+                    }
+                }
+                #endregion
+                
+                #region Serialize Enum
+                TestEnum g__Enum = Enum;
+                
+                *((ushort*)offset) = BitConverter.IsLittleEndian ? Enum_ID : BinaryPrimitives.ReverseEndianness(Enum_ID);
+                offset += 2;
+                
+                *((int*)offset) = BitConverter.IsLittleEndian ? (int)g__Enum : BinaryPrimitives.ReverseEndianness((int)g__Enum);
+                offset += 4;
+                #endregion
+                
+                #region Serialize OptionalEnum
+                TestEnum? g__OptionalEnum = OptionalEnum;
+                
+                if (g__OptionalEnum != null)
+                {
+                    *((ushort*)offset) = BitConverter.IsLittleEndian ? OptionalEnum_ID : BinaryPrimitives.ReverseEndianness(OptionalEnum_ID);
+                    offset += 2;
+                    *((byte*)offset) = (byte)1;
+                    offset += 1;
+                
+                    *((int*)offset) = BitConverter.IsLittleEndian ? (int)g__OptionalEnum.Value : BinaryPrimitives.ReverseEndianness((int)g__OptionalEnum.Value);
+                    offset += 4;
+                }
+                #endregion
+                
+                #region Serialize Enums
+                TestEnum[] g__Enums = Enums;
+                
+                *((ushort*)offset) = BitConverter.IsLittleEndian ? Enums_ID : BinaryPrimitives.ReverseEndianness(Enums_ID);
+                offset += 2;
+                
+                int g__Enums_Length = g__Enums?.Length ?? 0;
+                if (g__Enums_Length > ushort.MaxValue)
+                {
+                    throw new InvalidOperationException("Field 'Enums' exceeds the maximum encodable length of 65535.");
+                }
+                
+                *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)g__Enums_Length : BinaryPrimitives.ReverseEndianness((ushort)g__Enums_Length);
+                offset += 2;
+                
+                if (g__Enums_Length != 0)
+                {
+                    if (BitConverter.IsLittleEndian && g__Enums_Length >= 16)
+                    {
+                        fixed (TestEnum* g__Enums_Ptr = g__Enums)
+                        {
+                            long g__Enums_Bytes = (long)g__Enums_Length * 4;
+                            Buffer.MemoryCopy(g__Enums_Ptr, offset, g__Enums_Bytes, g__Enums_Bytes);
+                        }
+                
+                        offset += g__Enums_Length * 4;
+                    }
+                    else
+                    {
+                        for (int i = 0; i < g__Enums_Length; i++)
+                        {
+                            *((int*)offset) = BitConverter.IsLittleEndian ? (int)g__Enums[i] : BinaryPrimitives.ReverseEndianness((int)g__Enums[i]);
+                            offset += 4;
+                        }
+                    }
+                }
+                #endregion
+                
+                #region Serialize OptionalEnums
+                TestEnum[]? g__OptionalEnums = OptionalEnums;
+                
+                if (g__OptionalEnums != null)
+                {
+                    *((ushort*)offset) = BitConverter.IsLittleEndian ? OptionalEnums_ID : BinaryPrimitives.ReverseEndianness(OptionalEnums_ID);
+                    offset += 2;
+                    *((byte*)offset) = (byte)1;
+                    offset += 1;
+                
+                    int g__OptionalEnums_Length = g__OptionalEnums.Length;
+                    if (g__OptionalEnums_Length > ushort.MaxValue)
+                    {
+                        throw new InvalidOperationException("Field 'OptionalEnums' exceeds the maximum encodable length of 65535.");
+                    }
+                    
+                    *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)g__OptionalEnums_Length : BinaryPrimitives.ReverseEndianness((ushort)g__OptionalEnums_Length);
+                    offset += 2;
+                    
+                    if (g__OptionalEnums_Length != 0)
+                    {
+                        if (BitConverter.IsLittleEndian && g__OptionalEnums_Length >= 16)
+                        {
+                            fixed (TestEnum* g__OptionalEnums_Ptr = g__OptionalEnums)
+                            {
+                                long g__OptionalEnums_Bytes = (long)g__OptionalEnums_Length * 4;
+                                Buffer.MemoryCopy(g__OptionalEnums_Ptr, offset, g__OptionalEnums_Bytes, g__OptionalEnums_Bytes);
+                            }
+                    
+                            offset += g__OptionalEnums_Length * 4;
+                        }
+                        else
+                        {
+                            for (int i = 0; i < g__OptionalEnums_Length; i++)
+                            {
+                                *((int*)offset) = BitConverter.IsLittleEndian ? (int)g__OptionalEnums[i] : BinaryPrimitives.ReverseEndianness((int)g__OptionalEnums[i]);
+                                offset += 4;
+                            }
+                        }
+                    }
+                }
+                #endregion
+                
+                #region Serialize Submessage
+                Submessage g__Submessage = Submessage;
+                
+                *((ushort*)offset) = BitConverter.IsLittleEndian ? Submessage_ID : BinaryPrimitives.ReverseEndianness(Submessage_ID);
+                offset += 2;
+                
+                byte* g__Submessage_LengthPos = offset;
+                offset += 2;
+                
+                int g__Submessage_ObjectLength = g__Submessage.SerializeCore(offset);
+                
+                if (g__Submessage_ObjectLength > ushort.MaxValue)
+                {
+                    throw new InvalidOperationException("Field 'Submessage' exceeds the maximum encodable length of 65535.");
+                }
+                
+                *((ushort*)g__Submessage_LengthPos) = BitConverter.IsLittleEndian ? (ushort)g__Submessage_ObjectLength : BinaryPrimitives.ReverseEndianness((ushort)g__Submessage_ObjectLength);
+                offset += g__Submessage_ObjectLength;
+                #endregion
+                
+                #region Serialize OptionalSubmessage
+                Submessage? g__OptionalSubmessage = OptionalSubmessage;
+                
+                if (g__OptionalSubmessage != null)
+                {
+                    *((ushort*)offset) = BitConverter.IsLittleEndian ? OptionalSubmessage_ID : BinaryPrimitives.ReverseEndianness(OptionalSubmessage_ID);
+                    offset += 2;
+                    *((byte*)offset) = (byte)1;
+                    offset += 1;
+                
+                    byte* g__OptionalSubmessage_LengthPos = offset;
+                    offset += 2;
+                    
+                    int g__OptionalSubmessage_ObjectLength = g__OptionalSubmessage.Value.SerializeCore(offset);
+                    
+                    if (g__OptionalSubmessage_ObjectLength > ushort.MaxValue)
+                    {
+                        throw new InvalidOperationException("Field 'OptionalSubmessage' exceeds the maximum encodable length of 65535.");
+                    }
+                    
+                    *((ushort*)g__OptionalSubmessage_LengthPos) = BitConverter.IsLittleEndian ? (ushort)g__OptionalSubmessage_ObjectLength : BinaryPrimitives.ReverseEndianness((ushort)g__OptionalSubmessage_ObjectLength);
+                    offset += g__OptionalSubmessage_ObjectLength;
+                }
+                #endregion
+                
+                #region Serialize Submessages
+                Submessage[] g__Submessages = Submessages;
+                
+                *((ushort*)offset) = BitConverter.IsLittleEndian ? Submessages_ID : BinaryPrimitives.ReverseEndianness(Submessages_ID);
+                offset += 2;
+                
+                int g__Submessages_Length = g__Submessages?.Length ?? 0;
+                if (g__Submessages_Length > ushort.MaxValue)
+                {
+                    throw new InvalidOperationException("Field 'Submessages' exceeds the maximum encodable length of 65535.");
+                }
+                
+                *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)g__Submessages_Length : BinaryPrimitives.ReverseEndianness((ushort)g__Submessages_Length);
+                offset += 2;
+                
+                if (g__Submessages_Length != 0)
+                {
+                    for (int i = 0; i < g__Submessages_Length; i++)
+                    {
+                        byte* g__Submessages_LengthPos = offset;
+                        offset += 2;
+                
+                        int g__Submessages_ObjectLength = g__Submessages[i].SerializeCore(offset);
+                
+                        if (g__Submessages_ObjectLength > ushort.MaxValue)
+                        {
+                            throw new InvalidOperationException("Field 'Submessages' exceeds the maximum encodable length of 65535.");
+                        }
+                
+                        *((ushort*)g__Submessages_LengthPos) = BitConverter.IsLittleEndian ? (ushort)g__Submessages_ObjectLength : BinaryPrimitives.ReverseEndianness((ushort)g__Submessages_ObjectLength);
                         offset += g__Submessages_ObjectLength;
                     }
-                    #endregion
-                    
-                    #region Serialize OptionalSubmessages
-                    Submessage[]? g__OptionalSubmessages = OptionalSubmessages;
-                    if (g__OptionalSubmessages != null)
+                }
+                #endregion
+                
+                #region Serialize OptionalSubmessages
+                Submessage[]? g__OptionalSubmessages = OptionalSubmessages;
+                
+                if (g__OptionalSubmessages != null)
+                {
+                    *((ushort*)offset) = BitConverter.IsLittleEndian ? OptionalSubmessages_ID : BinaryPrimitives.ReverseEndianness(OptionalSubmessages_ID);
+                    offset += 2;
+                    *((byte*)offset) = (byte)1;
+                    offset += 1;
+                
+                    int g__OptionalSubmessages_Length = g__OptionalSubmessages.Length;
+                    if (g__OptionalSubmessages_Length > ushort.MaxValue)
                     {
-                        *((ushort*)offset) = BitConverter.IsLittleEndian ? OptionalSubmessages_ID : BinaryPrimitives.ReverseEndianness(OptionalSubmessages_ID);
-                        offset += 2;
+                        throw new InvalidOperationException("Field 'OptionalSubmessages' exceeds the maximum encodable length of 65535.");
+                    }
                     
-                        *((byte*)offset) = (byte)1;
-                        offset += 1;
+                    *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)g__OptionalSubmessages_Length : BinaryPrimitives.ReverseEndianness((ushort)g__OptionalSubmessages_Length);
+                    offset += 2;
                     
-                        *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)(g__OptionalSubmessages?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)(g__OptionalSubmessages?.Length ?? 0));
-                        offset += 2;
-                    
-                        for (int i = 0; i < g__OptionalSubmessages?.Length; i++)
+                    if (g__OptionalSubmessages_Length != 0)
+                    {
+                        for (int i = 0; i < g__OptionalSubmessages_Length; i++)
                         {
-                            ushort g__OptionalSubmessages_ObjectLength = (ushort)g__OptionalSubmessages[i].GetSize();
-                        * ((ushort*)offset) = BitConverter.IsLittleEndian ? g__OptionalSubmessages_ObjectLength : BinaryPrimitives.ReverseEndianness(g__OptionalSubmessages_ObjectLength);
-                        offset += 2;
+                            byte* g__OptionalSubmessages_LengthPos = offset;
+                            offset += 2;
                     
-                        g__OptionalSubmessages[i].SerializeInto(buffer, start + (int)(offset - b));
-                        offset += g__OptionalSubmessages_ObjectLength;
+                            int g__OptionalSubmessages_ObjectLength = g__OptionalSubmessages[i].SerializeCore(offset);
+                    
+                            if (g__OptionalSubmessages_ObjectLength > ushort.MaxValue)
+                            {
+                                throw new InvalidOperationException("Field 'OptionalSubmessages' exceeds the maximum encodable length of 65535.");
+                            }
+                    
+                            *((ushort*)g__OptionalSubmessages_LengthPos) = BitConverter.IsLittleEndian ? (ushort)g__OptionalSubmessages_ObjectLength : BinaryPrimitives.ReverseEndianness((ushort)g__OptionalSubmessages_ObjectLength);
+                            offset += g__OptionalSubmessages_ObjectLength;
                         }
                     }
-                    #endregion
-                    
-                    
-        
-                    return (int)(offset - b);
                 }
+                #endregion
+                
+                
+        
+                return (int)(offset - g__serializeStart);
             }
         }
         
@@ -1230,3440 +1072,1239 @@ namespace Lexer.Tests
         
         public unsafe int Unpack(byte[] buffer, int start, int length)
         {
-            unchecked
+            if (buffer.Length == 0 || length == 0)
             {
-                if (buffer.Length == 0 || length == 0)
-                {
-                    return 0;
-                }
-        
-                if (length < 0 || length > buffer.Length - start)
-                {
-                    throw new InvalidDataException("Malformed input: start and length exceed the buffer.");
-                }
-        
-                fixed (byte* b = &buffer[start])
-                {
-                    byte* end = b + length;
-                    byte* offset = b;
-        
-                    int readsCompleted = 0;
-                    bool g__Content_Read = false;
-                    bool g__Body_Read = false;
-                    bool g__FloAT_Read = false;
-                    bool g__Double_Read = false;
-                    bool g__Long_Read = false;
-                    bool g__uLong_Read = false;
-                    bool g__Ulong_Read = false;
-                    bool g__Short_Read = false;
-                    bool g__UShort_Read = false;
-                    bool g__Bool_Read = false;
-                    bool g__Byte_Read = false;
-                    bool g__Bytes_Read = false;
-                    bool g__OptionalStrings_Read = false;
-                    bool g__Int_Read = false;
-                    bool g__OptionalInt_Read = false;
-                    bool g__Ints_Read = false;
-                    bool g__OptionalInts_Read = false;
-                    bool g__UInt_Read = false;
-                    bool g__OptionalUInt_Read = false;
-                    bool g__UInts_Read = false;
-                    bool g__OptionalUInts_Read = false;
-                    bool g__Enum_Read = false;
-                    bool g__OptionalEnum_Read = false;
-                    bool g__Enums_Read = false;
-                    bool g__OptionalEnums_Read = false;
-                    bool g__Submessage_Read = false;
-                    bool g__OptionalSubmessage_Read = false;
-                    bool g__Submessages_Read = false;
-                    bool g__OptionalSubmessages_Read = false;
-                    
-        
-                    while (readsCompleted < 29 && offset + 2 <= end)
-                    {
-                        ushort id = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                        offset += 2;
-        
-                        switch (id)
-                        {
-                            #region Deserialize Content
-                            case Content_ID:
-                                if (g__Content_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 1 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Content' is truncated.");
-                                }
-                                
-                                bool g__Content_HasValue = *((byte*)offset) == 0 ? false : true;
-                                offset += 1;
-                                
-                                if (g__Content_HasValue)
-                                {
-                                    if (offset + 2 > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'Content' is truncated.");
-                                    }
-                                    
-                                    ushort g__Content_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                    offset += 2;
-                                
-                                    if (offset + 2 * g__Content_Length > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'Content' is truncated.");
-                                    }
-                                
-                                    if (g__Content_Length == 0)
-                                    {
-                                        Content = string.Empty;
-                                    }
-                                    else
-                                    {
-                                        char* chars = (char*)offset;
-                                        if (!BitConverter.IsLittleEndian)
-                                        {
-                                            for (int n = 0; n < g__Content_Length; n++)
-                                            {
-                                                *((ushort*)chars) = BinaryPrimitives.ReverseEndianness(*((ushort*)chars));
-                                                chars += 2;
-                                            }
-                                        }
-                                
-                                        Content = new string(chars, 0, g__Content_Length);
-                                        offset += 2 * g__Content_Length;
-                                    }
-                                }
-                                else
-                                {
-                                    Content = null;
-                                }
-                                
-                            
-                                g__Content_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize Body
-                            case Body_ID:
-                                if (g__Body_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 2 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Body' is truncated.");
-                                }
-                                
-                                ushort g__Body_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                offset += 2;
-                                
-                                if (offset + 2 * g__Body_Length > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Body' is truncated.");
-                                }
-                                
-                                if (g__Body_Length == 0)
-                                {
-                                    Body = string.Empty;
-                                }
-                                else
-                                {
-                                    char* chars = (char*)offset;
-                                    if (!BitConverter.IsLittleEndian)
-                                    {
-                                        for (int n = 0; n < g__Body_Length; n++)
-                                        {
-                                            *((ushort*)chars) = BinaryPrimitives.ReverseEndianness(*((ushort*)chars));
-                                            chars += 2;
-                                        }
-                                    }
-                                
-                                    Body = new string(chars, 0, g__Body_Length);
-                                    offset += 2 * g__Body_Length;
-                                }
-                                
-                            
-                                g__Body_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize FloAT
-                            case FloAT_ID:
-                                if (g__FloAT_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 4 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'FloAT' is truncated.");
-                                }
-                                
-                                uint g__FloAT_Raw = BitConverter.IsLittleEndian ? *((uint*)offset) : BinaryPrimitives.ReverseEndianness(*((uint*)offset));
-                                FloAT = *(float*)&g__FloAT_Raw;
-                                offset += 4;
-                                
-                            
-                                g__FloAT_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize Double
-                            case Double_ID:
-                                if (g__Double_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 8 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Double' is truncated.");
-                                }
-                                
-                                ulong g__Double_Raw = BitConverter.IsLittleEndian ? *((ulong*)offset) : BinaryPrimitives.ReverseEndianness(*((ulong*)offset));
-                                Double = *(double*)&g__Double_Raw;
-                                offset += 8;
-                                
-                            
-                                g__Double_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize Long
-                            case Long_ID:
-                                if (g__Long_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 8 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Long' is truncated.");
-                                }
-                                
-                                Long = BitConverter.IsLittleEndian ? *((long*)offset) : BinaryPrimitives.ReverseEndianness(*((long*)offset));
-                                offset += 8;
-                                
-                            
-                                g__Long_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize uLong
-                            case uLong_ID:
-                                if (g__uLong_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 8 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'uLong' is truncated.");
-                                }
-                                
-                                uLong = BitConverter.IsLittleEndian ? *((ulong*)offset) : BinaryPrimitives.ReverseEndianness(*((ulong*)offset));
-                                offset += 8;
-                                
-                            
-                                g__uLong_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize Ulong
-                            case Ulong_ID:
-                                if (g__Ulong_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 8 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Ulong' is truncated.");
-                                }
-                                
-                                Ulong = BitConverter.IsLittleEndian ? *((ulong*)offset) : BinaryPrimitives.ReverseEndianness(*((ulong*)offset));
-                                offset += 8;
-                                
-                            
-                                g__Ulong_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize Short
-                            case Short_ID:
-                                if (g__Short_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 2 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Short' is truncated.");
-                                }
-                                
-                                Short = BitConverter.IsLittleEndian ? *((short*)offset) : BinaryPrimitives.ReverseEndianness(*((short*)offset));
-                                offset += 2;
-                                
-                            
-                                g__Short_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize UShort
-                            case UShort_ID:
-                                if (g__UShort_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 2 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'UShort' is truncated.");
-                                }
-                                
-                                UShort = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                offset += 2;
-                                
-                            
-                                g__UShort_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize Bool
-                            case Bool_ID:
-                                if (g__Bool_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 1 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Bool' is truncated.");
-                                }
-                                
-                                Bool = *((byte*)offset) == 0 ? false : true;
-                                offset += 1;
-                                
-                            
-                                g__Bool_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize Byte
-                            case Byte_ID:
-                                if (g__Byte_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 1 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Byte' is truncated.");
-                                }
-                                
-                                Byte = BitConverter.IsLittleEndian ? *((byte*)offset) : BinaryPrimitives.ReverseEndianness(*((byte*)offset));
-                                offset += 1;
-                                
-                            
-                                g__Byte_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize Bytes
-                            case Bytes_ID:
-                                if (g__Bytes_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 2 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Bytes' is truncated.");
-                                }
-                                
-                                ushort g__Bytes_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                offset += 2;
-                                if (offset + g__Bytes_Length * 1 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Bytes' is truncated.");
-                                }
-                                
-                                
-                                if (g__Bytes_Length == 0)
-                                {
-                                    Bytes = Array.Empty<byte>();
-                                }
-                                else
-                                {
-                                    Bytes = new byte[g__Bytes_Length];
-                                
-                                    for (int i = 0; i < g__Bytes_Length; i++)
-                                    {
-                                        if (offset + 1 > end)
-                                        {
-                                            throw new InvalidDataException("Malformed input: field 'Bytes' is truncated.");
-                                        }
-                                        
-                                        Bytes[i] = BitConverter.IsLittleEndian ? *((byte*)offset) : BinaryPrimitives.ReverseEndianness(*((byte*)offset));
-                                        offset += 1;
-                                    }
-                                }
-                                
-                            
-                                g__Bytes_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize OptionalStrings
-                            case OptionalStrings_ID:
-                                if (g__OptionalStrings_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 1 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'OptionalStrings' is truncated.");
-                                }
-                                
-                                bool g__OptionalStrings_HasValue = *((byte*)offset) == 0 ? false : true;
-                                offset += 1;
-                                
-                                if (g__OptionalStrings_HasValue)
-                                {
-                                    if (offset + 2 > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'OptionalStrings' is truncated.");
-                                    }
-                                    
-                                    ushort g__OptionalStrings_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                    offset += 2;
-                                
-                                    if (g__OptionalStrings_Length == 0)
-                                    {
-                                        OptionalStrings = Array.Empty<string>();
-                                    }
-                                    else
-                                    {
-                                        OptionalStrings = new string[g__OptionalStrings_Length];
-                                
-                                        for (int i = 0; i < g__OptionalStrings_Length; i++)
-                                        {
-                                            if (offset + 2 > end)
-                                            {
-                                                throw new InvalidDataException("Malformed input: field 'OptionalStrings' is truncated.");
-                                            }
-                                
-                                            ushort g__OptionalStrings_i_length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                            offset += 2;
-                                
-                                            if (offset + 2 * g__OptionalStrings_i_length > end)
-                                            {
-                                                throw new InvalidDataException("Malformed input: field 'OptionalStrings' is truncated.");
-                                            }
-                                
-                                            char* chars = (char*)offset;
-                                            if (!BitConverter.IsLittleEndian)
-                                            {
-                                                for (int n = 0; n < g__OptionalStrings_i_length; n++)
-                                                {
-                                                    *((ushort*)chars) = BinaryPrimitives.ReverseEndianness(*((ushort*)chars));
-                                                    chars += 2;
-                                                }
-                                            }
-                                
-                                            OptionalStrings[i] = new string(chars, 0, g__OptionalStrings_i_length);
-                                            offset += 2 * g__OptionalStrings_i_length;
-                                        }
-                                    }
-                                }
-                                
-                            
-                                g__OptionalStrings_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize Int
-                            case Int_ID:
-                                if (g__Int_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 4 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Int' is truncated.");
-                                }
-                                
-                                Int = BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset));
-                                offset += 4;
-                                
-                            
-                                g__Int_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize OptionalInt
-                            case OptionalInt_ID:
-                                if (g__OptionalInt_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 1 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'OptionalInt' is truncated.");
-                                }
-                                
-                                bool g__OptionalInt_HasValue = *((byte*)offset) == 0 ? false : true;
-                                offset += 1;
-                                
-                                if (g__OptionalInt_HasValue)
-                                {
-                                    if (offset + 4 > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'OptionalInt' is truncated.");
-                                    }
-                                    
-                                    OptionalInt = BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset));
-                                    offset += 4;
-                                }
-                                else
-                                {
-                                    OptionalInt = null;
-                                }
-                                
-                            
-                                g__OptionalInt_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize Ints
-                            case Ints_ID:
-                                if (g__Ints_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 2 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Ints' is truncated.");
-                                }
-                                
-                                ushort g__Ints_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                offset += 2;
-                                if (offset + g__Ints_Length * 4 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Ints' is truncated.");
-                                }
-                                
-                                
-                                if (g__Ints_Length == 0)
-                                {
-                                    Ints = Array.Empty<int>();
-                                }
-                                else
-                                {
-                                    Ints = new int[g__Ints_Length];
-                                
-                                    for (int i = 0; i < g__Ints_Length; i++)
-                                    {
-                                        if (offset + 4 > end)
-                                        {
-                                            throw new InvalidDataException("Malformed input: field 'Ints' is truncated.");
-                                        }
-                                        
-                                        Ints[i] = BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset));
-                                        offset += 4;
-                                    }
-                                }
-                                
-                            
-                                g__Ints_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize OptionalInts
-                            case OptionalInts_ID:
-                                if (g__OptionalInts_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 1 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'OptionalInts' is truncated.");
-                                }
-                                
-                                bool g__OptionalInts_HasValue = *((byte*)offset) == 0 ? false : true;
-                                offset += 1;
-                                
-                                if (g__OptionalInts_HasValue)
-                                {
-                                    if (offset + 2 > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'OptionalInts' is truncated.");
-                                    }
-                                    
-                                    ushort g__OptionalInts_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                    offset += 2;
-                                    if (offset + g__OptionalInts_Length * 4 > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'OptionalInts' is truncated.");
-                                    }
-                                    
-                                
-                                    if (g__OptionalInts_Length == 0)
-                                    {
-                                        OptionalInts = Array.Empty<int>();
-                                    }
-                                    else
-                                    {
-                                        OptionalInts = new int[g__OptionalInts_Length];
-                                
-                                        for (int i = 0; i < g__OptionalInts_Length; i++)
-                                        {
-                                            if (offset + 4 > end)
-                                            {
-                                                throw new InvalidDataException("Malformed input: field 'OptionalInts' is truncated.");
-                                            }
-                                            
-                                            OptionalInts[i] = BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset));
-                                            offset += 4;
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    OptionalInts = null;
-                                }
-                                
-                            
-                                g__OptionalInts_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize UInt
-                            case UInt_ID:
-                                if (g__UInt_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 4 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'UInt' is truncated.");
-                                }
-                                
-                                UInt = BitConverter.IsLittleEndian ? *((uint*)offset) : BinaryPrimitives.ReverseEndianness(*((uint*)offset));
-                                offset += 4;
-                                
-                            
-                                g__UInt_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize OptionalUInt
-                            case OptionalUInt_ID:
-                                if (g__OptionalUInt_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 1 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'OptionalUInt' is truncated.");
-                                }
-                                
-                                bool g__OptionalUInt_HasValue = *((byte*)offset) == 0 ? false : true;
-                                offset += 1;
-                                
-                                if (g__OptionalUInt_HasValue)
-                                {
-                                    if (offset + 4 > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'OptionalUInt' is truncated.");
-                                    }
-                                    
-                                    OptionalUInt = BitConverter.IsLittleEndian ? *((uint*)offset) : BinaryPrimitives.ReverseEndianness(*((uint*)offset));
-                                    offset += 4;
-                                }
-                                else
-                                {
-                                    OptionalUInt = null;
-                                }
-                                
-                            
-                                g__OptionalUInt_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize UInts
-                            case UInts_ID:
-                                if (g__UInts_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 2 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'UInts' is truncated.");
-                                }
-                                
-                                ushort g__UInts_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                offset += 2;
-                                if (offset + g__UInts_Length * 4 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'UInts' is truncated.");
-                                }
-                                
-                                
-                                if (g__UInts_Length == 0)
-                                {
-                                    UInts = Array.Empty<uint>();
-                                }
-                                else
-                                {
-                                    UInts = new uint[g__UInts_Length];
-                                
-                                    for (int i = 0; i < g__UInts_Length; i++)
-                                    {
-                                        if (offset + 4 > end)
-                                        {
-                                            throw new InvalidDataException("Malformed input: field 'UInts' is truncated.");
-                                        }
-                                        
-                                        UInts[i] = BitConverter.IsLittleEndian ? *((uint*)offset) : BinaryPrimitives.ReverseEndianness(*((uint*)offset));
-                                        offset += 4;
-                                    }
-                                }
-                                
-                            
-                                g__UInts_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize OptionalUInts
-                            case OptionalUInts_ID:
-                                if (g__OptionalUInts_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 1 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'OptionalUInts' is truncated.");
-                                }
-                                
-                                bool g__OptionalUInts_HasValue = *((byte*)offset) == 0 ? false : true;
-                                offset += 1;
-                                
-                                if (g__OptionalUInts_HasValue)
-                                {
-                                    if (offset + 2 > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'OptionalUInts' is truncated.");
-                                    }
-                                    
-                                    ushort g__OptionalUInts_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                    offset += 2;
-                                    if (offset + g__OptionalUInts_Length * 4 > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'OptionalUInts' is truncated.");
-                                    }
-                                    
-                                
-                                    if (g__OptionalUInts_Length == 0)
-                                    {
-                                        OptionalUInts = Array.Empty<uint>();
-                                    }
-                                    else
-                                    {
-                                        OptionalUInts = new uint[g__OptionalUInts_Length];
-                                
-                                        for (int i = 0; i < g__OptionalUInts_Length; i++)
-                                        {
-                                            if (offset + 4 > end)
-                                            {
-                                                throw new InvalidDataException("Malformed input: field 'OptionalUInts' is truncated.");
-                                            }
-                                            
-                                            OptionalUInts[i] = BitConverter.IsLittleEndian ? *((uint*)offset) : BinaryPrimitives.ReverseEndianness(*((uint*)offset));
-                                            offset += 4;
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    OptionalUInts = null;
-                                }
-                                
-                            
-                                g__OptionalUInts_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize Enum
-                            case Enum_ID:
-                                if (g__Enum_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 4 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Enum' is truncated.");
-                                }
-                                
-                                Enum = (TestEnum)(BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset)));
-                                offset += 4;
-                                
-                            
-                                g__Enum_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize OptionalEnum
-                            case OptionalEnum_ID:
-                                if (g__OptionalEnum_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 1 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'OptionalEnum' is truncated.");
-                                }
-                                
-                                bool g__OptionalEnum_HasValue = *((byte*)offset) == 0 ? false : true;
-                                offset += 1;
-                                
-                                if (g__OptionalEnum_HasValue)
-                                {
-                                    if (offset + 4 > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'OptionalEnum' is truncated.");
-                                    }
-                                    
-                                    OptionalEnum = (TestEnum)(BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset)));
-                                    offset += 4;
-                                }
-                                else
-                                {
-                                    OptionalEnum = null;
-                                }
-                                
-                            
-                                g__OptionalEnum_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize Enums
-                            case Enums_ID:
-                                if (g__Enums_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 2 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Enums' is truncated.");
-                                }
-                                
-                                ushort g__Enums_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                offset += 2;
-                                if (offset + g__Enums_Length * 4 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Enums' is truncated.");
-                                }
-                                
-                                
-                                if (g__Enums_Length == 0)
-                                {
-                                    Enums = Array.Empty<TestEnum>();
-                                }
-                                else
-                                {
-                                    Enums = new TestEnum[g__Enums_Length];
-                                
-                                    for (int i = 0; i < g__Enums_Length; i++)
-                                    {
-                                        if (offset + 4 > end)
-                                        {
-                                            throw new InvalidDataException("Malformed input: field 'Enums' is truncated.");
-                                        }
-                                        
-                                        Enums[i] = (TestEnum)(BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset)));
-                                        offset += 4;
-                                    }
-                                }
-                                
-                            
-                                g__Enums_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize OptionalEnums
-                            case OptionalEnums_ID:
-                                if (g__OptionalEnums_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 1 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'OptionalEnums' is truncated.");
-                                }
-                                
-                                bool g__OptionalEnums_HasValue = *((byte*)offset) == 0 ? false : true;
-                                offset += 1;
-                                
-                                if (g__OptionalEnums_HasValue)
-                                {
-                                    if (offset + 2 > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'OptionalEnums' is truncated.");
-                                    }
-                                    
-                                    ushort g__OptionalEnums_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                    offset += 2;
-                                    if (offset + g__OptionalEnums_Length * 4 > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'OptionalEnums' is truncated.");
-                                    }
-                                    
-                                
-                                    if (g__OptionalEnums_Length == 0)
-                                    {
-                                        OptionalEnums = Array.Empty<TestEnum>();
-                                    }
-                                    else
-                                    {
-                                        OptionalEnums = new TestEnum[g__OptionalEnums_Length];
-                                
-                                        for (int i = 0; i < g__OptionalEnums_Length; i++)
-                                        {
-                                            if (offset + 4 > end)
-                                            {
-                                                throw new InvalidDataException("Malformed input: field 'OptionalEnums' is truncated.");
-                                            }
-                                            
-                                            OptionalEnums[i] = (TestEnum)(BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset)));
-                                            offset += 4;
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    OptionalEnums = null;
-                                }
-                                
-                            
-                                g__OptionalEnums_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize Submessage
-                            case Submessage_ID:
-                                if (g__Submessage_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 2 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Submessage' is truncated.");
-                                }
-                                
-                                ushort g__Submessage_ObjectLength = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                offset += 2;
-                                
-                                if (offset + g__Submessage_ObjectLength > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Submessage' is truncated.");
-                                }
-                                
-                                int g__Submessage_Start = start + (int)(offset - b);
-                                Submessage.Unpack(buffer, g__Submessage_Start, g__Submessage_ObjectLength);
-                                offset += g__Submessage_ObjectLength;
-                                
-                            
-                                g__Submessage_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize OptionalSubmessage
-                            case OptionalSubmessage_ID:
-                                if (g__OptionalSubmessage_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 1 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'OptionalSubmessage' is truncated.");
-                                }
-                                
-                                bool g__OptionalSubmessage_HasValue = *((byte*)offset) == 0 ? false : true;
-                                offset += 1;
-                                
-                                if (g__OptionalSubmessage_HasValue)
-                                {
-                                    if (offset + 2 > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'OptionalSubmessage' is truncated.");
-                                    }
-                                    
-                                    ushort g__OptionalSubmessage_ObjectLength = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                    offset += 2;
-                                    
-                                    if (offset + g__OptionalSubmessage_ObjectLength > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'OptionalSubmessage' is truncated.");
-                                    }
-                                    
-                                    int g__OptionalSubmessage_Start = start + (int)(offset - b);
-                                    if (OptionalSubmessage == null)
-                                    {
-                                        OptionalSubmessage = Submessage.Deserialize(buffer, g__OptionalSubmessage_Start, g__OptionalSubmessage_ObjectLength);
-                                    }
-                                    else
-                                    {
-                                        OptionalSubmessage.Value.Unpack(buffer, g__OptionalSubmessage_Start, g__OptionalSubmessage_ObjectLength);
-                                    }
-                                    offset += g__OptionalSubmessage_ObjectLength;
-                                }
-                                else
-                                {
-                                    OptionalSubmessage = null;
-                                }
-                                
-                            
-                                g__OptionalSubmessage_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize Submessages
-                            case Submessages_ID:
-                                if (g__Submessages_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 2 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Submessages' is truncated.");
-                                }
-                                
-                                ushort g__Submessages_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                offset += 2;
-                                
-                                
-                                if (g__Submessages_Length == 0)
-                                {
-                                    Submessages = Array.Empty<Submessage>();
-                                }
-                                else
-                                {
-                                    Submessages = new Submessage[g__Submessages_Length];
-                                
-                                    for (int i = 0; i < g__Submessages_Length; i++)
-                                    {
-                                        if (offset + 2 > end)
-                                        {
-                                            throw new InvalidDataException("Malformed input: field 'Submessages' is truncated.");
-                                        }
-                                        
-                                        ushort g__Submessages_ObjectLength = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                        offset += 2;
-                                        
-                                        if (offset + g__Submessages_ObjectLength > end)
-                                        {
-                                            throw new InvalidDataException("Malformed input: field 'Submessages' is truncated.");
-                                        }
-                                        
-                                        int g__Submessages_Start = start + (int)(offset - b);
-                                        Submessages[i].Unpack(buffer, g__Submessages_Start, g__Submessages_ObjectLength);
-                                        offset += g__Submessages_ObjectLength;
-                                    }
-                                }
-                                
-                            
-                                g__Submessages_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize OptionalSubmessages
-                            case OptionalSubmessages_ID:
-                                if (g__OptionalSubmessages_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 1 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'OptionalSubmessages' is truncated.");
-                                }
-                                
-                                bool g__OptionalSubmessages_HasValue = *((byte*)offset) == 0 ? false : true;
-                                offset += 1;
-                                
-                                if (g__OptionalSubmessages_HasValue)
-                                {
-                                    if (offset + 2 > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'OptionalSubmessages' is truncated.");
-                                    }
-                                    
-                                    ushort g__OptionalSubmessages_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                    offset += 2;
-                                    
-                                
-                                    if (g__OptionalSubmessages_Length == 0)
-                                    {
-                                        OptionalSubmessages = Array.Empty<Submessage>();
-                                    }
-                                    else
-                                    {
-                                        OptionalSubmessages = new Submessage[g__OptionalSubmessages_Length];
-                                
-                                        for (int i = 0; i < g__OptionalSubmessages_Length; i++)
-                                        {
-                                            if (offset + 2 > end)
-                                            {
-                                                throw new InvalidDataException("Malformed input: field 'OptionalSubmessages' is truncated.");
-                                            }
-                                            
-                                            ushort g__OptionalSubmessages_ObjectLength = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                            offset += 2;
-                                            
-                                            if (offset + g__OptionalSubmessages_ObjectLength > end)
-                                            {
-                                                throw new InvalidDataException("Malformed input: field 'OptionalSubmessages' is truncated.");
-                                            }
-                                            
-                                            int g__OptionalSubmessages_Start = start + (int)(offset - b);
-                                            OptionalSubmessages[i].Unpack(buffer, g__OptionalSubmessages_Start, g__OptionalSubmessages_ObjectLength);
-                                            offset += g__OptionalSubmessages_ObjectLength;
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    OptionalSubmessages = null;
-                                }
-                                
-                            
-                                g__OptionalSubmessages_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            
-                        }
-                    }
-        
-                    return (int)(offset - b);
-                }
+                return 0;
             }
+        
+            if (start < 0 || length < 0 || length > buffer.Length - start)
+            {
+                throw new InvalidDataException("Malformed input: start and length exceed the buffer.");
+            }
+        
+            return UnpackSpan(buffer.AsSpan(start, length));
         }
         
         public unsafe int Unpack(Span<byte> buffer)
         {
-            return Unpack(buffer, 0, buffer.Length);
+            return UnpackSpan(buffer);
         }
         
         public unsafe int Unpack(Span<byte> buffer, int start, int length)
         {
-            unchecked
+            if (buffer.Length == 0 || length == 0)
             {
-                if (buffer.Length == 0 || length == 0)
-                {
-                    return 0;
-                }
-        
-                if (length < 0 || length > buffer.Length - start)
-                {
-                    throw new InvalidDataException("Malformed input: start and length exceed the buffer.");
-                }
-        
-                fixed (byte* b = &buffer[start])
-                {
-                    byte* end = b + length;
-                    byte* offset = b;
-        
-                    int readsCompleted = 0;
-                    bool g__Content_Read = false;
-                    bool g__Body_Read = false;
-                    bool g__FloAT_Read = false;
-                    bool g__Double_Read = false;
-                    bool g__Long_Read = false;
-                    bool g__uLong_Read = false;
-                    bool g__Ulong_Read = false;
-                    bool g__Short_Read = false;
-                    bool g__UShort_Read = false;
-                    bool g__Bool_Read = false;
-                    bool g__Byte_Read = false;
-                    bool g__Bytes_Read = false;
-                    bool g__OptionalStrings_Read = false;
-                    bool g__Int_Read = false;
-                    bool g__OptionalInt_Read = false;
-                    bool g__Ints_Read = false;
-                    bool g__OptionalInts_Read = false;
-                    bool g__UInt_Read = false;
-                    bool g__OptionalUInt_Read = false;
-                    bool g__UInts_Read = false;
-                    bool g__OptionalUInts_Read = false;
-                    bool g__Enum_Read = false;
-                    bool g__OptionalEnum_Read = false;
-                    bool g__Enums_Read = false;
-                    bool g__OptionalEnums_Read = false;
-                    bool g__Submessage_Read = false;
-                    bool g__OptionalSubmessage_Read = false;
-                    bool g__Submessages_Read = false;
-                    bool g__OptionalSubmessages_Read = false;
-                    
-        
-                    while (readsCompleted < 29 && offset + 2 <= end)
-                    {
-                        ushort id = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                        offset += 2;
-        
-                        switch (id)
-                        {
-                            #region Deserialize Content
-                            case Content_ID:
-                                if (g__Content_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 1 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Content' is truncated.");
-                                }
-                                
-                                bool g__Content_HasValue = *((byte*)offset) == 0 ? false : true;
-                                offset += 1;
-                                
-                                if (g__Content_HasValue)
-                                {
-                                    if (offset + 2 > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'Content' is truncated.");
-                                    }
-                                    
-                                    ushort g__Content_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                    offset += 2;
-                                
-                                    if (offset + 2 * g__Content_Length > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'Content' is truncated.");
-                                    }
-                                
-                                    if (g__Content_Length == 0)
-                                    {
-                                        Content = string.Empty;
-                                    }
-                                    else
-                                    {
-                                        char* chars = (char*)offset;
-                                        if (!BitConverter.IsLittleEndian)
-                                        {
-                                            for (int n = 0; n < g__Content_Length; n++)
-                                            {
-                                                *((ushort*)chars) = BinaryPrimitives.ReverseEndianness(*((ushort*)chars));
-                                                chars += 2;
-                                            }
-                                        }
-                                
-                                        Content = new string(chars, 0, g__Content_Length);
-                                        offset += 2 * g__Content_Length;
-                                    }
-                                }
-                                else
-                                {
-                                    Content = null;
-                                }
-                                
-                            
-                                g__Content_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize Body
-                            case Body_ID:
-                                if (g__Body_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 2 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Body' is truncated.");
-                                }
-                                
-                                ushort g__Body_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                offset += 2;
-                                
-                                if (offset + 2 * g__Body_Length > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Body' is truncated.");
-                                }
-                                
-                                if (g__Body_Length == 0)
-                                {
-                                    Body = string.Empty;
-                                }
-                                else
-                                {
-                                    char* chars = (char*)offset;
-                                    if (!BitConverter.IsLittleEndian)
-                                    {
-                                        for (int n = 0; n < g__Body_Length; n++)
-                                        {
-                                            *((ushort*)chars) = BinaryPrimitives.ReverseEndianness(*((ushort*)chars));
-                                            chars += 2;
-                                        }
-                                    }
-                                
-                                    Body = new string(chars, 0, g__Body_Length);
-                                    offset += 2 * g__Body_Length;
-                                }
-                                
-                            
-                                g__Body_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize FloAT
-                            case FloAT_ID:
-                                if (g__FloAT_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 4 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'FloAT' is truncated.");
-                                }
-                                
-                                uint g__FloAT_Raw = BitConverter.IsLittleEndian ? *((uint*)offset) : BinaryPrimitives.ReverseEndianness(*((uint*)offset));
-                                FloAT = *(float*)&g__FloAT_Raw;
-                                offset += 4;
-                                
-                            
-                                g__FloAT_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize Double
-                            case Double_ID:
-                                if (g__Double_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 8 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Double' is truncated.");
-                                }
-                                
-                                ulong g__Double_Raw = BitConverter.IsLittleEndian ? *((ulong*)offset) : BinaryPrimitives.ReverseEndianness(*((ulong*)offset));
-                                Double = *(double*)&g__Double_Raw;
-                                offset += 8;
-                                
-                            
-                                g__Double_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize Long
-                            case Long_ID:
-                                if (g__Long_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 8 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Long' is truncated.");
-                                }
-                                
-                                Long = BitConverter.IsLittleEndian ? *((long*)offset) : BinaryPrimitives.ReverseEndianness(*((long*)offset));
-                                offset += 8;
-                                
-                            
-                                g__Long_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize uLong
-                            case uLong_ID:
-                                if (g__uLong_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 8 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'uLong' is truncated.");
-                                }
-                                
-                                uLong = BitConverter.IsLittleEndian ? *((ulong*)offset) : BinaryPrimitives.ReverseEndianness(*((ulong*)offset));
-                                offset += 8;
-                                
-                            
-                                g__uLong_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize Ulong
-                            case Ulong_ID:
-                                if (g__Ulong_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 8 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Ulong' is truncated.");
-                                }
-                                
-                                Ulong = BitConverter.IsLittleEndian ? *((ulong*)offset) : BinaryPrimitives.ReverseEndianness(*((ulong*)offset));
-                                offset += 8;
-                                
-                            
-                                g__Ulong_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize Short
-                            case Short_ID:
-                                if (g__Short_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 2 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Short' is truncated.");
-                                }
-                                
-                                Short = BitConverter.IsLittleEndian ? *((short*)offset) : BinaryPrimitives.ReverseEndianness(*((short*)offset));
-                                offset += 2;
-                                
-                            
-                                g__Short_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize UShort
-                            case UShort_ID:
-                                if (g__UShort_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 2 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'UShort' is truncated.");
-                                }
-                                
-                                UShort = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                offset += 2;
-                                
-                            
-                                g__UShort_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize Bool
-                            case Bool_ID:
-                                if (g__Bool_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 1 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Bool' is truncated.");
-                                }
-                                
-                                Bool = *((byte*)offset) == 0 ? false : true;
-                                offset += 1;
-                                
-                            
-                                g__Bool_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize Byte
-                            case Byte_ID:
-                                if (g__Byte_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 1 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Byte' is truncated.");
-                                }
-                                
-                                Byte = BitConverter.IsLittleEndian ? *((byte*)offset) : BinaryPrimitives.ReverseEndianness(*((byte*)offset));
-                                offset += 1;
-                                
-                            
-                                g__Byte_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize Bytes
-                            case Bytes_ID:
-                                if (g__Bytes_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 2 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Bytes' is truncated.");
-                                }
-                                
-                                ushort g__Bytes_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                offset += 2;
-                                if (offset + g__Bytes_Length * 1 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Bytes' is truncated.");
-                                }
-                                
-                                
-                                if (g__Bytes_Length == 0)
-                                {
-                                    Bytes = Array.Empty<byte>();
-                                }
-                                else
-                                {
-                                    Bytes = new byte[g__Bytes_Length];
-                                
-                                    for (int i = 0; i < g__Bytes_Length; i++)
-                                    {
-                                        if (offset + 1 > end)
-                                        {
-                                            throw new InvalidDataException("Malformed input: field 'Bytes' is truncated.");
-                                        }
-                                        
-                                        Bytes[i] = BitConverter.IsLittleEndian ? *((byte*)offset) : BinaryPrimitives.ReverseEndianness(*((byte*)offset));
-                                        offset += 1;
-                                    }
-                                }
-                                
-                            
-                                g__Bytes_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize OptionalStrings
-                            case OptionalStrings_ID:
-                                if (g__OptionalStrings_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 1 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'OptionalStrings' is truncated.");
-                                }
-                                
-                                bool g__OptionalStrings_HasValue = *((byte*)offset) == 0 ? false : true;
-                                offset += 1;
-                                
-                                if (g__OptionalStrings_HasValue)
-                                {
-                                    if (offset + 2 > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'OptionalStrings' is truncated.");
-                                    }
-                                    
-                                    ushort g__OptionalStrings_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                    offset += 2;
-                                
-                                    if (g__OptionalStrings_Length == 0)
-                                    {
-                                        OptionalStrings = Array.Empty<string>();
-                                    }
-                                    else
-                                    {
-                                        OptionalStrings = new string[g__OptionalStrings_Length];
-                                
-                                        for (int i = 0; i < g__OptionalStrings_Length; i++)
-                                        {
-                                            if (offset + 2 > end)
-                                            {
-                                                throw new InvalidDataException("Malformed input: field 'OptionalStrings' is truncated.");
-                                            }
-                                
-                                            ushort g__OptionalStrings_i_length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                            offset += 2;
-                                
-                                            if (offset + 2 * g__OptionalStrings_i_length > end)
-                                            {
-                                                throw new InvalidDataException("Malformed input: field 'OptionalStrings' is truncated.");
-                                            }
-                                
-                                            char* chars = (char*)offset;
-                                            if (!BitConverter.IsLittleEndian)
-                                            {
-                                                for (int n = 0; n < g__OptionalStrings_i_length; n++)
-                                                {
-                                                    *((ushort*)chars) = BinaryPrimitives.ReverseEndianness(*((ushort*)chars));
-                                                    chars += 2;
-                                                }
-                                            }
-                                
-                                            OptionalStrings[i] = new string(chars, 0, g__OptionalStrings_i_length);
-                                            offset += 2 * g__OptionalStrings_i_length;
-                                        }
-                                    }
-                                }
-                                
-                            
-                                g__OptionalStrings_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize Int
-                            case Int_ID:
-                                if (g__Int_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 4 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Int' is truncated.");
-                                }
-                                
-                                Int = BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset));
-                                offset += 4;
-                                
-                            
-                                g__Int_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize OptionalInt
-                            case OptionalInt_ID:
-                                if (g__OptionalInt_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 1 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'OptionalInt' is truncated.");
-                                }
-                                
-                                bool g__OptionalInt_HasValue = *((byte*)offset) == 0 ? false : true;
-                                offset += 1;
-                                
-                                if (g__OptionalInt_HasValue)
-                                {
-                                    if (offset + 4 > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'OptionalInt' is truncated.");
-                                    }
-                                    
-                                    OptionalInt = BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset));
-                                    offset += 4;
-                                }
-                                else
-                                {
-                                    OptionalInt = null;
-                                }
-                                
-                            
-                                g__OptionalInt_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize Ints
-                            case Ints_ID:
-                                if (g__Ints_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 2 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Ints' is truncated.");
-                                }
-                                
-                                ushort g__Ints_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                offset += 2;
-                                if (offset + g__Ints_Length * 4 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Ints' is truncated.");
-                                }
-                                
-                                
-                                if (g__Ints_Length == 0)
-                                {
-                                    Ints = Array.Empty<int>();
-                                }
-                                else
-                                {
-                                    Ints = new int[g__Ints_Length];
-                                
-                                    for (int i = 0; i < g__Ints_Length; i++)
-                                    {
-                                        if (offset + 4 > end)
-                                        {
-                                            throw new InvalidDataException("Malformed input: field 'Ints' is truncated.");
-                                        }
-                                        
-                                        Ints[i] = BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset));
-                                        offset += 4;
-                                    }
-                                }
-                                
-                            
-                                g__Ints_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize OptionalInts
-                            case OptionalInts_ID:
-                                if (g__OptionalInts_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 1 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'OptionalInts' is truncated.");
-                                }
-                                
-                                bool g__OptionalInts_HasValue = *((byte*)offset) == 0 ? false : true;
-                                offset += 1;
-                                
-                                if (g__OptionalInts_HasValue)
-                                {
-                                    if (offset + 2 > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'OptionalInts' is truncated.");
-                                    }
-                                    
-                                    ushort g__OptionalInts_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                    offset += 2;
-                                    if (offset + g__OptionalInts_Length * 4 > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'OptionalInts' is truncated.");
-                                    }
-                                    
-                                
-                                    if (g__OptionalInts_Length == 0)
-                                    {
-                                        OptionalInts = Array.Empty<int>();
-                                    }
-                                    else
-                                    {
-                                        OptionalInts = new int[g__OptionalInts_Length];
-                                
-                                        for (int i = 0; i < g__OptionalInts_Length; i++)
-                                        {
-                                            if (offset + 4 > end)
-                                            {
-                                                throw new InvalidDataException("Malformed input: field 'OptionalInts' is truncated.");
-                                            }
-                                            
-                                            OptionalInts[i] = BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset));
-                                            offset += 4;
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    OptionalInts = null;
-                                }
-                                
-                            
-                                g__OptionalInts_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize UInt
-                            case UInt_ID:
-                                if (g__UInt_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 4 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'UInt' is truncated.");
-                                }
-                                
-                                UInt = BitConverter.IsLittleEndian ? *((uint*)offset) : BinaryPrimitives.ReverseEndianness(*((uint*)offset));
-                                offset += 4;
-                                
-                            
-                                g__UInt_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize OptionalUInt
-                            case OptionalUInt_ID:
-                                if (g__OptionalUInt_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 1 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'OptionalUInt' is truncated.");
-                                }
-                                
-                                bool g__OptionalUInt_HasValue = *((byte*)offset) == 0 ? false : true;
-                                offset += 1;
-                                
-                                if (g__OptionalUInt_HasValue)
-                                {
-                                    if (offset + 4 > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'OptionalUInt' is truncated.");
-                                    }
-                                    
-                                    OptionalUInt = BitConverter.IsLittleEndian ? *((uint*)offset) : BinaryPrimitives.ReverseEndianness(*((uint*)offset));
-                                    offset += 4;
-                                }
-                                else
-                                {
-                                    OptionalUInt = null;
-                                }
-                                
-                            
-                                g__OptionalUInt_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize UInts
-                            case UInts_ID:
-                                if (g__UInts_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 2 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'UInts' is truncated.");
-                                }
-                                
-                                ushort g__UInts_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                offset += 2;
-                                if (offset + g__UInts_Length * 4 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'UInts' is truncated.");
-                                }
-                                
-                                
-                                if (g__UInts_Length == 0)
-                                {
-                                    UInts = Array.Empty<uint>();
-                                }
-                                else
-                                {
-                                    UInts = new uint[g__UInts_Length];
-                                
-                                    for (int i = 0; i < g__UInts_Length; i++)
-                                    {
-                                        if (offset + 4 > end)
-                                        {
-                                            throw new InvalidDataException("Malformed input: field 'UInts' is truncated.");
-                                        }
-                                        
-                                        UInts[i] = BitConverter.IsLittleEndian ? *((uint*)offset) : BinaryPrimitives.ReverseEndianness(*((uint*)offset));
-                                        offset += 4;
-                                    }
-                                }
-                                
-                            
-                                g__UInts_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize OptionalUInts
-                            case OptionalUInts_ID:
-                                if (g__OptionalUInts_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 1 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'OptionalUInts' is truncated.");
-                                }
-                                
-                                bool g__OptionalUInts_HasValue = *((byte*)offset) == 0 ? false : true;
-                                offset += 1;
-                                
-                                if (g__OptionalUInts_HasValue)
-                                {
-                                    if (offset + 2 > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'OptionalUInts' is truncated.");
-                                    }
-                                    
-                                    ushort g__OptionalUInts_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                    offset += 2;
-                                    if (offset + g__OptionalUInts_Length * 4 > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'OptionalUInts' is truncated.");
-                                    }
-                                    
-                                
-                                    if (g__OptionalUInts_Length == 0)
-                                    {
-                                        OptionalUInts = Array.Empty<uint>();
-                                    }
-                                    else
-                                    {
-                                        OptionalUInts = new uint[g__OptionalUInts_Length];
-                                
-                                        for (int i = 0; i < g__OptionalUInts_Length; i++)
-                                        {
-                                            if (offset + 4 > end)
-                                            {
-                                                throw new InvalidDataException("Malformed input: field 'OptionalUInts' is truncated.");
-                                            }
-                                            
-                                            OptionalUInts[i] = BitConverter.IsLittleEndian ? *((uint*)offset) : BinaryPrimitives.ReverseEndianness(*((uint*)offset));
-                                            offset += 4;
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    OptionalUInts = null;
-                                }
-                                
-                            
-                                g__OptionalUInts_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize Enum
-                            case Enum_ID:
-                                if (g__Enum_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 4 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Enum' is truncated.");
-                                }
-                                
-                                Enum = (TestEnum)(BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset)));
-                                offset += 4;
-                                
-                            
-                                g__Enum_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize OptionalEnum
-                            case OptionalEnum_ID:
-                                if (g__OptionalEnum_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 1 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'OptionalEnum' is truncated.");
-                                }
-                                
-                                bool g__OptionalEnum_HasValue = *((byte*)offset) == 0 ? false : true;
-                                offset += 1;
-                                
-                                if (g__OptionalEnum_HasValue)
-                                {
-                                    if (offset + 4 > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'OptionalEnum' is truncated.");
-                                    }
-                                    
-                                    OptionalEnum = (TestEnum)(BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset)));
-                                    offset += 4;
-                                }
-                                else
-                                {
-                                    OptionalEnum = null;
-                                }
-                                
-                            
-                                g__OptionalEnum_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize Enums
-                            case Enums_ID:
-                                if (g__Enums_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 2 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Enums' is truncated.");
-                                }
-                                
-                                ushort g__Enums_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                offset += 2;
-                                if (offset + g__Enums_Length * 4 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Enums' is truncated.");
-                                }
-                                
-                                
-                                if (g__Enums_Length == 0)
-                                {
-                                    Enums = Array.Empty<TestEnum>();
-                                }
-                                else
-                                {
-                                    Enums = new TestEnum[g__Enums_Length];
-                                
-                                    for (int i = 0; i < g__Enums_Length; i++)
-                                    {
-                                        if (offset + 4 > end)
-                                        {
-                                            throw new InvalidDataException("Malformed input: field 'Enums' is truncated.");
-                                        }
-                                        
-                                        Enums[i] = (TestEnum)(BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset)));
-                                        offset += 4;
-                                    }
-                                }
-                                
-                            
-                                g__Enums_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize OptionalEnums
-                            case OptionalEnums_ID:
-                                if (g__OptionalEnums_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 1 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'OptionalEnums' is truncated.");
-                                }
-                                
-                                bool g__OptionalEnums_HasValue = *((byte*)offset) == 0 ? false : true;
-                                offset += 1;
-                                
-                                if (g__OptionalEnums_HasValue)
-                                {
-                                    if (offset + 2 > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'OptionalEnums' is truncated.");
-                                    }
-                                    
-                                    ushort g__OptionalEnums_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                    offset += 2;
-                                    if (offset + g__OptionalEnums_Length * 4 > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'OptionalEnums' is truncated.");
-                                    }
-                                    
-                                
-                                    if (g__OptionalEnums_Length == 0)
-                                    {
-                                        OptionalEnums = Array.Empty<TestEnum>();
-                                    }
-                                    else
-                                    {
-                                        OptionalEnums = new TestEnum[g__OptionalEnums_Length];
-                                
-                                        for (int i = 0; i < g__OptionalEnums_Length; i++)
-                                        {
-                                            if (offset + 4 > end)
-                                            {
-                                                throw new InvalidDataException("Malformed input: field 'OptionalEnums' is truncated.");
-                                            }
-                                            
-                                            OptionalEnums[i] = (TestEnum)(BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset)));
-                                            offset += 4;
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    OptionalEnums = null;
-                                }
-                                
-                            
-                                g__OptionalEnums_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize Submessage
-                            case Submessage_ID:
-                                if (g__Submessage_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 2 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Submessage' is truncated.");
-                                }
-                                
-                                ushort g__Submessage_ObjectLength = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                offset += 2;
-                                
-                                if (offset + g__Submessage_ObjectLength > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Submessage' is truncated.");
-                                }
-                                
-                                int g__Submessage_Start = start + (int)(offset - b);
-                                Submessage.Unpack(buffer, g__Submessage_Start, g__Submessage_ObjectLength);
-                                offset += g__Submessage_ObjectLength;
-                                
-                            
-                                g__Submessage_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize OptionalSubmessage
-                            case OptionalSubmessage_ID:
-                                if (g__OptionalSubmessage_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 1 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'OptionalSubmessage' is truncated.");
-                                }
-                                
-                                bool g__OptionalSubmessage_HasValue = *((byte*)offset) == 0 ? false : true;
-                                offset += 1;
-                                
-                                if (g__OptionalSubmessage_HasValue)
-                                {
-                                    if (offset + 2 > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'OptionalSubmessage' is truncated.");
-                                    }
-                                    
-                                    ushort g__OptionalSubmessage_ObjectLength = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                    offset += 2;
-                                    
-                                    if (offset + g__OptionalSubmessage_ObjectLength > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'OptionalSubmessage' is truncated.");
-                                    }
-                                    
-                                    int g__OptionalSubmessage_Start = start + (int)(offset - b);
-                                    if (OptionalSubmessage == null)
-                                    {
-                                        OptionalSubmessage = Submessage.Deserialize(buffer, g__OptionalSubmessage_Start, g__OptionalSubmessage_ObjectLength);
-                                    }
-                                    else
-                                    {
-                                        OptionalSubmessage.Value.Unpack(buffer, g__OptionalSubmessage_Start, g__OptionalSubmessage_ObjectLength);
-                                    }
-                                    offset += g__OptionalSubmessage_ObjectLength;
-                                }
-                                else
-                                {
-                                    OptionalSubmessage = null;
-                                }
-                                
-                            
-                                g__OptionalSubmessage_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize Submessages
-                            case Submessages_ID:
-                                if (g__Submessages_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 2 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Submessages' is truncated.");
-                                }
-                                
-                                ushort g__Submessages_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                offset += 2;
-                                
-                                
-                                if (g__Submessages_Length == 0)
-                                {
-                                    Submessages = Array.Empty<Submessage>();
-                                }
-                                else
-                                {
-                                    Submessages = new Submessage[g__Submessages_Length];
-                                
-                                    for (int i = 0; i < g__Submessages_Length; i++)
-                                    {
-                                        if (offset + 2 > end)
-                                        {
-                                            throw new InvalidDataException("Malformed input: field 'Submessages' is truncated.");
-                                        }
-                                        
-                                        ushort g__Submessages_ObjectLength = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                        offset += 2;
-                                        
-                                        if (offset + g__Submessages_ObjectLength > end)
-                                        {
-                                            throw new InvalidDataException("Malformed input: field 'Submessages' is truncated.");
-                                        }
-                                        
-                                        int g__Submessages_Start = start + (int)(offset - b);
-                                        Submessages[i].Unpack(buffer, g__Submessages_Start, g__Submessages_ObjectLength);
-                                        offset += g__Submessages_ObjectLength;
-                                    }
-                                }
-                                
-                            
-                                g__Submessages_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize OptionalSubmessages
-                            case OptionalSubmessages_ID:
-                                if (g__OptionalSubmessages_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 1 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'OptionalSubmessages' is truncated.");
-                                }
-                                
-                                bool g__OptionalSubmessages_HasValue = *((byte*)offset) == 0 ? false : true;
-                                offset += 1;
-                                
-                                if (g__OptionalSubmessages_HasValue)
-                                {
-                                    if (offset + 2 > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'OptionalSubmessages' is truncated.");
-                                    }
-                                    
-                                    ushort g__OptionalSubmessages_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                    offset += 2;
-                                    
-                                
-                                    if (g__OptionalSubmessages_Length == 0)
-                                    {
-                                        OptionalSubmessages = Array.Empty<Submessage>();
-                                    }
-                                    else
-                                    {
-                                        OptionalSubmessages = new Submessage[g__OptionalSubmessages_Length];
-                                
-                                        for (int i = 0; i < g__OptionalSubmessages_Length; i++)
-                                        {
-                                            if (offset + 2 > end)
-                                            {
-                                                throw new InvalidDataException("Malformed input: field 'OptionalSubmessages' is truncated.");
-                                            }
-                                            
-                                            ushort g__OptionalSubmessages_ObjectLength = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                            offset += 2;
-                                            
-                                            if (offset + g__OptionalSubmessages_ObjectLength > end)
-                                            {
-                                                throw new InvalidDataException("Malformed input: field 'OptionalSubmessages' is truncated.");
-                                            }
-                                            
-                                            int g__OptionalSubmessages_Start = start + (int)(offset - b);
-                                            OptionalSubmessages[i].Unpack(buffer, g__OptionalSubmessages_Start, g__OptionalSubmessages_ObjectLength);
-                                            offset += g__OptionalSubmessages_ObjectLength;
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    OptionalSubmessages = null;
-                                }
-                                
-                            
-                                g__OptionalSubmessages_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            
-                        }
-                    }
-        
-                    return (int)(offset - b);
-                }
+                return 0;
             }
+        
+            if (start < 0 || length < 0 || length > buffer.Length - start)
+            {
+                throw new InvalidDataException("Malformed input: start and length exceed the buffer.");
+            }
+        
+            return UnpackSpan(buffer.Slice(start, length));
         }
         
         public unsafe int Unpack(ReadOnlySpan<byte> buffer)
         {
-            return Unpack(buffer, 0, buffer.Length);
+            return UnpackSpan(buffer);
         }
         
         public unsafe int Unpack(ReadOnlySpan<byte> buffer, int start, int length)
         {
+            if (buffer.Length == 0 || length == 0)
+            {
+                return 0;
+            }
+        
+            if (start < 0 || length < 0 || length > buffer.Length - start)
+            {
+                throw new InvalidDataException("Malformed input: start and length exceed the buffer.");
+            }
+        
+            return UnpackSpan(buffer.Slice(start, length));
+        }
+        
+        private unsafe int UnpackSpan(ReadOnlySpan<byte> buffer)
+        {
+            if (buffer.Length == 0)
+            {
+                return 0;
+            }
+        
+            fixed (byte* g__origin = &buffer[0])
+            {
+                return UnpackCore(g__origin, g__origin + buffer.Length);
+            }
+        }
+        
+        internal unsafe int UnpackCore(byte* offset, byte* end)
+        {
             unchecked
             {
-                if (buffer.Length == 0 || length == 0)
+                byte* g__start = offset;
+                int readsCompleted = 0;
+                bool g__Content_Read = false;
+                bool g__Body_Read = false;
+                bool g__FloAT_Read = false;
+                bool g__Double_Read = false;
+                bool g__Long_Read = false;
+                bool g__uLong_Read = false;
+                bool g__Ulong_Read = false;
+                bool g__Short_Read = false;
+                bool g__UShort_Read = false;
+                bool g__Bool_Read = false;
+                bool g__Byte_Read = false;
+                bool g__Bytes_Read = false;
+                bool g__OptionalStrings_Read = false;
+                bool g__Int_Read = false;
+                bool g__OptionalInt_Read = false;
+                bool g__Ints_Read = false;
+                bool g__OptionalInts_Read = false;
+                bool g__UInt_Read = false;
+                bool g__OptionalUInt_Read = false;
+                bool g__UInts_Read = false;
+                bool g__OptionalUInts_Read = false;
+                bool g__Enum_Read = false;
+                bool g__OptionalEnum_Read = false;
+                bool g__Enums_Read = false;
+                bool g__OptionalEnums_Read = false;
+                bool g__Submessage_Read = false;
+                bool g__OptionalSubmessage_Read = false;
+                bool g__Submessages_Read = false;
+                bool g__OptionalSubmessages_Read = false;
+                
+        
+                while (readsCompleted < 29 && offset + 2 <= end)
                 {
-                    return 0;
-                }
+                    ushort id = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
+                    offset += 2;
         
-                if (length < 0 || length > buffer.Length - start)
-                {
-                    throw new InvalidDataException("Malformed input: start and length exceed the buffer.");
-                }
-        
-                fixed (byte* b = &buffer[start])
-                {
-                    byte* end = b + length;
-                    byte* offset = b;
-        
-                    int readsCompleted = 0;
-                    bool g__Content_Read = false;
-                    bool g__Body_Read = false;
-                    bool g__FloAT_Read = false;
-                    bool g__Double_Read = false;
-                    bool g__Long_Read = false;
-                    bool g__uLong_Read = false;
-                    bool g__Ulong_Read = false;
-                    bool g__Short_Read = false;
-                    bool g__UShort_Read = false;
-                    bool g__Bool_Read = false;
-                    bool g__Byte_Read = false;
-                    bool g__Bytes_Read = false;
-                    bool g__OptionalStrings_Read = false;
-                    bool g__Int_Read = false;
-                    bool g__OptionalInt_Read = false;
-                    bool g__Ints_Read = false;
-                    bool g__OptionalInts_Read = false;
-                    bool g__UInt_Read = false;
-                    bool g__OptionalUInt_Read = false;
-                    bool g__UInts_Read = false;
-                    bool g__OptionalUInts_Read = false;
-                    bool g__Enum_Read = false;
-                    bool g__OptionalEnum_Read = false;
-                    bool g__Enums_Read = false;
-                    bool g__OptionalEnums_Read = false;
-                    bool g__Submessage_Read = false;
-                    bool g__OptionalSubmessage_Read = false;
-                    bool g__Submessages_Read = false;
-                    bool g__OptionalSubmessages_Read = false;
-                    
-        
-                    while (readsCompleted < 29 && offset + 2 <= end)
+                    switch (id)
                     {
-                        ushort id = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                        offset += 2;
-        
-                        switch (id)
-                        {
-                            #region Deserialize Content
-                            case Content_ID:
-                                if (g__Content_Read)
-                                {
-                                    break;
-                                }
+                        #region Deserialize Content
+                        case Content_ID:
+                            if (g__Content_Read)
+                            {
+                                break;
+                            }
+                        
+                            if (offset + 1 > end)
+                            {
+                                throw new InvalidDataException("Malformed input: field 'Content' is truncated.");
+                            }
                             
-                                if (offset + 1 > end)
+                            bool g__Content_HasValue = *((byte*)offset) == 0 ? false : true;
+                            offset += 1;
+                            
+                            if (g__Content_HasValue)
+                            {
+                                if (offset + 2 > end)
                                 {
                                     throw new InvalidDataException("Malformed input: field 'Content' is truncated.");
                                 }
                                 
-                                bool g__Content_HasValue = *((byte*)offset) == 0 ? false : true;
-                                offset += 1;
+                                ushort g__Content_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
+                                offset += 2;
                                 
-                                if (g__Content_HasValue)
+                                if (offset + 2 * g__Content_Length > end)
                                 {
-                                    if (offset + 2 > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'Content' is truncated.");
-                                    }
-                                    
-                                    ushort g__Content_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                    offset += 2;
+                                    throw new InvalidDataException("Malformed input: field 'Content' is truncated.");
+                                }
                                 
-                                    if (offset + 2 * g__Content_Length > end)
+                                if (g__Content_Length == 0)
+                                {
+                                    Content = string.Empty;
+                                }
+                                else
+                                {
+                                    if (BitConverter.IsLittleEndian)
                                     {
-                                        throw new InvalidDataException("Malformed input: field 'Content' is truncated.");
-                                    }
-                                
-                                    if (g__Content_Length == 0)
-                                    {
-                                        Content = string.Empty;
+                                        Content = new string((char*)offset, 0, g__Content_Length);
                                     }
                                     else
                                     {
-                                        char* chars = (char*)offset;
-                                        if (!BitConverter.IsLittleEndian)
+                                        Content = string.Create(g__Content_Length, (IntPtr)offset, static (chars, ptr) =>
                                         {
-                                            for (int n = 0; n < g__Content_Length; n++)
+                                            char* source = (char*)ptr;
+                                            for (int i = 0; i < chars.Length; i++)
                                             {
-                                                *((ushort*)chars) = BinaryPrimitives.ReverseEndianness(*((ushort*)chars));
-                                                chars += 2;
+                                                chars[i] = (char)BinaryPrimitives.ReverseEndianness((ushort)source[i]);
                                             }
-                                        }
-                                
-                                        Content = new string(chars, 0, g__Content_Length);
-                                        offset += 2 * g__Content_Length;
+                                        });
                                     }
-                                }
-                                else
-                                {
-                                    Content = null;
-                                }
                                 
-                            
-                                g__Content_Read = true;
-                                readsCompleted++;
+                                    offset += 2 * g__Content_Length;
+                                }
+                            }
+                            else
+                            {
+                                Content = null;
+                            }
+                        
+                            g__Content_Read = true;
+                            readsCompleted++;
+                            break;
+                        #endregion
+                        #region Deserialize Body
+                        case Body_ID:
+                            if (g__Body_Read)
+                            {
                                 break;
-                            #endregion
-                            #region Deserialize Body
-                            case Body_ID:
-                                if (g__Body_Read)
-                                {
-                                    break;
-                                }
+                            }
+                        
+                            if (offset + 2 > end)
+                            {
+                                throw new InvalidDataException("Malformed input: field 'Body' is truncated.");
+                            }
                             
-                                if (offset + 2 > end)
+                            ushort g__Body_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
+                            offset += 2;
+                            
+                            if (offset + 2 * g__Body_Length > end)
+                            {
+                                throw new InvalidDataException("Malformed input: field 'Body' is truncated.");
+                            }
+                            
+                            if (g__Body_Length == 0)
+                            {
+                                Body = string.Empty;
+                            }
+                            else
+                            {
+                                if (BitConverter.IsLittleEndian)
                                 {
-                                    throw new InvalidDataException("Malformed input: field 'Body' is truncated.");
-                                }
-                                
-                                ushort g__Body_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                offset += 2;
-                                
-                                if (offset + 2 * g__Body_Length > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Body' is truncated.");
-                                }
-                                
-                                if (g__Body_Length == 0)
-                                {
-                                    Body = string.Empty;
+                                    Body = new string((char*)offset, 0, g__Body_Length);
                                 }
                                 else
                                 {
-                                    char* chars = (char*)offset;
-                                    if (!BitConverter.IsLittleEndian)
+                                    Body = string.Create(g__Body_Length, (IntPtr)offset, static (chars, ptr) =>
                                     {
-                                        for (int n = 0; n < g__Body_Length; n++)
+                                        char* source = (char*)ptr;
+                                        for (int i = 0; i < chars.Length; i++)
                                         {
-                                            *((ushort*)chars) = BinaryPrimitives.ReverseEndianness(*((ushort*)chars));
-                                            chars += 2;
+                                            chars[i] = (char)BinaryPrimitives.ReverseEndianness((ushort)source[i]);
                                         }
+                                    });
+                                }
+                            
+                                offset += 2 * g__Body_Length;
+                            }
+                        
+                            g__Body_Read = true;
+                            readsCompleted++;
+                            break;
+                        #endregion
+                        #region Deserialize FloAT
+                        case FloAT_ID:
+                            if (g__FloAT_Read)
+                            {
+                                break;
+                            }
+                        
+                            if (offset + 4 > end)
+                            {
+                                throw new InvalidDataException("Malformed input: field 'FloAT' is truncated.");
+                            }
+                            
+                            uint g__FloAT_Raw = BitConverter.IsLittleEndian ? *((uint*)offset) : BinaryPrimitives.ReverseEndianness(*((uint*)offset));
+                            FloAT = *(float*)&g__FloAT_Raw;
+                            offset += 4;
+                        
+                            g__FloAT_Read = true;
+                            readsCompleted++;
+                            break;
+                        #endregion
+                        #region Deserialize Double
+                        case Double_ID:
+                            if (g__Double_Read)
+                            {
+                                break;
+                            }
+                        
+                            if (offset + 8 > end)
+                            {
+                                throw new InvalidDataException("Malformed input: field 'Double' is truncated.");
+                            }
+                            
+                            ulong g__Double_Raw = BitConverter.IsLittleEndian ? *((ulong*)offset) : BinaryPrimitives.ReverseEndianness(*((ulong*)offset));
+                            Double = *(double*)&g__Double_Raw;
+                            offset += 8;
+                        
+                            g__Double_Read = true;
+                            readsCompleted++;
+                            break;
+                        #endregion
+                        #region Deserialize Long
+                        case Long_ID:
+                            if (g__Long_Read)
+                            {
+                                break;
+                            }
+                        
+                            if (offset + 8 > end)
+                            {
+                                throw new InvalidDataException("Malformed input: field 'Long' is truncated.");
+                            }
+                            
+                            Long = BitConverter.IsLittleEndian ? *((long*)offset) : BinaryPrimitives.ReverseEndianness(*((long*)offset));
+                            offset += 8;
+                        
+                            g__Long_Read = true;
+                            readsCompleted++;
+                            break;
+                        #endregion
+                        #region Deserialize uLong
+                        case uLong_ID:
+                            if (g__uLong_Read)
+                            {
+                                break;
+                            }
+                        
+                            if (offset + 8 > end)
+                            {
+                                throw new InvalidDataException("Malformed input: field 'uLong' is truncated.");
+                            }
+                            
+                            uLong = BitConverter.IsLittleEndian ? *((ulong*)offset) : BinaryPrimitives.ReverseEndianness(*((ulong*)offset));
+                            offset += 8;
+                        
+                            g__uLong_Read = true;
+                            readsCompleted++;
+                            break;
+                        #endregion
+                        #region Deserialize Ulong
+                        case Ulong_ID:
+                            if (g__Ulong_Read)
+                            {
+                                break;
+                            }
+                        
+                            if (offset + 8 > end)
+                            {
+                                throw new InvalidDataException("Malformed input: field 'Ulong' is truncated.");
+                            }
+                            
+                            Ulong = BitConverter.IsLittleEndian ? *((ulong*)offset) : BinaryPrimitives.ReverseEndianness(*((ulong*)offset));
+                            offset += 8;
+                        
+                            g__Ulong_Read = true;
+                            readsCompleted++;
+                            break;
+                        #endregion
+                        #region Deserialize Short
+                        case Short_ID:
+                            if (g__Short_Read)
+                            {
+                                break;
+                            }
+                        
+                            if (offset + 2 > end)
+                            {
+                                throw new InvalidDataException("Malformed input: field 'Short' is truncated.");
+                            }
+                            
+                            Short = BitConverter.IsLittleEndian ? *((short*)offset) : BinaryPrimitives.ReverseEndianness(*((short*)offset));
+                            offset += 2;
+                        
+                            g__Short_Read = true;
+                            readsCompleted++;
+                            break;
+                        #endregion
+                        #region Deserialize UShort
+                        case UShort_ID:
+                            if (g__UShort_Read)
+                            {
+                                break;
+                            }
+                        
+                            if (offset + 2 > end)
+                            {
+                                throw new InvalidDataException("Malformed input: field 'UShort' is truncated.");
+                            }
+                            
+                            UShort = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
+                            offset += 2;
+                        
+                            g__UShort_Read = true;
+                            readsCompleted++;
+                            break;
+                        #endregion
+                        #region Deserialize Bool
+                        case Bool_ID:
+                            if (g__Bool_Read)
+                            {
+                                break;
+                            }
+                        
+                            if (offset + 1 > end)
+                            {
+                                throw new InvalidDataException("Malformed input: field 'Bool' is truncated.");
+                            }
+                            
+                            Bool = *((byte*)offset) == 0 ? false : true;
+                            offset += 1;
+                        
+                            g__Bool_Read = true;
+                            readsCompleted++;
+                            break;
+                        #endregion
+                        #region Deserialize Byte
+                        case Byte_ID:
+                            if (g__Byte_Read)
+                            {
+                                break;
+                            }
+                        
+                            if (offset + 1 > end)
+                            {
+                                throw new InvalidDataException("Malformed input: field 'Byte' is truncated.");
+                            }
+                            
+                            Byte = BitConverter.IsLittleEndian ? *((byte*)offset) : BinaryPrimitives.ReverseEndianness(*((byte*)offset));
+                            offset += 1;
+                        
+                            g__Byte_Read = true;
+                            readsCompleted++;
+                            break;
+                        #endregion
+                        #region Deserialize Bytes
+                        case Bytes_ID:
+                            if (g__Bytes_Read)
+                            {
+                                break;
+                            }
+                        
+                            if (offset + 2 > end)
+                            {
+                                throw new InvalidDataException("Malformed input: field 'Bytes' is truncated.");
+                            }
+                            
+                            ushort g__Bytes_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
+                            offset += 2;
+                            
+                            if (offset + g__Bytes_Length * 1 > end)
+                            {
+                                throw new InvalidDataException("Malformed input: field 'Bytes' is truncated.");
+                            }
+                            
+                            if (g__Bytes_Length == 0)
+                            {
+                                Bytes = Array.Empty<byte>();
+                            }
+                            else
+                            {
+                                Bytes = new byte[g__Bytes_Length];
+                            
+                                if (BitConverter.IsLittleEndian && g__Bytes_Length >= 64)
+                                {
+                                    fixed (byte* g__Bytes_Ptr = Bytes)
+                                    {
+                                        long g__Bytes_Bytes = (long)g__Bytes_Length * 1;
+                                        Buffer.MemoryCopy(offset, g__Bytes_Ptr, g__Bytes_Bytes, g__Bytes_Bytes);
                                     }
                                 
-                                    Body = new string(chars, 0, g__Body_Length);
-                                    offset += 2 * g__Body_Length;
-                                }
-                                
-                            
-                                g__Body_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize FloAT
-                            case FloAT_ID:
-                                if (g__FloAT_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 4 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'FloAT' is truncated.");
-                                }
-                                
-                                uint g__FloAT_Raw = BitConverter.IsLittleEndian ? *((uint*)offset) : BinaryPrimitives.ReverseEndianness(*((uint*)offset));
-                                FloAT = *(float*)&g__FloAT_Raw;
-                                offset += 4;
-                                
-                            
-                                g__FloAT_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize Double
-                            case Double_ID:
-                                if (g__Double_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 8 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Double' is truncated.");
-                                }
-                                
-                                ulong g__Double_Raw = BitConverter.IsLittleEndian ? *((ulong*)offset) : BinaryPrimitives.ReverseEndianness(*((ulong*)offset));
-                                Double = *(double*)&g__Double_Raw;
-                                offset += 8;
-                                
-                            
-                                g__Double_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize Long
-                            case Long_ID:
-                                if (g__Long_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 8 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Long' is truncated.");
-                                }
-                                
-                                Long = BitConverter.IsLittleEndian ? *((long*)offset) : BinaryPrimitives.ReverseEndianness(*((long*)offset));
-                                offset += 8;
-                                
-                            
-                                g__Long_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize uLong
-                            case uLong_ID:
-                                if (g__uLong_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 8 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'uLong' is truncated.");
-                                }
-                                
-                                uLong = BitConverter.IsLittleEndian ? *((ulong*)offset) : BinaryPrimitives.ReverseEndianness(*((ulong*)offset));
-                                offset += 8;
-                                
-                            
-                                g__uLong_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize Ulong
-                            case Ulong_ID:
-                                if (g__Ulong_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 8 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Ulong' is truncated.");
-                                }
-                                
-                                Ulong = BitConverter.IsLittleEndian ? *((ulong*)offset) : BinaryPrimitives.ReverseEndianness(*((ulong*)offset));
-                                offset += 8;
-                                
-                            
-                                g__Ulong_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize Short
-                            case Short_ID:
-                                if (g__Short_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 2 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Short' is truncated.");
-                                }
-                                
-                                Short = BitConverter.IsLittleEndian ? *((short*)offset) : BinaryPrimitives.ReverseEndianness(*((short*)offset));
-                                offset += 2;
-                                
-                            
-                                g__Short_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize UShort
-                            case UShort_ID:
-                                if (g__UShort_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 2 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'UShort' is truncated.");
-                                }
-                                
-                                UShort = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                offset += 2;
-                                
-                            
-                                g__UShort_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize Bool
-                            case Bool_ID:
-                                if (g__Bool_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 1 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Bool' is truncated.");
-                                }
-                                
-                                Bool = *((byte*)offset) == 0 ? false : true;
-                                offset += 1;
-                                
-                            
-                                g__Bool_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize Byte
-                            case Byte_ID:
-                                if (g__Byte_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 1 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Byte' is truncated.");
-                                }
-                                
-                                Byte = BitConverter.IsLittleEndian ? *((byte*)offset) : BinaryPrimitives.ReverseEndianness(*((byte*)offset));
-                                offset += 1;
-                                
-                            
-                                g__Byte_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize Bytes
-                            case Bytes_ID:
-                                if (g__Bytes_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 2 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Bytes' is truncated.");
-                                }
-                                
-                                ushort g__Bytes_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                offset += 2;
-                                if (offset + g__Bytes_Length * 1 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Bytes' is truncated.");
-                                }
-                                
-                                
-                                if (g__Bytes_Length == 0)
-                                {
-                                    Bytes = Array.Empty<byte>();
+                                    offset += g__Bytes_Length * 1;
                                 }
                                 else
                                 {
-                                    Bytes = new byte[g__Bytes_Length];
-                                
                                     for (int i = 0; i < g__Bytes_Length; i++)
                                     {
-                                        if (offset + 1 > end)
-                                        {
-                                            throw new InvalidDataException("Malformed input: field 'Bytes' is truncated.");
-                                        }
-                                        
-                                        Bytes[i] = BitConverter.IsLittleEndian ? *((byte*)offset) : BinaryPrimitives.ReverseEndianness(*((byte*)offset));
+                                        Bytes[i] = *((byte*)offset);
                                         offset += 1;
                                     }
                                 }
-                                
-                            
-                                g__Bytes_Read = true;
-                                readsCompleted++;
+                            }
+                        
+                            g__Bytes_Read = true;
+                            readsCompleted++;
+                            break;
+                        #endregion
+                        #region Deserialize OptionalStrings
+                        case OptionalStrings_ID:
+                            if (g__OptionalStrings_Read)
+                            {
                                 break;
-                            #endregion
-                            #region Deserialize OptionalStrings
-                            case OptionalStrings_ID:
-                                if (g__OptionalStrings_Read)
-                                {
-                                    break;
-                                }
+                            }
+                        
+                            if (offset + 1 > end)
+                            {
+                                throw new InvalidDataException("Malformed input: field 'OptionalStrings' is truncated.");
+                            }
                             
-                                if (offset + 1 > end)
+                            bool g__OptionalStrings_HasValue = *((byte*)offset) == 0 ? false : true;
+                            offset += 1;
+                            
+                            if (g__OptionalStrings_HasValue)
+                            {
+                                if (offset + 2 > end)
                                 {
                                     throw new InvalidDataException("Malformed input: field 'OptionalStrings' is truncated.");
                                 }
                                 
-                                bool g__OptionalStrings_HasValue = *((byte*)offset) == 0 ? false : true;
-                                offset += 1;
+                                ushort g__OptionalStrings_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
+                                offset += 2;
                                 
-                                if (g__OptionalStrings_HasValue)
+                                if (g__OptionalStrings_Length == 0)
                                 {
-                                    if (offset + 2 > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'OptionalStrings' is truncated.");
-                                    }
-                                    
-                                    ushort g__OptionalStrings_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                    offset += 2;
+                                    OptionalStrings = Array.Empty<string>();
+                                }
+                                else
+                                {
+                                    OptionalStrings = new string[g__OptionalStrings_Length];
                                 
-                                    if (g__OptionalStrings_Length == 0)
+                                    for (int i = 0; i < g__OptionalStrings_Length; i++)
                                     {
-                                        OptionalStrings = Array.Empty<string>();
-                                    }
-                                    else
-                                    {
-                                        OptionalStrings = new string[g__OptionalStrings_Length];
-                                
-                                        for (int i = 0; i < g__OptionalStrings_Length; i++)
+                                        if (offset + 2 > end)
                                         {
-                                            if (offset + 2 > end)
-                                            {
-                                                throw new InvalidDataException("Malformed input: field 'OptionalStrings' is truncated.");
-                                            }
-                                
-                                            ushort g__OptionalStrings_i_length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                            offset += 2;
-                                
-                                            if (offset + 2 * g__OptionalStrings_i_length > end)
-                                            {
-                                                throw new InvalidDataException("Malformed input: field 'OptionalStrings' is truncated.");
-                                            }
-                                
-                                            char* chars = (char*)offset;
-                                            if (!BitConverter.IsLittleEndian)
-                                            {
-                                                for (int n = 0; n < g__OptionalStrings_i_length; n++)
-                                                {
-                                                    *((ushort*)chars) = BinaryPrimitives.ReverseEndianness(*((ushort*)chars));
-                                                    chars += 2;
-                                                }
-                                            }
-                                
-                                            OptionalStrings[i] = new string(chars, 0, g__OptionalStrings_i_length);
-                                            offset += 2 * g__OptionalStrings_i_length;
+                                            throw new InvalidDataException("Malformed input: field 'OptionalStrings' is truncated.");
                                         }
+                                
+                                        ushort g__OptionalStrings_ItemLength = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
+                                        offset += 2;
+                                
+                                        if (offset + 2 * g__OptionalStrings_ItemLength > end)
+                                        {
+                                            throw new InvalidDataException("Malformed input: field 'OptionalStrings' is truncated.");
+                                        }
+                                
+                                        if (g__OptionalStrings_ItemLength == 0)
+                                        {
+                                            OptionalStrings[i] = string.Empty;
+                                        }
+                                        else
+                                        {
+                                            if (BitConverter.IsLittleEndian)
+                                            {
+                                                OptionalStrings[i] = new string((char*)offset, 0, g__OptionalStrings_ItemLength);
+                                            }
+                                            else
+                                            {
+                                                OptionalStrings[i] = string.Create(g__OptionalStrings_ItemLength, (IntPtr)offset, static (chars, ptr) =>
+                                                {
+                                                    char* source = (char*)ptr;
+                                                    for (int n = 0; n < chars.Length; n++)
+                                                    {
+                                                        chars[n] = (char)BinaryPrimitives.ReverseEndianness((ushort)source[n]);
+                                                    }
+                                                });
+                                            }
+                                        }
+                                
+                                        offset += 2 * g__OptionalStrings_ItemLength;
                                     }
                                 }
-                                
-                            
-                                g__OptionalStrings_Read = true;
-                                readsCompleted++;
+                            }
+                            else
+                            {
+                                OptionalStrings = null;
+                            }
+                        
+                            g__OptionalStrings_Read = true;
+                            readsCompleted++;
+                            break;
+                        #endregion
+                        #region Deserialize Int
+                        case Int_ID:
+                            if (g__Int_Read)
+                            {
                                 break;
-                            #endregion
-                            #region Deserialize Int
-                            case Int_ID:
-                                if (g__Int_Read)
-                                {
-                                    break;
-                                }
+                            }
+                        
+                            if (offset + 4 > end)
+                            {
+                                throw new InvalidDataException("Malformed input: field 'Int' is truncated.");
+                            }
                             
+                            Int = BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset));
+                            offset += 4;
+                        
+                            g__Int_Read = true;
+                            readsCompleted++;
+                            break;
+                        #endregion
+                        #region Deserialize OptionalInt
+                        case OptionalInt_ID:
+                            if (g__OptionalInt_Read)
+                            {
+                                break;
+                            }
+                        
+                            if (offset + 1 > end)
+                            {
+                                throw new InvalidDataException("Malformed input: field 'OptionalInt' is truncated.");
+                            }
+                            
+                            bool g__OptionalInt_HasValue = *((byte*)offset) == 0 ? false : true;
+                            offset += 1;
+                            
+                            if (g__OptionalInt_HasValue)
+                            {
                                 if (offset + 4 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Int' is truncated.");
-                                }
-                                
-                                Int = BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset));
-                                offset += 4;
-                                
-                            
-                                g__Int_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize OptionalInt
-                            case OptionalInt_ID:
-                                if (g__OptionalInt_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 1 > end)
                                 {
                                     throw new InvalidDataException("Malformed input: field 'OptionalInt' is truncated.");
                                 }
                                 
-                                bool g__OptionalInt_HasValue = *((byte*)offset) == 0 ? false : true;
-                                offset += 1;
-                                
-                                if (g__OptionalInt_HasValue)
-                                {
-                                    if (offset + 4 > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'OptionalInt' is truncated.");
-                                    }
-                                    
-                                    OptionalInt = BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset));
-                                    offset += 4;
-                                }
-                                else
-                                {
-                                    OptionalInt = null;
-                                }
-                                
-                            
-                                g__OptionalInt_Read = true;
-                                readsCompleted++;
+                                OptionalInt = BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset));
+                                offset += 4;
+                            }
+                            else
+                            {
+                                OptionalInt = null;
+                            }
+                        
+                            g__OptionalInt_Read = true;
+                            readsCompleted++;
+                            break;
+                        #endregion
+                        #region Deserialize Ints
+                        case Ints_ID:
+                            if (g__Ints_Read)
+                            {
                                 break;
-                            #endregion
-                            #region Deserialize Ints
-                            case Ints_ID:
-                                if (g__Ints_Read)
-                                {
-                                    break;
-                                }
+                            }
+                        
+                            if (offset + 2 > end)
+                            {
+                                throw new InvalidDataException("Malformed input: field 'Ints' is truncated.");
+                            }
                             
-                                if (offset + 2 > end)
+                            ushort g__Ints_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
+                            offset += 2;
+                            
+                            if (offset + g__Ints_Length * 4 > end)
+                            {
+                                throw new InvalidDataException("Malformed input: field 'Ints' is truncated.");
+                            }
+                            
+                            if (g__Ints_Length == 0)
+                            {
+                                Ints = Array.Empty<int>();
+                            }
+                            else
+                            {
+                                Ints = new int[g__Ints_Length];
+                            
+                                if (BitConverter.IsLittleEndian && g__Ints_Length >= 16)
                                 {
-                                    throw new InvalidDataException("Malformed input: field 'Ints' is truncated.");
-                                }
+                                    fixed (int* g__Ints_Ptr = Ints)
+                                    {
+                                        long g__Ints_Bytes = (long)g__Ints_Length * 4;
+                                        Buffer.MemoryCopy(offset, g__Ints_Ptr, g__Ints_Bytes, g__Ints_Bytes);
+                                    }
                                 
-                                ushort g__Ints_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                offset += 2;
-                                if (offset + g__Ints_Length * 4 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Ints' is truncated.");
-                                }
-                                
-                                
-                                if (g__Ints_Length == 0)
-                                {
-                                    Ints = Array.Empty<int>();
+                                    offset += g__Ints_Length * 4;
                                 }
                                 else
                                 {
-                                    Ints = new int[g__Ints_Length];
-                                
                                     for (int i = 0; i < g__Ints_Length; i++)
                                     {
-                                        if (offset + 4 > end)
-                                        {
-                                            throw new InvalidDataException("Malformed input: field 'Ints' is truncated.");
-                                        }
-                                        
                                         Ints[i] = BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset));
                                         offset += 4;
                                     }
                                 }
-                                
-                            
-                                g__Ints_Read = true;
-                                readsCompleted++;
+                            }
+                        
+                            g__Ints_Read = true;
+                            readsCompleted++;
+                            break;
+                        #endregion
+                        #region Deserialize OptionalInts
+                        case OptionalInts_ID:
+                            if (g__OptionalInts_Read)
+                            {
                                 break;
-                            #endregion
-                            #region Deserialize OptionalInts
-                            case OptionalInts_ID:
-                                if (g__OptionalInts_Read)
-                                {
-                                    break;
-                                }
+                            }
+                        
+                            if (offset + 1 > end)
+                            {
+                                throw new InvalidDataException("Malformed input: field 'OptionalInts' is truncated.");
+                            }
                             
-                                if (offset + 1 > end)
+                            bool g__OptionalInts_HasValue = *((byte*)offset) == 0 ? false : true;
+                            offset += 1;
+                            
+                            if (g__OptionalInts_HasValue)
+                            {
+                                if (offset + 2 > end)
                                 {
                                     throw new InvalidDataException("Malformed input: field 'OptionalInts' is truncated.");
                                 }
                                 
-                                bool g__OptionalInts_HasValue = *((byte*)offset) == 0 ? false : true;
-                                offset += 1;
+                                ushort g__OptionalInts_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
+                                offset += 2;
                                 
-                                if (g__OptionalInts_HasValue)
+                                if (offset + g__OptionalInts_Length * 4 > end)
                                 {
-                                    if (offset + 2 > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'OptionalInts' is truncated.");
-                                    }
-                                    
-                                    ushort g__OptionalInts_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                    offset += 2;
-                                    if (offset + g__OptionalInts_Length * 4 > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'OptionalInts' is truncated.");
-                                    }
-                                    
+                                    throw new InvalidDataException("Malformed input: field 'OptionalInts' is truncated.");
+                                }
                                 
-                                    if (g__OptionalInts_Length == 0)
+                                if (g__OptionalInts_Length == 0)
+                                {
+                                    OptionalInts = Array.Empty<int>();
+                                }
+                                else
+                                {
+                                    OptionalInts = new int[g__OptionalInts_Length];
+                                
+                                    if (BitConverter.IsLittleEndian && g__OptionalInts_Length >= 16)
                                     {
-                                        OptionalInts = Array.Empty<int>();
+                                        fixed (int* g__OptionalInts_Ptr = OptionalInts)
+                                        {
+                                            long g__OptionalInts_Bytes = (long)g__OptionalInts_Length * 4;
+                                            Buffer.MemoryCopy(offset, g__OptionalInts_Ptr, g__OptionalInts_Bytes, g__OptionalInts_Bytes);
+                                        }
+                                    
+                                        offset += g__OptionalInts_Length * 4;
                                     }
                                     else
                                     {
-                                        OptionalInts = new int[g__OptionalInts_Length];
-                                
                                         for (int i = 0; i < g__OptionalInts_Length; i++)
                                         {
-                                            if (offset + 4 > end)
-                                            {
-                                                throw new InvalidDataException("Malformed input: field 'OptionalInts' is truncated.");
-                                            }
-                                            
                                             OptionalInts[i] = BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset));
                                             offset += 4;
                                         }
                                     }
                                 }
-                                else
-                                {
-                                    OptionalInts = null;
-                                }
-                                
-                            
-                                g__OptionalInts_Read = true;
-                                readsCompleted++;
+                            }
+                            else
+                            {
+                                OptionalInts = null;
+                            }
+                        
+                            g__OptionalInts_Read = true;
+                            readsCompleted++;
+                            break;
+                        #endregion
+                        #region Deserialize UInt
+                        case UInt_ID:
+                            if (g__UInt_Read)
+                            {
                                 break;
-                            #endregion
-                            #region Deserialize UInt
-                            case UInt_ID:
-                                if (g__UInt_Read)
-                                {
-                                    break;
-                                }
+                            }
+                        
+                            if (offset + 4 > end)
+                            {
+                                throw new InvalidDataException("Malformed input: field 'UInt' is truncated.");
+                            }
                             
+                            UInt = BitConverter.IsLittleEndian ? *((uint*)offset) : BinaryPrimitives.ReverseEndianness(*((uint*)offset));
+                            offset += 4;
+                        
+                            g__UInt_Read = true;
+                            readsCompleted++;
+                            break;
+                        #endregion
+                        #region Deserialize OptionalUInt
+                        case OptionalUInt_ID:
+                            if (g__OptionalUInt_Read)
+                            {
+                                break;
+                            }
+                        
+                            if (offset + 1 > end)
+                            {
+                                throw new InvalidDataException("Malformed input: field 'OptionalUInt' is truncated.");
+                            }
+                            
+                            bool g__OptionalUInt_HasValue = *((byte*)offset) == 0 ? false : true;
+                            offset += 1;
+                            
+                            if (g__OptionalUInt_HasValue)
+                            {
                                 if (offset + 4 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'UInt' is truncated.");
-                                }
-                                
-                                UInt = BitConverter.IsLittleEndian ? *((uint*)offset) : BinaryPrimitives.ReverseEndianness(*((uint*)offset));
-                                offset += 4;
-                                
-                            
-                                g__UInt_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize OptionalUInt
-                            case OptionalUInt_ID:
-                                if (g__OptionalUInt_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 1 > end)
                                 {
                                     throw new InvalidDataException("Malformed input: field 'OptionalUInt' is truncated.");
                                 }
                                 
-                                bool g__OptionalUInt_HasValue = *((byte*)offset) == 0 ? false : true;
-                                offset += 1;
-                                
-                                if (g__OptionalUInt_HasValue)
-                                {
-                                    if (offset + 4 > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'OptionalUInt' is truncated.");
-                                    }
-                                    
-                                    OptionalUInt = BitConverter.IsLittleEndian ? *((uint*)offset) : BinaryPrimitives.ReverseEndianness(*((uint*)offset));
-                                    offset += 4;
-                                }
-                                else
-                                {
-                                    OptionalUInt = null;
-                                }
-                                
-                            
-                                g__OptionalUInt_Read = true;
-                                readsCompleted++;
+                                OptionalUInt = BitConverter.IsLittleEndian ? *((uint*)offset) : BinaryPrimitives.ReverseEndianness(*((uint*)offset));
+                                offset += 4;
+                            }
+                            else
+                            {
+                                OptionalUInt = null;
+                            }
+                        
+                            g__OptionalUInt_Read = true;
+                            readsCompleted++;
+                            break;
+                        #endregion
+                        #region Deserialize UInts
+                        case UInts_ID:
+                            if (g__UInts_Read)
+                            {
                                 break;
-                            #endregion
-                            #region Deserialize UInts
-                            case UInts_ID:
-                                if (g__UInts_Read)
-                                {
-                                    break;
-                                }
+                            }
+                        
+                            if (offset + 2 > end)
+                            {
+                                throw new InvalidDataException("Malformed input: field 'UInts' is truncated.");
+                            }
                             
-                                if (offset + 2 > end)
+                            ushort g__UInts_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
+                            offset += 2;
+                            
+                            if (offset + g__UInts_Length * 4 > end)
+                            {
+                                throw new InvalidDataException("Malformed input: field 'UInts' is truncated.");
+                            }
+                            
+                            if (g__UInts_Length == 0)
+                            {
+                                UInts = Array.Empty<uint>();
+                            }
+                            else
+                            {
+                                UInts = new uint[g__UInts_Length];
+                            
+                                if (BitConverter.IsLittleEndian && g__UInts_Length >= 16)
                                 {
-                                    throw new InvalidDataException("Malformed input: field 'UInts' is truncated.");
-                                }
+                                    fixed (uint* g__UInts_Ptr = UInts)
+                                    {
+                                        long g__UInts_Bytes = (long)g__UInts_Length * 4;
+                                        Buffer.MemoryCopy(offset, g__UInts_Ptr, g__UInts_Bytes, g__UInts_Bytes);
+                                    }
                                 
-                                ushort g__UInts_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                offset += 2;
-                                if (offset + g__UInts_Length * 4 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'UInts' is truncated.");
-                                }
-                                
-                                
-                                if (g__UInts_Length == 0)
-                                {
-                                    UInts = Array.Empty<uint>();
+                                    offset += g__UInts_Length * 4;
                                 }
                                 else
                                 {
-                                    UInts = new uint[g__UInts_Length];
-                                
                                     for (int i = 0; i < g__UInts_Length; i++)
                                     {
-                                        if (offset + 4 > end)
-                                        {
-                                            throw new InvalidDataException("Malformed input: field 'UInts' is truncated.");
-                                        }
-                                        
                                         UInts[i] = BitConverter.IsLittleEndian ? *((uint*)offset) : BinaryPrimitives.ReverseEndianness(*((uint*)offset));
                                         offset += 4;
                                     }
                                 }
-                                
-                            
-                                g__UInts_Read = true;
-                                readsCompleted++;
+                            }
+                        
+                            g__UInts_Read = true;
+                            readsCompleted++;
+                            break;
+                        #endregion
+                        #region Deserialize OptionalUInts
+                        case OptionalUInts_ID:
+                            if (g__OptionalUInts_Read)
+                            {
                                 break;
-                            #endregion
-                            #region Deserialize OptionalUInts
-                            case OptionalUInts_ID:
-                                if (g__OptionalUInts_Read)
-                                {
-                                    break;
-                                }
+                            }
+                        
+                            if (offset + 1 > end)
+                            {
+                                throw new InvalidDataException("Malformed input: field 'OptionalUInts' is truncated.");
+                            }
                             
-                                if (offset + 1 > end)
+                            bool g__OptionalUInts_HasValue = *((byte*)offset) == 0 ? false : true;
+                            offset += 1;
+                            
+                            if (g__OptionalUInts_HasValue)
+                            {
+                                if (offset + 2 > end)
                                 {
                                     throw new InvalidDataException("Malformed input: field 'OptionalUInts' is truncated.");
                                 }
                                 
-                                bool g__OptionalUInts_HasValue = *((byte*)offset) == 0 ? false : true;
-                                offset += 1;
+                                ushort g__OptionalUInts_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
+                                offset += 2;
                                 
-                                if (g__OptionalUInts_HasValue)
+                                if (offset + g__OptionalUInts_Length * 4 > end)
                                 {
-                                    if (offset + 2 > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'OptionalUInts' is truncated.");
-                                    }
-                                    
-                                    ushort g__OptionalUInts_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                    offset += 2;
-                                    if (offset + g__OptionalUInts_Length * 4 > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'OptionalUInts' is truncated.");
-                                    }
-                                    
+                                    throw new InvalidDataException("Malformed input: field 'OptionalUInts' is truncated.");
+                                }
                                 
-                                    if (g__OptionalUInts_Length == 0)
+                                if (g__OptionalUInts_Length == 0)
+                                {
+                                    OptionalUInts = Array.Empty<uint>();
+                                }
+                                else
+                                {
+                                    OptionalUInts = new uint[g__OptionalUInts_Length];
+                                
+                                    if (BitConverter.IsLittleEndian && g__OptionalUInts_Length >= 16)
                                     {
-                                        OptionalUInts = Array.Empty<uint>();
+                                        fixed (uint* g__OptionalUInts_Ptr = OptionalUInts)
+                                        {
+                                            long g__OptionalUInts_Bytes = (long)g__OptionalUInts_Length * 4;
+                                            Buffer.MemoryCopy(offset, g__OptionalUInts_Ptr, g__OptionalUInts_Bytes, g__OptionalUInts_Bytes);
+                                        }
+                                    
+                                        offset += g__OptionalUInts_Length * 4;
                                     }
                                     else
                                     {
-                                        OptionalUInts = new uint[g__OptionalUInts_Length];
-                                
                                         for (int i = 0; i < g__OptionalUInts_Length; i++)
                                         {
-                                            if (offset + 4 > end)
-                                            {
-                                                throw new InvalidDataException("Malformed input: field 'OptionalUInts' is truncated.");
-                                            }
-                                            
                                             OptionalUInts[i] = BitConverter.IsLittleEndian ? *((uint*)offset) : BinaryPrimitives.ReverseEndianness(*((uint*)offset));
                                             offset += 4;
                                         }
                                     }
                                 }
-                                else
-                                {
-                                    OptionalUInts = null;
-                                }
-                                
-                            
-                                g__OptionalUInts_Read = true;
-                                readsCompleted++;
+                            }
+                            else
+                            {
+                                OptionalUInts = null;
+                            }
+                        
+                            g__OptionalUInts_Read = true;
+                            readsCompleted++;
+                            break;
+                        #endregion
+                        #region Deserialize Enum
+                        case Enum_ID:
+                            if (g__Enum_Read)
+                            {
                                 break;
-                            #endregion
-                            #region Deserialize Enum
-                            case Enum_ID:
-                                if (g__Enum_Read)
-                                {
-                                    break;
-                                }
+                            }
+                        
+                            if (offset + 4 > end)
+                            {
+                                throw new InvalidDataException("Malformed input: field 'Enum' is truncated.");
+                            }
                             
+                            Enum = (TestEnum)(BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset)));
+                            offset += 4;
+                        
+                            g__Enum_Read = true;
+                            readsCompleted++;
+                            break;
+                        #endregion
+                        #region Deserialize OptionalEnum
+                        case OptionalEnum_ID:
+                            if (g__OptionalEnum_Read)
+                            {
+                                break;
+                            }
+                        
+                            if (offset + 1 > end)
+                            {
+                                throw new InvalidDataException("Malformed input: field 'OptionalEnum' is truncated.");
+                            }
+                            
+                            bool g__OptionalEnum_HasValue = *((byte*)offset) == 0 ? false : true;
+                            offset += 1;
+                            
+                            if (g__OptionalEnum_HasValue)
+                            {
                                 if (offset + 4 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Enum' is truncated.");
-                                }
-                                
-                                Enum = (TestEnum)(BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset)));
-                                offset += 4;
-                                
-                            
-                                g__Enum_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize OptionalEnum
-                            case OptionalEnum_ID:
-                                if (g__OptionalEnum_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 1 > end)
                                 {
                                     throw new InvalidDataException("Malformed input: field 'OptionalEnum' is truncated.");
                                 }
                                 
-                                bool g__OptionalEnum_HasValue = *((byte*)offset) == 0 ? false : true;
-                                offset += 1;
-                                
-                                if (g__OptionalEnum_HasValue)
-                                {
-                                    if (offset + 4 > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'OptionalEnum' is truncated.");
-                                    }
-                                    
-                                    OptionalEnum = (TestEnum)(BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset)));
-                                    offset += 4;
-                                }
-                                else
-                                {
-                                    OptionalEnum = null;
-                                }
-                                
-                            
-                                g__OptionalEnum_Read = true;
-                                readsCompleted++;
+                                OptionalEnum = (TestEnum)(BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset)));
+                                offset += 4;
+                            }
+                            else
+                            {
+                                OptionalEnum = null;
+                            }
+                        
+                            g__OptionalEnum_Read = true;
+                            readsCompleted++;
+                            break;
+                        #endregion
+                        #region Deserialize Enums
+                        case Enums_ID:
+                            if (g__Enums_Read)
+                            {
                                 break;
-                            #endregion
-                            #region Deserialize Enums
-                            case Enums_ID:
-                                if (g__Enums_Read)
-                                {
-                                    break;
-                                }
+                            }
+                        
+                            if (offset + 2 > end)
+                            {
+                                throw new InvalidDataException("Malformed input: field 'Enums' is truncated.");
+                            }
                             
-                                if (offset + 2 > end)
+                            ushort g__Enums_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
+                            offset += 2;
+                            
+                            if (offset + g__Enums_Length * 4 > end)
+                            {
+                                throw new InvalidDataException("Malformed input: field 'Enums' is truncated.");
+                            }
+                            
+                            if (g__Enums_Length == 0)
+                            {
+                                Enums = Array.Empty<TestEnum>();
+                            }
+                            else
+                            {
+                                Enums = new TestEnum[g__Enums_Length];
+                            
+                                if (BitConverter.IsLittleEndian && g__Enums_Length >= 16)
                                 {
-                                    throw new InvalidDataException("Malformed input: field 'Enums' is truncated.");
-                                }
+                                    fixed (TestEnum* g__Enums_Ptr = Enums)
+                                    {
+                                        long g__Enums_Bytes = (long)g__Enums_Length * 4;
+                                        Buffer.MemoryCopy(offset, g__Enums_Ptr, g__Enums_Bytes, g__Enums_Bytes);
+                                    }
                                 
-                                ushort g__Enums_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                offset += 2;
-                                if (offset + g__Enums_Length * 4 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Enums' is truncated.");
-                                }
-                                
-                                
-                                if (g__Enums_Length == 0)
-                                {
-                                    Enums = Array.Empty<TestEnum>();
+                                    offset += g__Enums_Length * 4;
                                 }
                                 else
                                 {
-                                    Enums = new TestEnum[g__Enums_Length];
-                                
                                     for (int i = 0; i < g__Enums_Length; i++)
                                     {
-                                        if (offset + 4 > end)
-                                        {
-                                            throw new InvalidDataException("Malformed input: field 'Enums' is truncated.");
-                                        }
-                                        
                                         Enums[i] = (TestEnum)(BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset)));
                                         offset += 4;
                                     }
                                 }
-                                
-                            
-                                g__Enums_Read = true;
-                                readsCompleted++;
+                            }
+                        
+                            g__Enums_Read = true;
+                            readsCompleted++;
+                            break;
+                        #endregion
+                        #region Deserialize OptionalEnums
+                        case OptionalEnums_ID:
+                            if (g__OptionalEnums_Read)
+                            {
                                 break;
-                            #endregion
-                            #region Deserialize OptionalEnums
-                            case OptionalEnums_ID:
-                                if (g__OptionalEnums_Read)
-                                {
-                                    break;
-                                }
+                            }
+                        
+                            if (offset + 1 > end)
+                            {
+                                throw new InvalidDataException("Malformed input: field 'OptionalEnums' is truncated.");
+                            }
                             
-                                if (offset + 1 > end)
+                            bool g__OptionalEnums_HasValue = *((byte*)offset) == 0 ? false : true;
+                            offset += 1;
+                            
+                            if (g__OptionalEnums_HasValue)
+                            {
+                                if (offset + 2 > end)
                                 {
                                     throw new InvalidDataException("Malformed input: field 'OptionalEnums' is truncated.");
                                 }
                                 
-                                bool g__OptionalEnums_HasValue = *((byte*)offset) == 0 ? false : true;
-                                offset += 1;
+                                ushort g__OptionalEnums_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
+                                offset += 2;
                                 
-                                if (g__OptionalEnums_HasValue)
+                                if (offset + g__OptionalEnums_Length * 4 > end)
                                 {
-                                    if (offset + 2 > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'OptionalEnums' is truncated.");
-                                    }
-                                    
-                                    ushort g__OptionalEnums_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                    offset += 2;
-                                    if (offset + g__OptionalEnums_Length * 4 > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'OptionalEnums' is truncated.");
-                                    }
-                                    
+                                    throw new InvalidDataException("Malformed input: field 'OptionalEnums' is truncated.");
+                                }
                                 
-                                    if (g__OptionalEnums_Length == 0)
+                                if (g__OptionalEnums_Length == 0)
+                                {
+                                    OptionalEnums = Array.Empty<TestEnum>();
+                                }
+                                else
+                                {
+                                    OptionalEnums = new TestEnum[g__OptionalEnums_Length];
+                                
+                                    if (BitConverter.IsLittleEndian && g__OptionalEnums_Length >= 16)
                                     {
-                                        OptionalEnums = Array.Empty<TestEnum>();
+                                        fixed (TestEnum* g__OptionalEnums_Ptr = OptionalEnums)
+                                        {
+                                            long g__OptionalEnums_Bytes = (long)g__OptionalEnums_Length * 4;
+                                            Buffer.MemoryCopy(offset, g__OptionalEnums_Ptr, g__OptionalEnums_Bytes, g__OptionalEnums_Bytes);
+                                        }
+                                    
+                                        offset += g__OptionalEnums_Length * 4;
                                     }
                                     else
                                     {
-                                        OptionalEnums = new TestEnum[g__OptionalEnums_Length];
-                                
                                         for (int i = 0; i < g__OptionalEnums_Length; i++)
                                         {
-                                            if (offset + 4 > end)
-                                            {
-                                                throw new InvalidDataException("Malformed input: field 'OptionalEnums' is truncated.");
-                                            }
-                                            
                                             OptionalEnums[i] = (TestEnum)(BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset)));
                                             offset += 4;
                                         }
                                     }
                                 }
-                                else
-                                {
-                                    OptionalEnums = null;
-                                }
-                                
-                            
-                                g__OptionalEnums_Read = true;
-                                readsCompleted++;
+                            }
+                            else
+                            {
+                                OptionalEnums = null;
+                            }
+                        
+                            g__OptionalEnums_Read = true;
+                            readsCompleted++;
+                            break;
+                        #endregion
+                        #region Deserialize Submessage
+                        case Submessage_ID:
+                            if (g__Submessage_Read)
+                            {
                                 break;
-                            #endregion
-                            #region Deserialize Submessage
-                            case Submessage_ID:
-                                if (g__Submessage_Read)
-                                {
-                                    break;
-                                }
+                            }
+                        
+                            if (offset + 2 > end)
+                            {
+                                throw new InvalidDataException("Malformed input: field 'Submessage' is truncated.");
+                            }
                             
+                            ushort g__Submessage_ObjectLength = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
+                            offset += 2;
+                            
+                            if (offset + g__Submessage_ObjectLength > end)
+                            {
+                                throw new InvalidDataException("Malformed input: field 'Submessage' is truncated.");
+                            }
+                            
+                            Submessage.UnpackCore(offset, offset + g__Submessage_ObjectLength);
+                            offset += g__Submessage_ObjectLength;
+                        
+                            g__Submessage_Read = true;
+                            readsCompleted++;
+                            break;
+                        #endregion
+                        #region Deserialize OptionalSubmessage
+                        case OptionalSubmessage_ID:
+                            if (g__OptionalSubmessage_Read)
+                            {
+                                break;
+                            }
+                        
+                            if (offset + 1 > end)
+                            {
+                                throw new InvalidDataException("Malformed input: field 'OptionalSubmessage' is truncated.");
+                            }
+                            
+                            bool g__OptionalSubmessage_HasValue = *((byte*)offset) == 0 ? false : true;
+                            offset += 1;
+                            
+                            if (g__OptionalSubmessage_HasValue)
+                            {
                                 if (offset + 2 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Submessage' is truncated.");
-                                }
-                                
-                                ushort g__Submessage_ObjectLength = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                offset += 2;
-                                
-                                if (offset + g__Submessage_ObjectLength > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Submessage' is truncated.");
-                                }
-                                
-                                int g__Submessage_Start = start + (int)(offset - b);
-                                Submessage.Unpack(buffer, g__Submessage_Start, g__Submessage_ObjectLength);
-                                offset += g__Submessage_ObjectLength;
-                                
-                            
-                                g__Submessage_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize OptionalSubmessage
-                            case OptionalSubmessage_ID:
-                                if (g__OptionalSubmessage_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 1 > end)
                                 {
                                     throw new InvalidDataException("Malformed input: field 'OptionalSubmessage' is truncated.");
                                 }
                                 
-                                bool g__OptionalSubmessage_HasValue = *((byte*)offset) == 0 ? false : true;
-                                offset += 1;
+                                ushort g__OptionalSubmessage_ObjectLength = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
+                                offset += 2;
                                 
-                                if (g__OptionalSubmessage_HasValue)
+                                if (offset + g__OptionalSubmessage_ObjectLength > end)
+                                {
+                                    throw new InvalidDataException("Malformed input: field 'OptionalSubmessage' is truncated.");
+                                }
+                                
+                                Submessage g__OptionalSubmessage_Value = OptionalSubmessage.GetValueOrDefault();
+                                g__OptionalSubmessage_Value.UnpackCore(offset, offset + g__OptionalSubmessage_ObjectLength);
+                                OptionalSubmessage = g__OptionalSubmessage_Value;
+                                offset += g__OptionalSubmessage_ObjectLength;
+                            }
+                            else
+                            {
+                                OptionalSubmessage = null;
+                            }
+                        
+                            g__OptionalSubmessage_Read = true;
+                            readsCompleted++;
+                            break;
+                        #endregion
+                        #region Deserialize Submessages
+                        case Submessages_ID:
+                            if (g__Submessages_Read)
+                            {
+                                break;
+                            }
+                        
+                            if (offset + 2 > end)
+                            {
+                                throw new InvalidDataException("Malformed input: field 'Submessages' is truncated.");
+                            }
+                            
+                            ushort g__Submessages_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
+                            offset += 2;
+                            
+                            if (g__Submessages_Length == 0)
+                            {
+                                Submessages = Array.Empty<Submessage>();
+                            }
+                            else
+                            {
+                                Submessages = new Submessage[g__Submessages_Length];
+                            
+                                for (int i = 0; i < g__Submessages_Length; i++)
                                 {
                                     if (offset + 2 > end)
                                     {
-                                        throw new InvalidDataException("Malformed input: field 'OptionalSubmessage' is truncated.");
+                                        throw new InvalidDataException("Malformed input: field 'Submessages' is truncated.");
                                     }
-                                    
-                                    ushort g__OptionalSubmessage_ObjectLength = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
+                            
+                                    ushort g__Submessages_ObjectLength = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
                                     offset += 2;
-                                    
-                                    if (offset + g__OptionalSubmessage_ObjectLength > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'OptionalSubmessage' is truncated.");
-                                    }
-                                    
-                                    int g__OptionalSubmessage_Start = start + (int)(offset - b);
-                                    if (OptionalSubmessage == null)
-                                    {
-                                        OptionalSubmessage = Submessage.Deserialize(buffer, g__OptionalSubmessage_Start, g__OptionalSubmessage_ObjectLength);
-                                    }
-                                    else
-                                    {
-                                        OptionalSubmessage.Value.Unpack(buffer, g__OptionalSubmessage_Start, g__OptionalSubmessage_ObjectLength);
-                                    }
-                                    offset += g__OptionalSubmessage_ObjectLength;
-                                }
-                                else
-                                {
-                                    OptionalSubmessage = null;
-                                }
-                                
                             
-                                g__OptionalSubmessage_Read = true;
-                                readsCompleted++;
+                                    if (offset + g__Submessages_ObjectLength > end)
+                                    {
+                                        throw new InvalidDataException("Malformed input: field 'Submessages' is truncated.");
+                                    }
+                            
+                                    Submessages[i].UnpackCore(offset, offset + g__Submessages_ObjectLength);
+                                    offset += g__Submessages_ObjectLength;
+                                }
+                            }
+                        
+                            g__Submessages_Read = true;
+                            readsCompleted++;
+                            break;
+                        #endregion
+                        #region Deserialize OptionalSubmessages
+                        case OptionalSubmessages_ID:
+                            if (g__OptionalSubmessages_Read)
+                            {
                                 break;
-                            #endregion
-                            #region Deserialize Submessages
-                            case Submessages_ID:
-                                if (g__Submessages_Read)
-                                {
-                                    break;
-                                }
+                            }
+                        
+                            if (offset + 1 > end)
+                            {
+                                throw new InvalidDataException("Malformed input: field 'OptionalSubmessages' is truncated.");
+                            }
                             
+                            bool g__OptionalSubmessages_HasValue = *((byte*)offset) == 0 ? false : true;
+                            offset += 1;
+                            
+                            if (g__OptionalSubmessages_HasValue)
+                            {
                                 if (offset + 2 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Submessages' is truncated.");
-                                }
-                                
-                                ushort g__Submessages_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                offset += 2;
-                                
-                                
-                                if (g__Submessages_Length == 0)
-                                {
-                                    Submessages = Array.Empty<Submessage>();
-                                }
-                                else
-                                {
-                                    Submessages = new Submessage[g__Submessages_Length];
-                                
-                                    for (int i = 0; i < g__Submessages_Length; i++)
-                                    {
-                                        if (offset + 2 > end)
-                                        {
-                                            throw new InvalidDataException("Malformed input: field 'Submessages' is truncated.");
-                                        }
-                                        
-                                        ushort g__Submessages_ObjectLength = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                        offset += 2;
-                                        
-                                        if (offset + g__Submessages_ObjectLength > end)
-                                        {
-                                            throw new InvalidDataException("Malformed input: field 'Submessages' is truncated.");
-                                        }
-                                        
-                                        int g__Submessages_Start = start + (int)(offset - b);
-                                        Submessages[i].Unpack(buffer, g__Submessages_Start, g__Submessages_ObjectLength);
-                                        offset += g__Submessages_ObjectLength;
-                                    }
-                                }
-                                
-                            
-                                g__Submessages_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize OptionalSubmessages
-                            case OptionalSubmessages_ID:
-                                if (g__OptionalSubmessages_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 1 > end)
                                 {
                                     throw new InvalidDataException("Malformed input: field 'OptionalSubmessages' is truncated.");
                                 }
                                 
-                                bool g__OptionalSubmessages_HasValue = *((byte*)offset) == 0 ? false : true;
-                                offset += 1;
+                                ushort g__OptionalSubmessages_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
+                                offset += 2;
                                 
-                                if (g__OptionalSubmessages_HasValue)
+                                if (g__OptionalSubmessages_Length == 0)
                                 {
-                                    if (offset + 2 > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'OptionalSubmessages' is truncated.");
-                                    }
-                                    
-                                    ushort g__OptionalSubmessages_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                    offset += 2;
-                                    
-                                
-                                    if (g__OptionalSubmessages_Length == 0)
-                                    {
-                                        OptionalSubmessages = Array.Empty<Submessage>();
-                                    }
-                                    else
-                                    {
-                                        OptionalSubmessages = new Submessage[g__OptionalSubmessages_Length];
-                                
-                                        for (int i = 0; i < g__OptionalSubmessages_Length; i++)
-                                        {
-                                            if (offset + 2 > end)
-                                            {
-                                                throw new InvalidDataException("Malformed input: field 'OptionalSubmessages' is truncated.");
-                                            }
-                                            
-                                            ushort g__OptionalSubmessages_ObjectLength = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                            offset += 2;
-                                            
-                                            if (offset + g__OptionalSubmessages_ObjectLength > end)
-                                            {
-                                                throw new InvalidDataException("Malformed input: field 'OptionalSubmessages' is truncated.");
-                                            }
-                                            
-                                            int g__OptionalSubmessages_Start = start + (int)(offset - b);
-                                            OptionalSubmessages[i].Unpack(buffer, g__OptionalSubmessages_Start, g__OptionalSubmessages_ObjectLength);
-                                            offset += g__OptionalSubmessages_ObjectLength;
-                                        }
-                                    }
+                                    OptionalSubmessages = Array.Empty<Submessage>();
                                 }
                                 else
                                 {
-                                    OptionalSubmessages = null;
-                                }
+                                    OptionalSubmessages = new Submessage[g__OptionalSubmessages_Length];
                                 
-                            
-                                g__OptionalSubmessages_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            
-                        }
+                                    for (int i = 0; i < g__OptionalSubmessages_Length; i++)
+                                    {
+                                        if (offset + 2 > end)
+                                        {
+                                            throw new InvalidDataException("Malformed input: field 'OptionalSubmessages' is truncated.");
+                                        }
+                                
+                                        ushort g__OptionalSubmessages_ObjectLength = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
+                                        offset += 2;
+                                
+                                        if (offset + g__OptionalSubmessages_ObjectLength > end)
+                                        {
+                                            throw new InvalidDataException("Malformed input: field 'OptionalSubmessages' is truncated.");
+                                        }
+                                
+                                        OptionalSubmessages[i].UnpackCore(offset, offset + g__OptionalSubmessages_ObjectLength);
+                                        offset += g__OptionalSubmessages_ObjectLength;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                OptionalSubmessages = null;
+                            }
+                        
+                            g__OptionalSubmessages_Read = true;
+                            readsCompleted++;
+                            break;
+                        #endregion
+                        
                     }
-        
-                    return (int)(offset - b);
                 }
+        
+                return (int)(offset - g__start);
             }
         }
         
@@ -4729,37 +2370,7 @@ namespace Lexer.Tests
         
         public readonly unsafe int SerializeInto(byte[] buffer, int start)
         {
-            unchecked
-            {
-                if (buffer.Length == 0)
-                {
-                    return 0;
-                }
-        
-                fixed (byte* b = &buffer[start])
-                {
-                    byte* offset = b;
-        
-                    #region Serialize OptionalInt
-                    int? g__OptionalInt = OptionalInt;
-                    if (g__OptionalInt != null)
-                    {
-                        *((ushort*)offset) = BitConverter.IsLittleEndian ? OptionalInt_ID : BinaryPrimitives.ReverseEndianness(OptionalInt_ID);
-                        offset += 2;
-                    
-                        *((byte*)offset) = (byte)1;
-                        offset += 1;
-                    
-                        *((int*)offset) = BitConverter.IsLittleEndian ? g__OptionalInt.Value : BinaryPrimitives.ReverseEndianness(g__OptionalInt.Value);
-                        offset += 4;
-                    }
-                    #endregion
-                    
-                    
-        
-                    return (int)(offset - b);
-                }
-            }
+            return SerializeInto(buffer.AsSpan(), start);
         }
         
         public readonly int SerializeInto(Span<byte> buffer)
@@ -4776,29 +2387,37 @@ namespace Lexer.Tests
                     return 0;
                 }
         
-                fixed (byte* b = &buffer[start])
+                fixed (byte* g__offset = &buffer[start])
                 {
-                    byte* offset = b;
-        
-                    #region Serialize OptionalInt
-                    int? g__OptionalInt = OptionalInt;
-                    if (g__OptionalInt != null)
-                    {
-                        *((ushort*)offset) = BitConverter.IsLittleEndian ? OptionalInt_ID : BinaryPrimitives.ReverseEndianness(OptionalInt_ID);
-                        offset += 2;
-                    
-                        *((byte*)offset) = (byte)1;
-                        offset += 1;
-                    
-                        *((int*)offset) = BitConverter.IsLittleEndian ? g__OptionalInt.Value : BinaryPrimitives.ReverseEndianness(g__OptionalInt.Value);
-                        offset += 4;
-                    }
-                    #endregion
-                    
-                    
-        
-                    return (int)(offset - b);
+                    return SerializeCore(g__offset);
                 }
+            }
+        }
+        
+        internal readonly unsafe int SerializeCore(byte* offset)
+        {
+            unchecked
+            {
+                byte* g__serializeStart = offset;
+        
+                #region Serialize OptionalInt
+                int? g__OptionalInt = OptionalInt;
+                
+                if (g__OptionalInt != null)
+                {
+                    *((ushort*)offset) = BitConverter.IsLittleEndian ? OptionalInt_ID : BinaryPrimitives.ReverseEndianness(OptionalInt_ID);
+                    offset += 2;
+                    *((byte*)offset) = (byte)1;
+                    offset += 1;
+                
+                    *((int*)offset) = BitConverter.IsLittleEndian ? g__OptionalInt.Value : BinaryPrimitives.ReverseEndianness(g__OptionalInt.Value);
+                    offset += 4;
+                }
+                #endregion
+                
+                
+        
+                return (int)(offset - g__serializeStart);
             }
         }
         
@@ -4839,233 +2458,127 @@ namespace Lexer.Tests
         
         public unsafe int Unpack(byte[] buffer, int start, int length)
         {
-            unchecked
+            if (buffer.Length == 0 || length == 0)
             {
-                if (buffer.Length == 0 || length == 0)
-                {
-                    return 0;
-                }
-        
-                if (length < 0 || length > buffer.Length - start)
-                {
-                    throw new InvalidDataException("Malformed input: start and length exceed the buffer.");
-                }
-        
-                fixed (byte* b = &buffer[start])
-                {
-                    byte* end = b + length;
-                    byte* offset = b;
-        
-                    int readsCompleted = 0;
-                    bool g__OptionalInt_Read = false;
-                    
-        
-                    while (readsCompleted < 1 && offset + 2 <= end)
-                    {
-                        ushort id = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                        offset += 2;
-        
-                        switch (id)
-                        {
-                            #region Deserialize OptionalInt
-                            case OptionalInt_ID:
-                                if (g__OptionalInt_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 1 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'OptionalInt' is truncated.");
-                                }
-                                
-                                bool g__OptionalInt_HasValue = *((byte*)offset) == 0 ? false : true;
-                                offset += 1;
-                                
-                                if (g__OptionalInt_HasValue)
-                                {
-                                    if (offset + 4 > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'OptionalInt' is truncated.");
-                                    }
-                                    
-                                    OptionalInt = BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset));
-                                    offset += 4;
-                                }
-                                else
-                                {
-                                    OptionalInt = null;
-                                }
-                                
-                            
-                                g__OptionalInt_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            
-                        }
-                    }
-        
-                    return (int)(offset - b);
-                }
+                return 0;
             }
+        
+            if (start < 0 || length < 0 || length > buffer.Length - start)
+            {
+                throw new InvalidDataException("Malformed input: start and length exceed the buffer.");
+            }
+        
+            return UnpackSpan(buffer.AsSpan(start, length));
         }
         
         public unsafe int Unpack(Span<byte> buffer)
         {
-            return Unpack(buffer, 0, buffer.Length);
+            return UnpackSpan(buffer);
         }
         
         public unsafe int Unpack(Span<byte> buffer, int start, int length)
         {
-            unchecked
+            if (buffer.Length == 0 || length == 0)
             {
-                if (buffer.Length == 0 || length == 0)
-                {
-                    return 0;
-                }
-        
-                if (length < 0 || length > buffer.Length - start)
-                {
-                    throw new InvalidDataException("Malformed input: start and length exceed the buffer.");
-                }
-        
-                fixed (byte* b = &buffer[start])
-                {
-                    byte* end = b + length;
-                    byte* offset = b;
-        
-                    int readsCompleted = 0;
-                    bool g__OptionalInt_Read = false;
-                    
-        
-                    while (readsCompleted < 1 && offset + 2 <= end)
-                    {
-                        ushort id = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                        offset += 2;
-        
-                        switch (id)
-                        {
-                            #region Deserialize OptionalInt
-                            case OptionalInt_ID:
-                                if (g__OptionalInt_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 1 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'OptionalInt' is truncated.");
-                                }
-                                
-                                bool g__OptionalInt_HasValue = *((byte*)offset) == 0 ? false : true;
-                                offset += 1;
-                                
-                                if (g__OptionalInt_HasValue)
-                                {
-                                    if (offset + 4 > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'OptionalInt' is truncated.");
-                                    }
-                                    
-                                    OptionalInt = BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset));
-                                    offset += 4;
-                                }
-                                else
-                                {
-                                    OptionalInt = null;
-                                }
-                                
-                            
-                                g__OptionalInt_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            
-                        }
-                    }
-        
-                    return (int)(offset - b);
-                }
+                return 0;
             }
+        
+            if (start < 0 || length < 0 || length > buffer.Length - start)
+            {
+                throw new InvalidDataException("Malformed input: start and length exceed the buffer.");
+            }
+        
+            return UnpackSpan(buffer.Slice(start, length));
         }
         
         public unsafe int Unpack(ReadOnlySpan<byte> buffer)
         {
-            return Unpack(buffer, 0, buffer.Length);
+            return UnpackSpan(buffer);
         }
         
         public unsafe int Unpack(ReadOnlySpan<byte> buffer, int start, int length)
         {
+            if (buffer.Length == 0 || length == 0)
+            {
+                return 0;
+            }
+        
+            if (start < 0 || length < 0 || length > buffer.Length - start)
+            {
+                throw new InvalidDataException("Malformed input: start and length exceed the buffer.");
+            }
+        
+            return UnpackSpan(buffer.Slice(start, length));
+        }
+        
+        private unsafe int UnpackSpan(ReadOnlySpan<byte> buffer)
+        {
+            if (buffer.Length == 0)
+            {
+                return 0;
+            }
+        
+            fixed (byte* g__origin = &buffer[0])
+            {
+                return UnpackCore(g__origin, g__origin + buffer.Length);
+            }
+        }
+        
+        internal unsafe int UnpackCore(byte* offset, byte* end)
+        {
             unchecked
             {
-                if (buffer.Length == 0 || length == 0)
+                byte* g__start = offset;
+                int readsCompleted = 0;
+                bool g__OptionalInt_Read = false;
+                
+        
+                while (readsCompleted < 1 && offset + 2 <= end)
                 {
-                    return 0;
-                }
+                    ushort id = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
+                    offset += 2;
         
-                if (length < 0 || length > buffer.Length - start)
-                {
-                    throw new InvalidDataException("Malformed input: start and length exceed the buffer.");
-                }
-        
-                fixed (byte* b = &buffer[start])
-                {
-                    byte* end = b + length;
-                    byte* offset = b;
-        
-                    int readsCompleted = 0;
-                    bool g__OptionalInt_Read = false;
-                    
-        
-                    while (readsCompleted < 1 && offset + 2 <= end)
+                    switch (id)
                     {
-                        ushort id = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                        offset += 2;
-        
-                        switch (id)
-                        {
-                            #region Deserialize OptionalInt
-                            case OptionalInt_ID:
-                                if (g__OptionalInt_Read)
-                                {
-                                    break;
-                                }
+                        #region Deserialize OptionalInt
+                        case OptionalInt_ID:
+                            if (g__OptionalInt_Read)
+                            {
+                                break;
+                            }
+                        
+                            if (offset + 1 > end)
+                            {
+                                throw new InvalidDataException("Malformed input: field 'OptionalInt' is truncated.");
+                            }
                             
-                                if (offset + 1 > end)
+                            bool g__OptionalInt_HasValue = *((byte*)offset) == 0 ? false : true;
+                            offset += 1;
+                            
+                            if (g__OptionalInt_HasValue)
+                            {
+                                if (offset + 4 > end)
                                 {
                                     throw new InvalidDataException("Malformed input: field 'OptionalInt' is truncated.");
                                 }
                                 
-                                bool g__OptionalInt_HasValue = *((byte*)offset) == 0 ? false : true;
-                                offset += 1;
-                                
-                                if (g__OptionalInt_HasValue)
-                                {
-                                    if (offset + 4 > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'OptionalInt' is truncated.");
-                                    }
-                                    
-                                    OptionalInt = BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset));
-                                    offset += 4;
-                                }
-                                else
-                                {
-                                    OptionalInt = null;
-                                }
-                                
-                            
-                                g__OptionalInt_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            
-                        }
+                                OptionalInt = BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset));
+                                offset += 4;
+                            }
+                            else
+                            {
+                                OptionalInt = null;
+                            }
+                        
+                            g__OptionalInt_Read = true;
+                            readsCompleted++;
+                            break;
+                        #endregion
+                        
                     }
-        
-                    return (int)(offset - b);
                 }
+        
+                return (int)(offset - g__start);
             }
         }
         

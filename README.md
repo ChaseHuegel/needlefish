@@ -46,7 +46,7 @@ Includes are not inlined: each file is compiled on its own, an include only make
 
 Next is the type definitions:
 - A message contains a set of typed fields and it supports most primitive data types, such as `bool`, `int`, `long` `float`, `double`, and `string`. You can also use other defined types as field types.
-- An enum contains a set of predefined constants. These are always unsigned 16 bit numbers.
+- An enum contains a set of predefined constants. These are 32 bit signed integers (`int`).
 
 ```
 #version 1.0;
@@ -85,7 +85,7 @@ As in the example above any type can be specified as optional (specified with `?
 
 The `= ...;` assignment on field elements in messages specifies the unique ID that field uses for encoding and decoding. This is optional to provide, and if not present will be inferred based on order and the previously defined field. `Person.Id` will have an ID of `0`, `Person.Name` will be `1`, and so on. `Person.Phones` is specifying an ID of `10`, and any implicit element within the message following it would be `11`. This can be a useful mechanism for managing compatibility and versioning of your message definitions.
 
-Enums have field elements similarly to messages, but their type is implicitly ushort and aren't defined in the nsd. The `= ...;` assignment on field elements in enums specifies the constant value of the field. Similarly to the IDs of fields within messages, these values are optional to specify and will be inferred based on order and the previously defined field. `PhoneType.Unknown` will be `0`, `PhoneType.Mobile` is `1`, `PhoneType.Home` is `5`, and `PhoneType.Work` is `6`.
+Enums have field elements similarly to messages, but their type is implicitly a 32 bit signed integer (`int`) and isn't defined in the nsd. The `= ...;` assignment on field elements in enums specifies the constant value of the field. Similarly to the IDs of fields within messages, these values are optional to specify and will be inferred based on order and the previously defined field. `PhoneType.Unknown` will be `0`, `PhoneType.Mobile` is `1`, `PhoneType.Home` is `5`, and `PhoneType.Work` is `6`.
 
 If a field type is an array (specified by `[]`), it can contain a number of values from 0 to a maximum of 65,535. The order of values is preserved by the format.
 

@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\Needlefish.Generators\Needlefish.Generators.props" />
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>Latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.15.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--
+      The generator (and its dependency) must be passed to the compiler as analyzers.
+      Each .nsd file under Models/ is discovered automatically and compiled into this
+      assembly, so the benchmarks always measure the current generator output.
+    -->
+    <ProjectReference Include="..\Needlefish.Generators\Needlefish.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\Needlefish\Needlefish.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <Import Project="..\Needlefish.Generators\Needlefish.Generators.targets" />
+
+</Project>

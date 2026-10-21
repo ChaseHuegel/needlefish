@@ -1,0 +1,29 @@
+#version 1.0;
+#namespace Needlefish.Benchmarks.Models;
+
+enum PhoneType
+{
+    Unknown;
+    Mobile;
+    Home;
+    Work;
+}
+
+message Phone
+{
+    string Number;
+    PhoneType Type;
+}
+
+message Person
+{
+    int Id;
+    string Name;
+    string? Email;
+    Phone[]? Phones;
+}
+
+message AddressBook
+{
+    Person[] People;
+}

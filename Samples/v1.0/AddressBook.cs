@@ -86,7 +86,8 @@ namespace Samples.Nsd
         
             if (Phones != null)
             {
-                length += optionalFieldLen + arrayHeaderLen + (Phones.Length * 0);
+                length += optionalFieldLen + arrayHeaderLen;
+        
                 for (int i = 0; i < Phones.Length; i++)
                 {
                     length += arrayHeaderLen + Phones[i].GetSize();
@@ -107,100 +108,7 @@ namespace Samples.Nsd
         
         public readonly unsafe int SerializeInto(byte[] buffer, int start)
         {
-            unchecked
-            {
-                if (buffer.Length == 0)
-                {
-                    return 0;
-                }
-        
-                fixed (byte* b = &buffer[start])
-                {
-                    byte* offset = b;
-        
-                    #region Serialize Id
-                    int g__Id = Id;
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? Id_ID : BinaryPrimitives.ReverseEndianness(Id_ID);
-                        offset += 2;
-                    
-                    *((int*)offset) = BitConverter.IsLittleEndian ? g__Id : BinaryPrimitives.ReverseEndianness(g__Id);
-                        offset += 4;
-                    #endregion
-                    
-                    #region Serialize Name
-                    string g__Name = Name;
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? Name_ID : BinaryPrimitives.ReverseEndianness(Name_ID);
-                        offset += 2;
-                    
-                    if (g__Name != null)
-                    {
-                        *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)(g__Name?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)(g__Name?.Length ?? 0));
-                        offset += 2;
-                    
-                        for (int i = 0; i < g__Name.Length; i++)
-                        {
-                            *((char*)offset) = BitConverter.IsLittleEndian ? g__Name[i] : (char)BinaryPrimitives.ReverseEndianness(g__Name[i]);
-                            offset += 2;
-                        }
-                    }
-                    else
-                    {
-                        *((ushort*)offset) = (ushort)0;
-                        offset += 2;
-                    }
-                    #endregion
-                    
-                    #region Serialize Email
-                    string? g__Email = Email;
-                    if (g__Email != null)
-                    {
-                        *((ushort*)offset) = BitConverter.IsLittleEndian ? Email_ID : BinaryPrimitives.ReverseEndianness(Email_ID);
-                        offset += 2;
-                    
-                        *((byte*)offset) = (byte)1;
-                        offset += 1;
-                    
-                        *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)(g__Email?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)(g__Email?.Length ?? 0));
-                        offset += 2;
-                    
-                        for (int i = 0; i < g__Email?.Length; i++)
-                        {
-                            *((char*)offset) = BitConverter.IsLittleEndian ? g__Email[i] : (char)BinaryPrimitives.ReverseEndianness(g__Email[i]);
-                            offset += 2;
-                        }
-                    }
-                    #endregion
-                    
-                    #region Serialize Phones
-                    PhoneNumber[]? g__Phones = Phones;
-                    if (g__Phones != null)
-                    {
-                        *((ushort*)offset) = BitConverter.IsLittleEndian ? Phones_ID : BinaryPrimitives.ReverseEndianness(Phones_ID);
-                        offset += 2;
-                    
-                        *((byte*)offset) = (byte)1;
-                        offset += 1;
-                    
-                        *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)(g__Phones?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)(g__Phones?.Length ?? 0));
-                        offset += 2;
-                    
-                        for (int i = 0; i < g__Phones?.Length; i++)
-                        {
-                            ushort g__Phones_ObjectLength = (ushort)g__Phones[i].GetSize();
-                        * ((ushort*)offset) = BitConverter.IsLittleEndian ? g__Phones_ObjectLength : BinaryPrimitives.ReverseEndianness(g__Phones_ObjectLength);
-                        offset += 2;
-                    
-                        g__Phones[i].SerializeInto(buffer, start + (int)(offset - b));
-                        offset += g__Phones_ObjectLength;
-                        }
-                    }
-                    #endregion
-                    
-                    
-        
-                    return (int)(offset - b);
-                }
-            }
+            return SerializeInto(buffer.AsSpan(), start);
         }
         
         public readonly int SerializeInto(Span<byte> buffer)
@@ -217,92 +125,153 @@ namespace Samples.Nsd
                     return 0;
                 }
         
-                fixed (byte* b = &buffer[start])
+                fixed (byte* g__offset = &buffer[start])
                 {
-                    byte* offset = b;
+                    return SerializeCore(g__offset);
+                }
+            }
+        }
         
-                    #region Serialize Id
-                    int g__Id = Id;
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? Id_ID : BinaryPrimitives.ReverseEndianness(Id_ID);
-                        offset += 2;
-                    
-                    *((int*)offset) = BitConverter.IsLittleEndian ? g__Id : BinaryPrimitives.ReverseEndianness(g__Id);
-                        offset += 4;
-                    #endregion
-                    
-                    #region Serialize Name
-                    string g__Name = Name;
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? Name_ID : BinaryPrimitives.ReverseEndianness(Name_ID);
-                        offset += 2;
-                    
-                    if (g__Name != null)
+        internal readonly unsafe int SerializeCore(byte* offset)
+        {
+            unchecked
+            {
+                byte* g__serializeStart = offset;
+        
+                #region Serialize Id
+                int g__Id = Id;
+                
+                *((ushort*)offset) = BitConverter.IsLittleEndian ? Id_ID : BinaryPrimitives.ReverseEndianness(Id_ID);
+                offset += 2;
+                
+                *((int*)offset) = BitConverter.IsLittleEndian ? g__Id : BinaryPrimitives.ReverseEndianness(g__Id);
+                offset += 4;
+                #endregion
+                
+                #region Serialize Name
+                string g__Name = Name;
+                
+                *((ushort*)offset) = BitConverter.IsLittleEndian ? Name_ID : BinaryPrimitives.ReverseEndianness(Name_ID);
+                offset += 2;
+                
+                int g__Name_Length = g__Name?.Length ?? 0;
+                if (g__Name_Length > ushort.MaxValue)
+                {
+                    throw new InvalidOperationException("Field 'Name' exceeds the maximum encodable length of 65535.");
+                }
+                
+                *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)g__Name_Length : BinaryPrimitives.ReverseEndianness((ushort)g__Name_Length);
+                offset += 2;
+                
+                if (g__Name_Length != 0)
+                {
+                    if (BitConverter.IsLittleEndian && g__Name_Length >= 32)
                     {
-                        *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)(g__Name?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)(g__Name?.Length ?? 0));
-                        offset += 2;
-                    
-                        for (int i = 0; i < g__Name.Length; i++)
+                        fixed (char* g__Name_Chars = g__Name)
+                        {
+                            long g__Name_Bytes = (long)g__Name_Length * 2;
+                            Buffer.MemoryCopy(g__Name_Chars, offset, g__Name_Bytes, g__Name_Bytes);
+                        }
+                
+                        offset += g__Name_Length * 2;
+                    }
+                    else
+                    {
+                        for (int i = 0; i < g__Name_Length; i++)
                         {
                             *((char*)offset) = BitConverter.IsLittleEndian ? g__Name[i] : (char)BinaryPrimitives.ReverseEndianness(g__Name[i]);
                             offset += 2;
                         }
                     }
-                    else
-                    {
-                        *((ushort*)offset) = (ushort)0;
-                        offset += 2;
-                    }
-                    #endregion
-                    
-                    #region Serialize Email
-                    string? g__Email = Email;
-                    if (g__Email != null)
-                    {
-                        *((ushort*)offset) = BitConverter.IsLittleEndian ? Email_ID : BinaryPrimitives.ReverseEndianness(Email_ID);
-                        offset += 2;
-                    
-                        *((byte*)offset) = (byte)1;
-                        offset += 1;
-                    
-                        *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)(g__Email?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)(g__Email?.Length ?? 0));
-                        offset += 2;
-                    
-                        for (int i = 0; i < g__Email?.Length; i++)
-                        {
-                            *((char*)offset) = BitConverter.IsLittleEndian ? g__Email[i] : (char)BinaryPrimitives.ReverseEndianness(g__Email[i]);
-                            offset += 2;
-                        }
-                    }
-                    #endregion
-                    
-                    #region Serialize Phones
-                    PhoneNumber[]? g__Phones = Phones;
-                    if (g__Phones != null)
-                    {
-                        *((ushort*)offset) = BitConverter.IsLittleEndian ? Phones_ID : BinaryPrimitives.ReverseEndianness(Phones_ID);
-                        offset += 2;
-                    
-                        *((byte*)offset) = (byte)1;
-                        offset += 1;
-                    
-                        *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)(g__Phones?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)(g__Phones?.Length ?? 0));
-                        offset += 2;
-                    
-                        for (int i = 0; i < g__Phones?.Length; i++)
-                        {
-                            ushort g__Phones_ObjectLength = (ushort)g__Phones[i].GetSize();
-                        * ((ushort*)offset) = BitConverter.IsLittleEndian ? g__Phones_ObjectLength : BinaryPrimitives.ReverseEndianness(g__Phones_ObjectLength);
-                        offset += 2;
-                    
-                        g__Phones[i].SerializeInto(buffer, start + (int)(offset - b));
-                        offset += g__Phones_ObjectLength;
-                        }
-                    }
-                    #endregion
-                    
-                    
-        
-                    return (int)(offset - b);
                 }
+                #endregion
+                
+                #region Serialize Email
+                string? g__Email = Email;
+                
+                if (g__Email != null)
+                {
+                    *((ushort*)offset) = BitConverter.IsLittleEndian ? Email_ID : BinaryPrimitives.ReverseEndianness(Email_ID);
+                    offset += 2;
+                    *((byte*)offset) = (byte)1;
+                    offset += 1;
+                
+                    int g__Email_Length = g__Email.Length;
+                    if (g__Email_Length > ushort.MaxValue)
+                    {
+                        throw new InvalidOperationException("Field 'Email' exceeds the maximum encodable length of 65535.");
+                    }
+                    
+                    *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)g__Email_Length : BinaryPrimitives.ReverseEndianness((ushort)g__Email_Length);
+                    offset += 2;
+                    
+                    if (g__Email_Length != 0)
+                    {
+                        if (BitConverter.IsLittleEndian && g__Email_Length >= 32)
+                        {
+                            fixed (char* g__Email_Chars = g__Email)
+                            {
+                                long g__Email_Bytes = (long)g__Email_Length * 2;
+                                Buffer.MemoryCopy(g__Email_Chars, offset, g__Email_Bytes, g__Email_Bytes);
+                            }
+                    
+                            offset += g__Email_Length * 2;
+                        }
+                        else
+                        {
+                            for (int i = 0; i < g__Email_Length; i++)
+                            {
+                                *((char*)offset) = BitConverter.IsLittleEndian ? g__Email[i] : (char)BinaryPrimitives.ReverseEndianness(g__Email[i]);
+                                offset += 2;
+                            }
+                        }
+                    }
+                }
+                #endregion
+                
+                #region Serialize Phones
+                PhoneNumber[]? g__Phones = Phones;
+                
+                if (g__Phones != null)
+                {
+                    *((ushort*)offset) = BitConverter.IsLittleEndian ? Phones_ID : BinaryPrimitives.ReverseEndianness(Phones_ID);
+                    offset += 2;
+                    *((byte*)offset) = (byte)1;
+                    offset += 1;
+                
+                    int g__Phones_Length = g__Phones.Length;
+                    if (g__Phones_Length > ushort.MaxValue)
+                    {
+                        throw new InvalidOperationException("Field 'Phones' exceeds the maximum encodable length of 65535.");
+                    }
+                    
+                    *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)g__Phones_Length : BinaryPrimitives.ReverseEndianness((ushort)g__Phones_Length);
+                    offset += 2;
+                    
+                    if (g__Phones_Length != 0)
+                    {
+                        for (int i = 0; i < g__Phones_Length; i++)
+                        {
+                            byte* g__Phones_LengthPos = offset;
+                            offset += 2;
+                    
+                            int g__Phones_ObjectLength = g__Phones[i].SerializeCore(offset);
+                    
+                            if (g__Phones_ObjectLength > ushort.MaxValue)
+                            {
+                                throw new InvalidOperationException("Field 'Phones' exceeds the maximum encodable length of 65535.");
+                            }
+                    
+                            *((ushort*)g__Phones_LengthPos) = BitConverter.IsLittleEndian ? (ushort)g__Phones_ObjectLength : BinaryPrimitives.ReverseEndianness((ushort)g__Phones_ObjectLength);
+                            offset += g__Phones_ObjectLength;
+                        }
+                    }
+                }
+                #endregion
+                
+                
+        
+                return (int)(offset - g__serializeStart);
             }
         }
         
@@ -343,707 +312,290 @@ namespace Samples.Nsd
         
         public unsafe int Unpack(byte[] buffer, int start, int length)
         {
-            unchecked
+            if (buffer.Length == 0 || length == 0)
             {
-                if (buffer.Length == 0 || length == 0)
-                {
-                    return 0;
-                }
-        
-                if (length < 0 || length > buffer.Length - start)
-                {
-                    throw new InvalidDataException("Malformed input: start and length exceed the buffer.");
-                }
-        
-                fixed (byte* b = &buffer[start])
-                {
-                    byte* end = b + length;
-                    byte* offset = b;
-        
-                    int readsCompleted = 0;
-                    bool g__Id_Read = false;
-                    bool g__Name_Read = false;
-                    bool g__Email_Read = false;
-                    bool g__Phones_Read = false;
-                    
-        
-                    while (readsCompleted < 4 && offset + 2 <= end)
-                    {
-                        ushort id = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                        offset += 2;
-        
-                        switch (id)
-                        {
-                            #region Deserialize Id
-                            case Id_ID:
-                                if (g__Id_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 4 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Id' is truncated.");
-                                }
-                                
-                                Id = BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset));
-                                offset += 4;
-                                
-                            
-                                g__Id_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize Name
-                            case Name_ID:
-                                if (g__Name_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 2 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Name' is truncated.");
-                                }
-                                
-                                ushort g__Name_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                offset += 2;
-                                
-                                if (offset + 2 * g__Name_Length > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Name' is truncated.");
-                                }
-                                
-                                if (g__Name_Length == 0)
-                                {
-                                    Name = string.Empty;
-                                }
-                                else
-                                {
-                                    char* chars = (char*)offset;
-                                    if (!BitConverter.IsLittleEndian)
-                                    {
-                                        for (int n = 0; n < g__Name_Length; n++)
-                                        {
-                                            *((ushort*)chars) = BinaryPrimitives.ReverseEndianness(*((ushort*)chars));
-                                            chars += 2;
-                                        }
-                                    }
-                                
-                                    Name = new string(chars, 0, g__Name_Length);
-                                    offset += 2 * g__Name_Length;
-                                }
-                                
-                            
-                                g__Name_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize Email
-                            case Email_ID:
-                                if (g__Email_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 1 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Email' is truncated.");
-                                }
-                                
-                                bool g__Email_HasValue = *((byte*)offset) == 0 ? false : true;
-                                offset += 1;
-                                
-                                if (g__Email_HasValue)
-                                {
-                                    if (offset + 2 > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'Email' is truncated.");
-                                    }
-                                    
-                                    ushort g__Email_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                    offset += 2;
-                                
-                                    if (offset + 2 * g__Email_Length > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'Email' is truncated.");
-                                    }
-                                
-                                    if (g__Email_Length == 0)
-                                    {
-                                        Email = string.Empty;
-                                    }
-                                    else
-                                    {
-                                        char* chars = (char*)offset;
-                                        if (!BitConverter.IsLittleEndian)
-                                        {
-                                            for (int n = 0; n < g__Email_Length; n++)
-                                            {
-                                                *((ushort*)chars) = BinaryPrimitives.ReverseEndianness(*((ushort*)chars));
-                                                chars += 2;
-                                            }
-                                        }
-                                
-                                        Email = new string(chars, 0, g__Email_Length);
-                                        offset += 2 * g__Email_Length;
-                                    }
-                                }
-                                else
-                                {
-                                    Email = null;
-                                }
-                                
-                            
-                                g__Email_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize Phones
-                            case Phones_ID:
-                                if (g__Phones_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 1 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Phones' is truncated.");
-                                }
-                                
-                                bool g__Phones_HasValue = *((byte*)offset) == 0 ? false : true;
-                                offset += 1;
-                                
-                                if (g__Phones_HasValue)
-                                {
-                                    if (offset + 2 > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'Phones' is truncated.");
-                                    }
-                                    
-                                    ushort g__Phones_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                    offset += 2;
-                                    
-                                
-                                    if (g__Phones_Length == 0)
-                                    {
-                                        Phones = Array.Empty<PhoneNumber>();
-                                    }
-                                    else
-                                    {
-                                        Phones = new PhoneNumber[g__Phones_Length];
-                                
-                                        for (int i = 0; i < g__Phones_Length; i++)
-                                        {
-                                            if (offset + 2 > end)
-                                            {
-                                                throw new InvalidDataException("Malformed input: field 'Phones' is truncated.");
-                                            }
-                                            
-                                            ushort g__Phones_ObjectLength = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                            offset += 2;
-                                            
-                                            if (offset + g__Phones_ObjectLength > end)
-                                            {
-                                                throw new InvalidDataException("Malformed input: field 'Phones' is truncated.");
-                                            }
-                                            
-                                            int g__Phones_Start = start + (int)(offset - b);
-                                            Phones[i].Unpack(buffer, g__Phones_Start, g__Phones_ObjectLength);
-                                            offset += g__Phones_ObjectLength;
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    Phones = null;
-                                }
-                                
-                            
-                                g__Phones_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            
-                        }
-                    }
-        
-                    return (int)(offset - b);
-                }
+                return 0;
             }
+        
+            if (start < 0 || length < 0 || length > buffer.Length - start)
+            {
+                throw new InvalidDataException("Malformed input: start and length exceed the buffer.");
+            }
+        
+            return UnpackSpan(buffer.AsSpan(start, length));
         }
         
         public unsafe int Unpack(Span<byte> buffer)
         {
-            return Unpack(buffer, 0, buffer.Length);
+            return UnpackSpan(buffer);
         }
         
         public unsafe int Unpack(Span<byte> buffer, int start, int length)
         {
-            unchecked
+            if (buffer.Length == 0 || length == 0)
             {
-                if (buffer.Length == 0 || length == 0)
-                {
-                    return 0;
-                }
-        
-                if (length < 0 || length > buffer.Length - start)
-                {
-                    throw new InvalidDataException("Malformed input: start and length exceed the buffer.");
-                }
-        
-                fixed (byte* b = &buffer[start])
-                {
-                    byte* end = b + length;
-                    byte* offset = b;
-        
-                    int readsCompleted = 0;
-                    bool g__Id_Read = false;
-                    bool g__Name_Read = false;
-                    bool g__Email_Read = false;
-                    bool g__Phones_Read = false;
-                    
-        
-                    while (readsCompleted < 4 && offset + 2 <= end)
-                    {
-                        ushort id = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                        offset += 2;
-        
-                        switch (id)
-                        {
-                            #region Deserialize Id
-                            case Id_ID:
-                                if (g__Id_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 4 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Id' is truncated.");
-                                }
-                                
-                                Id = BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset));
-                                offset += 4;
-                                
-                            
-                                g__Id_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize Name
-                            case Name_ID:
-                                if (g__Name_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 2 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Name' is truncated.");
-                                }
-                                
-                                ushort g__Name_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                offset += 2;
-                                
-                                if (offset + 2 * g__Name_Length > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Name' is truncated.");
-                                }
-                                
-                                if (g__Name_Length == 0)
-                                {
-                                    Name = string.Empty;
-                                }
-                                else
-                                {
-                                    char* chars = (char*)offset;
-                                    if (!BitConverter.IsLittleEndian)
-                                    {
-                                        for (int n = 0; n < g__Name_Length; n++)
-                                        {
-                                            *((ushort*)chars) = BinaryPrimitives.ReverseEndianness(*((ushort*)chars));
-                                            chars += 2;
-                                        }
-                                    }
-                                
-                                    Name = new string(chars, 0, g__Name_Length);
-                                    offset += 2 * g__Name_Length;
-                                }
-                                
-                            
-                                g__Name_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize Email
-                            case Email_ID:
-                                if (g__Email_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 1 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Email' is truncated.");
-                                }
-                                
-                                bool g__Email_HasValue = *((byte*)offset) == 0 ? false : true;
-                                offset += 1;
-                                
-                                if (g__Email_HasValue)
-                                {
-                                    if (offset + 2 > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'Email' is truncated.");
-                                    }
-                                    
-                                    ushort g__Email_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                    offset += 2;
-                                
-                                    if (offset + 2 * g__Email_Length > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'Email' is truncated.");
-                                    }
-                                
-                                    if (g__Email_Length == 0)
-                                    {
-                                        Email = string.Empty;
-                                    }
-                                    else
-                                    {
-                                        char* chars = (char*)offset;
-                                        if (!BitConverter.IsLittleEndian)
-                                        {
-                                            for (int n = 0; n < g__Email_Length; n++)
-                                            {
-                                                *((ushort*)chars) = BinaryPrimitives.ReverseEndianness(*((ushort*)chars));
-                                                chars += 2;
-                                            }
-                                        }
-                                
-                                        Email = new string(chars, 0, g__Email_Length);
-                                        offset += 2 * g__Email_Length;
-                                    }
-                                }
-                                else
-                                {
-                                    Email = null;
-                                }
-                                
-                            
-                                g__Email_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize Phones
-                            case Phones_ID:
-                                if (g__Phones_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 1 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Phones' is truncated.");
-                                }
-                                
-                                bool g__Phones_HasValue = *((byte*)offset) == 0 ? false : true;
-                                offset += 1;
-                                
-                                if (g__Phones_HasValue)
-                                {
-                                    if (offset + 2 > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'Phones' is truncated.");
-                                    }
-                                    
-                                    ushort g__Phones_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                    offset += 2;
-                                    
-                                
-                                    if (g__Phones_Length == 0)
-                                    {
-                                        Phones = Array.Empty<PhoneNumber>();
-                                    }
-                                    else
-                                    {
-                                        Phones = new PhoneNumber[g__Phones_Length];
-                                
-                                        for (int i = 0; i < g__Phones_Length; i++)
-                                        {
-                                            if (offset + 2 > end)
-                                            {
-                                                throw new InvalidDataException("Malformed input: field 'Phones' is truncated.");
-                                            }
-                                            
-                                            ushort g__Phones_ObjectLength = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                            offset += 2;
-                                            
-                                            if (offset + g__Phones_ObjectLength > end)
-                                            {
-                                                throw new InvalidDataException("Malformed input: field 'Phones' is truncated.");
-                                            }
-                                            
-                                            int g__Phones_Start = start + (int)(offset - b);
-                                            Phones[i].Unpack(buffer, g__Phones_Start, g__Phones_ObjectLength);
-                                            offset += g__Phones_ObjectLength;
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    Phones = null;
-                                }
-                                
-                            
-                                g__Phones_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            
-                        }
-                    }
-        
-                    return (int)(offset - b);
-                }
+                return 0;
             }
+        
+            if (start < 0 || length < 0 || length > buffer.Length - start)
+            {
+                throw new InvalidDataException("Malformed input: start and length exceed the buffer.");
+            }
+        
+            return UnpackSpan(buffer.Slice(start, length));
         }
         
         public unsafe int Unpack(ReadOnlySpan<byte> buffer)
         {
-            return Unpack(buffer, 0, buffer.Length);
+            return UnpackSpan(buffer);
         }
         
         public unsafe int Unpack(ReadOnlySpan<byte> buffer, int start, int length)
         {
+            if (buffer.Length == 0 || length == 0)
+            {
+                return 0;
+            }
+        
+            if (start < 0 || length < 0 || length > buffer.Length - start)
+            {
+                throw new InvalidDataException("Malformed input: start and length exceed the buffer.");
+            }
+        
+            return UnpackSpan(buffer.Slice(start, length));
+        }
+        
+        private unsafe int UnpackSpan(ReadOnlySpan<byte> buffer)
+        {
+            if (buffer.Length == 0)
+            {
+                return 0;
+            }
+        
+            fixed (byte* g__origin = &buffer[0])
+            {
+                return UnpackCore(g__origin, g__origin + buffer.Length);
+            }
+        }
+        
+        internal unsafe int UnpackCore(byte* offset, byte* end)
+        {
             unchecked
             {
-                if (buffer.Length == 0 || length == 0)
+                byte* g__start = offset;
+                int readsCompleted = 0;
+                bool g__Id_Read = false;
+                bool g__Name_Read = false;
+                bool g__Email_Read = false;
+                bool g__Phones_Read = false;
+                
+        
+                while (readsCompleted < 4 && offset + 2 <= end)
                 {
-                    return 0;
-                }
+                    ushort id = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
+                    offset += 2;
         
-                if (length < 0 || length > buffer.Length - start)
-                {
-                    throw new InvalidDataException("Malformed input: start and length exceed the buffer.");
-                }
-        
-                fixed (byte* b = &buffer[start])
-                {
-                    byte* end = b + length;
-                    byte* offset = b;
-        
-                    int readsCompleted = 0;
-                    bool g__Id_Read = false;
-                    bool g__Name_Read = false;
-                    bool g__Email_Read = false;
-                    bool g__Phones_Read = false;
-                    
-        
-                    while (readsCompleted < 4 && offset + 2 <= end)
+                    switch (id)
                     {
-                        ushort id = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                        offset += 2;
-        
-                        switch (id)
-                        {
-                            #region Deserialize Id
-                            case Id_ID:
-                                if (g__Id_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 4 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Id' is truncated.");
-                                }
-                                
-                                Id = BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset));
-                                offset += 4;
-                                
-                            
-                                g__Id_Read = true;
-                                readsCompleted++;
+                        #region Deserialize Id
+                        case Id_ID:
+                            if (g__Id_Read)
+                            {
                                 break;
-                            #endregion
-                            #region Deserialize Name
-                            case Name_ID:
-                                if (g__Name_Read)
-                                {
-                                    break;
-                                }
+                            }
+                        
+                            if (offset + 4 > end)
+                            {
+                                throw new InvalidDataException("Malformed input: field 'Id' is truncated.");
+                            }
                             
-                                if (offset + 2 > end)
+                            Id = BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset));
+                            offset += 4;
+                        
+                            g__Id_Read = true;
+                            readsCompleted++;
+                            break;
+                        #endregion
+                        #region Deserialize Name
+                        case Name_ID:
+                            if (g__Name_Read)
+                            {
+                                break;
+                            }
+                        
+                            if (offset + 2 > end)
+                            {
+                                throw new InvalidDataException("Malformed input: field 'Name' is truncated.");
+                            }
+                            
+                            ushort g__Name_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
+                            offset += 2;
+                            
+                            if (offset + 2 * g__Name_Length > end)
+                            {
+                                throw new InvalidDataException("Malformed input: field 'Name' is truncated.");
+                            }
+                            
+                            if (g__Name_Length == 0)
+                            {
+                                Name = string.Empty;
+                            }
+                            else
+                            {
+                                if (BitConverter.IsLittleEndian)
                                 {
-                                    throw new InvalidDataException("Malformed input: field 'Name' is truncated.");
-                                }
-                                
-                                ushort g__Name_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                offset += 2;
-                                
-                                if (offset + 2 * g__Name_Length > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Name' is truncated.");
-                                }
-                                
-                                if (g__Name_Length == 0)
-                                {
-                                    Name = string.Empty;
+                                    Name = new string((char*)offset, 0, g__Name_Length);
                                 }
                                 else
                                 {
-                                    char* chars = (char*)offset;
-                                    if (!BitConverter.IsLittleEndian)
+                                    Name = string.Create(g__Name_Length, (IntPtr)offset, static (chars, ptr) =>
                                     {
-                                        for (int n = 0; n < g__Name_Length; n++)
+                                        char* source = (char*)ptr;
+                                        for (int i = 0; i < chars.Length; i++)
                                         {
-                                            *((ushort*)chars) = BinaryPrimitives.ReverseEndianness(*((ushort*)chars));
-                                            chars += 2;
+                                            chars[i] = (char)BinaryPrimitives.ReverseEndianness((ushort)source[i]);
                                         }
-                                    }
-                                
-                                    Name = new string(chars, 0, g__Name_Length);
-                                    offset += 2 * g__Name_Length;
+                                    });
                                 }
-                                
                             
-                                g__Name_Read = true;
-                                readsCompleted++;
+                                offset += 2 * g__Name_Length;
+                            }
+                        
+                            g__Name_Read = true;
+                            readsCompleted++;
+                            break;
+                        #endregion
+                        #region Deserialize Email
+                        case Email_ID:
+                            if (g__Email_Read)
+                            {
                                 break;
-                            #endregion
-                            #region Deserialize Email
-                            case Email_ID:
-                                if (g__Email_Read)
-                                {
-                                    break;
-                                }
+                            }
+                        
+                            if (offset + 1 > end)
+                            {
+                                throw new InvalidDataException("Malformed input: field 'Email' is truncated.");
+                            }
                             
-                                if (offset + 1 > end)
+                            bool g__Email_HasValue = *((byte*)offset) == 0 ? false : true;
+                            offset += 1;
+                            
+                            if (g__Email_HasValue)
+                            {
+                                if (offset + 2 > end)
                                 {
                                     throw new InvalidDataException("Malformed input: field 'Email' is truncated.");
                                 }
                                 
-                                bool g__Email_HasValue = *((byte*)offset) == 0 ? false : true;
-                                offset += 1;
+                                ushort g__Email_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
+                                offset += 2;
                                 
-                                if (g__Email_HasValue)
+                                if (offset + 2 * g__Email_Length > end)
                                 {
-                                    if (offset + 2 > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'Email' is truncated.");
-                                    }
-                                    
-                                    ushort g__Email_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                    offset += 2;
+                                    throw new InvalidDataException("Malformed input: field 'Email' is truncated.");
+                                }
                                 
-                                    if (offset + 2 * g__Email_Length > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'Email' is truncated.");
-                                    }
-                                
-                                    if (g__Email_Length == 0)
-                                    {
-                                        Email = string.Empty;
-                                    }
-                                    else
-                                    {
-                                        char* chars = (char*)offset;
-                                        if (!BitConverter.IsLittleEndian)
-                                        {
-                                            for (int n = 0; n < g__Email_Length; n++)
-                                            {
-                                                *((ushort*)chars) = BinaryPrimitives.ReverseEndianness(*((ushort*)chars));
-                                                chars += 2;
-                                            }
-                                        }
-                                
-                                        Email = new string(chars, 0, g__Email_Length);
-                                        offset += 2 * g__Email_Length;
-                                    }
+                                if (g__Email_Length == 0)
+                                {
+                                    Email = string.Empty;
                                 }
                                 else
                                 {
-                                    Email = null;
-                                }
+                                    if (BitConverter.IsLittleEndian)
+                                    {
+                                        Email = new string((char*)offset, 0, g__Email_Length);
+                                    }
+                                    else
+                                    {
+                                        Email = string.Create(g__Email_Length, (IntPtr)offset, static (chars, ptr) =>
+                                        {
+                                            char* source = (char*)ptr;
+                                            for (int i = 0; i < chars.Length; i++)
+                                            {
+                                                chars[i] = (char)BinaryPrimitives.ReverseEndianness((ushort)source[i]);
+                                            }
+                                        });
+                                    }
                                 
-                            
-                                g__Email_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize Phones
-                            case Phones_ID:
-                                if (g__Phones_Read)
-                                {
-                                    break;
+                                    offset += 2 * g__Email_Length;
                                 }
+                            }
+                            else
+                            {
+                                Email = null;
+                            }
+                        
+                            g__Email_Read = true;
+                            readsCompleted++;
+                            break;
+                        #endregion
+                        #region Deserialize Phones
+                        case Phones_ID:
+                            if (g__Phones_Read)
+                            {
+                                break;
+                            }
+                        
+                            if (offset + 1 > end)
+                            {
+                                throw new InvalidDataException("Malformed input: field 'Phones' is truncated.");
+                            }
                             
-                                if (offset + 1 > end)
+                            bool g__Phones_HasValue = *((byte*)offset) == 0 ? false : true;
+                            offset += 1;
+                            
+                            if (g__Phones_HasValue)
+                            {
+                                if (offset + 2 > end)
                                 {
                                     throw new InvalidDataException("Malformed input: field 'Phones' is truncated.");
                                 }
                                 
-                                bool g__Phones_HasValue = *((byte*)offset) == 0 ? false : true;
-                                offset += 1;
+                                ushort g__Phones_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
+                                offset += 2;
                                 
-                                if (g__Phones_HasValue)
+                                if (g__Phones_Length == 0)
                                 {
-                                    if (offset + 2 > end)
-                                    {
-                                        throw new InvalidDataException("Malformed input: field 'Phones' is truncated.");
-                                    }
-                                    
-                                    ushort g__Phones_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                    offset += 2;
-                                    
-                                
-                                    if (g__Phones_Length == 0)
-                                    {
-                                        Phones = Array.Empty<PhoneNumber>();
-                                    }
-                                    else
-                                    {
-                                        Phones = new PhoneNumber[g__Phones_Length];
-                                
-                                        for (int i = 0; i < g__Phones_Length; i++)
-                                        {
-                                            if (offset + 2 > end)
-                                            {
-                                                throw new InvalidDataException("Malformed input: field 'Phones' is truncated.");
-                                            }
-                                            
-                                            ushort g__Phones_ObjectLength = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                            offset += 2;
-                                            
-                                            if (offset + g__Phones_ObjectLength > end)
-                                            {
-                                                throw new InvalidDataException("Malformed input: field 'Phones' is truncated.");
-                                            }
-                                            
-                                            int g__Phones_Start = start + (int)(offset - b);
-                                            Phones[i].Unpack(buffer, g__Phones_Start, g__Phones_ObjectLength);
-                                            offset += g__Phones_ObjectLength;
-                                        }
-                                    }
+                                    Phones = Array.Empty<PhoneNumber>();
                                 }
                                 else
                                 {
-                                    Phones = null;
-                                }
+                                    Phones = new PhoneNumber[g__Phones_Length];
                                 
-                            
-                                g__Phones_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            
-                        }
+                                    for (int i = 0; i < g__Phones_Length; i++)
+                                    {
+                                        if (offset + 2 > end)
+                                        {
+                                            throw new InvalidDataException("Malformed input: field 'Phones' is truncated.");
+                                        }
+                                
+                                        ushort g__Phones_ObjectLength = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
+                                        offset += 2;
+                                
+                                        if (offset + g__Phones_ObjectLength > end)
+                                        {
+                                            throw new InvalidDataException("Malformed input: field 'Phones' is truncated.");
+                                        }
+                                
+                                        Phones[i].UnpackCore(offset, offset + g__Phones_ObjectLength);
+                                        offset += g__Phones_ObjectLength;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                Phones = null;
+                            }
+                        
+                            g__Phones_Read = true;
+                            readsCompleted++;
+                            break;
+                        #endregion
+                        
                     }
-        
-                    return (int)(offset - b);
                 }
+        
+                return (int)(offset - g__start);
             }
         }
         
@@ -1115,54 +667,7 @@ namespace Samples.Nsd
         
         public readonly unsafe int SerializeInto(byte[] buffer, int start)
         {
-            unchecked
-            {
-                if (buffer.Length == 0)
-                {
-                    return 0;
-                }
-        
-                fixed (byte* b = &buffer[start])
-                {
-                    byte* offset = b;
-        
-                    #region Serialize Number
-                    string g__Number = Number;
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? Number_ID : BinaryPrimitives.ReverseEndianness(Number_ID);
-                        offset += 2;
-                    
-                    if (g__Number != null)
-                    {
-                        *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)(g__Number?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)(g__Number?.Length ?? 0));
-                        offset += 2;
-                    
-                        for (int i = 0; i < g__Number.Length; i++)
-                        {
-                            *((char*)offset) = BitConverter.IsLittleEndian ? g__Number[i] : (char)BinaryPrimitives.ReverseEndianness(g__Number[i]);
-                            offset += 2;
-                        }
-                    }
-                    else
-                    {
-                        *((ushort*)offset) = (ushort)0;
-                        offset += 2;
-                    }
-                    #endregion
-                    
-                    #region Serialize Type
-                    PhoneType g__Type = Type;
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? Type_ID : BinaryPrimitives.ReverseEndianness(Type_ID);
-                        offset += 2;
-                    
-                    *((int*)offset) = BitConverter.IsLittleEndian ? (int)g__Type : BinaryPrimitives.ReverseEndianness((int)g__Type);
-                        offset += 4;
-                    #endregion
-                    
-                    
-        
-                    return (int)(offset - b);
-                }
-            }
+            return SerializeInto(buffer.AsSpan(), start);
         }
         
         public readonly int SerializeInto(Span<byte> buffer)
@@ -1179,46 +684,70 @@ namespace Samples.Nsd
                     return 0;
                 }
         
-                fixed (byte* b = &buffer[start])
+                fixed (byte* g__offset = &buffer[start])
                 {
-                    byte* offset = b;
+                    return SerializeCore(g__offset);
+                }
+            }
+        }
         
-                    #region Serialize Number
-                    string g__Number = Number;
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? Number_ID : BinaryPrimitives.ReverseEndianness(Number_ID);
-                        offset += 2;
-                    
-                    if (g__Number != null)
+        internal readonly unsafe int SerializeCore(byte* offset)
+        {
+            unchecked
+            {
+                byte* g__serializeStart = offset;
+        
+                #region Serialize Number
+                string g__Number = Number;
+                
+                *((ushort*)offset) = BitConverter.IsLittleEndian ? Number_ID : BinaryPrimitives.ReverseEndianness(Number_ID);
+                offset += 2;
+                
+                int g__Number_Length = g__Number?.Length ?? 0;
+                if (g__Number_Length > ushort.MaxValue)
+                {
+                    throw new InvalidOperationException("Field 'Number' exceeds the maximum encodable length of 65535.");
+                }
+                
+                *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)g__Number_Length : BinaryPrimitives.ReverseEndianness((ushort)g__Number_Length);
+                offset += 2;
+                
+                if (g__Number_Length != 0)
+                {
+                    if (BitConverter.IsLittleEndian && g__Number_Length >= 32)
                     {
-                        *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)(g__Number?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)(g__Number?.Length ?? 0));
-                        offset += 2;
-                    
-                        for (int i = 0; i < g__Number.Length; i++)
+                        fixed (char* g__Number_Chars = g__Number)
+                        {
+                            long g__Number_Bytes = (long)g__Number_Length * 2;
+                            Buffer.MemoryCopy(g__Number_Chars, offset, g__Number_Bytes, g__Number_Bytes);
+                        }
+                
+                        offset += g__Number_Length * 2;
+                    }
+                    else
+                    {
+                        for (int i = 0; i < g__Number_Length; i++)
                         {
                             *((char*)offset) = BitConverter.IsLittleEndian ? g__Number[i] : (char)BinaryPrimitives.ReverseEndianness(g__Number[i]);
                             offset += 2;
                         }
                     }
-                    else
-                    {
-                        *((ushort*)offset) = (ushort)0;
-                        offset += 2;
-                    }
-                    #endregion
-                    
-                    #region Serialize Type
-                    PhoneType g__Type = Type;
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? Type_ID : BinaryPrimitives.ReverseEndianness(Type_ID);
-                        offset += 2;
-                    
-                    *((int*)offset) = BitConverter.IsLittleEndian ? (int)g__Type : BinaryPrimitives.ReverseEndianness((int)g__Type);
-                        offset += 4;
-                    #endregion
-                    
-                    
-        
-                    return (int)(offset - b);
                 }
+                #endregion
+                
+                #region Serialize Type
+                PhoneType g__Type = Type;
+                
+                *((ushort*)offset) = BitConverter.IsLittleEndian ? Type_ID : BinaryPrimitives.ReverseEndianness(Type_ID);
+                offset += 2;
+                
+                *((int*)offset) = BitConverter.IsLittleEndian ? (int)g__Type : BinaryPrimitives.ReverseEndianness((int)g__Type);
+                offset += 4;
+                #endregion
+                
+                
+        
+                return (int)(offset - g__serializeStart);
             }
         }
         
@@ -1259,326 +788,162 @@ namespace Samples.Nsd
         
         public unsafe int Unpack(byte[] buffer, int start, int length)
         {
-            unchecked
+            if (buffer.Length == 0 || length == 0)
             {
-                if (buffer.Length == 0 || length == 0)
-                {
-                    return 0;
-                }
-        
-                if (length < 0 || length > buffer.Length - start)
-                {
-                    throw new InvalidDataException("Malformed input: start and length exceed the buffer.");
-                }
-        
-                fixed (byte* b = &buffer[start])
-                {
-                    byte* end = b + length;
-                    byte* offset = b;
-        
-                    int readsCompleted = 0;
-                    bool g__Number_Read = false;
-                    bool g__Type_Read = false;
-                    
-        
-                    while (readsCompleted < 2 && offset + 2 <= end)
-                    {
-                        ushort id = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                        offset += 2;
-        
-                        switch (id)
-                        {
-                            #region Deserialize Number
-                            case Number_ID:
-                                if (g__Number_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 2 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Number' is truncated.");
-                                }
-                                
-                                ushort g__Number_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                offset += 2;
-                                
-                                if (offset + 2 * g__Number_Length > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Number' is truncated.");
-                                }
-                                
-                                if (g__Number_Length == 0)
-                                {
-                                    Number = string.Empty;
-                                }
-                                else
-                                {
-                                    char* chars = (char*)offset;
-                                    if (!BitConverter.IsLittleEndian)
-                                    {
-                                        for (int n = 0; n < g__Number_Length; n++)
-                                        {
-                                            *((ushort*)chars) = BinaryPrimitives.ReverseEndianness(*((ushort*)chars));
-                                            chars += 2;
-                                        }
-                                    }
-                                
-                                    Number = new string(chars, 0, g__Number_Length);
-                                    offset += 2 * g__Number_Length;
-                                }
-                                
-                            
-                                g__Number_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize Type
-                            case Type_ID:
-                                if (g__Type_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 4 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Type' is truncated.");
-                                }
-                                
-                                Type = (PhoneType)(BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset)));
-                                offset += 4;
-                                
-                            
-                                g__Type_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            
-                        }
-                    }
-        
-                    return (int)(offset - b);
-                }
+                return 0;
             }
+        
+            if (start < 0 || length < 0 || length > buffer.Length - start)
+            {
+                throw new InvalidDataException("Malformed input: start and length exceed the buffer.");
+            }
+        
+            return UnpackSpan(buffer.AsSpan(start, length));
         }
         
         public unsafe int Unpack(Span<byte> buffer)
         {
-            return Unpack(buffer, 0, buffer.Length);
+            return UnpackSpan(buffer);
         }
         
         public unsafe int Unpack(Span<byte> buffer, int start, int length)
         {
-            unchecked
+            if (buffer.Length == 0 || length == 0)
             {
-                if (buffer.Length == 0 || length == 0)
-                {
-                    return 0;
-                }
-        
-                if (length < 0 || length > buffer.Length - start)
-                {
-                    throw new InvalidDataException("Malformed input: start and length exceed the buffer.");
-                }
-        
-                fixed (byte* b = &buffer[start])
-                {
-                    byte* end = b + length;
-                    byte* offset = b;
-        
-                    int readsCompleted = 0;
-                    bool g__Number_Read = false;
-                    bool g__Type_Read = false;
-                    
-        
-                    while (readsCompleted < 2 && offset + 2 <= end)
-                    {
-                        ushort id = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                        offset += 2;
-        
-                        switch (id)
-                        {
-                            #region Deserialize Number
-                            case Number_ID:
-                                if (g__Number_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 2 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Number' is truncated.");
-                                }
-                                
-                                ushort g__Number_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                offset += 2;
-                                
-                                if (offset + 2 * g__Number_Length > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Number' is truncated.");
-                                }
-                                
-                                if (g__Number_Length == 0)
-                                {
-                                    Number = string.Empty;
-                                }
-                                else
-                                {
-                                    char* chars = (char*)offset;
-                                    if (!BitConverter.IsLittleEndian)
-                                    {
-                                        for (int n = 0; n < g__Number_Length; n++)
-                                        {
-                                            *((ushort*)chars) = BinaryPrimitives.ReverseEndianness(*((ushort*)chars));
-                                            chars += 2;
-                                        }
-                                    }
-                                
-                                    Number = new string(chars, 0, g__Number_Length);
-                                    offset += 2 * g__Number_Length;
-                                }
-                                
-                            
-                                g__Number_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            #region Deserialize Type
-                            case Type_ID:
-                                if (g__Type_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 4 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Type' is truncated.");
-                                }
-                                
-                                Type = (PhoneType)(BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset)));
-                                offset += 4;
-                                
-                            
-                                g__Type_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            
-                        }
-                    }
-        
-                    return (int)(offset - b);
-                }
+                return 0;
             }
+        
+            if (start < 0 || length < 0 || length > buffer.Length - start)
+            {
+                throw new InvalidDataException("Malformed input: start and length exceed the buffer.");
+            }
+        
+            return UnpackSpan(buffer.Slice(start, length));
         }
         
         public unsafe int Unpack(ReadOnlySpan<byte> buffer)
         {
-            return Unpack(buffer, 0, buffer.Length);
+            return UnpackSpan(buffer);
         }
         
         public unsafe int Unpack(ReadOnlySpan<byte> buffer, int start, int length)
         {
+            if (buffer.Length == 0 || length == 0)
+            {
+                return 0;
+            }
+        
+            if (start < 0 || length < 0 || length > buffer.Length - start)
+            {
+                throw new InvalidDataException("Malformed input: start and length exceed the buffer.");
+            }
+        
+            return UnpackSpan(buffer.Slice(start, length));
+        }
+        
+        private unsafe int UnpackSpan(ReadOnlySpan<byte> buffer)
+        {
+            if (buffer.Length == 0)
+            {
+                return 0;
+            }
+        
+            fixed (byte* g__origin = &buffer[0])
+            {
+                return UnpackCore(g__origin, g__origin + buffer.Length);
+            }
+        }
+        
+        internal unsafe int UnpackCore(byte* offset, byte* end)
+        {
             unchecked
             {
-                if (buffer.Length == 0 || length == 0)
+                byte* g__start = offset;
+                int readsCompleted = 0;
+                bool g__Number_Read = false;
+                bool g__Type_Read = false;
+                
+        
+                while (readsCompleted < 2 && offset + 2 <= end)
                 {
-                    return 0;
-                }
+                    ushort id = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
+                    offset += 2;
         
-                if (length < 0 || length > buffer.Length - start)
-                {
-                    throw new InvalidDataException("Malformed input: start and length exceed the buffer.");
-                }
-        
-                fixed (byte* b = &buffer[start])
-                {
-                    byte* end = b + length;
-                    byte* offset = b;
-        
-                    int readsCompleted = 0;
-                    bool g__Number_Read = false;
-                    bool g__Type_Read = false;
-                    
-        
-                    while (readsCompleted < 2 && offset + 2 <= end)
+                    switch (id)
                     {
-                        ushort id = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                        offset += 2;
-        
-                        switch (id)
-                        {
-                            #region Deserialize Number
-                            case Number_ID:
-                                if (g__Number_Read)
-                                {
-                                    break;
-                                }
+                        #region Deserialize Number
+                        case Number_ID:
+                            if (g__Number_Read)
+                            {
+                                break;
+                            }
+                        
+                            if (offset + 2 > end)
+                            {
+                                throw new InvalidDataException("Malformed input: field 'Number' is truncated.");
+                            }
                             
-                                if (offset + 2 > end)
+                            ushort g__Number_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
+                            offset += 2;
+                            
+                            if (offset + 2 * g__Number_Length > end)
+                            {
+                                throw new InvalidDataException("Malformed input: field 'Number' is truncated.");
+                            }
+                            
+                            if (g__Number_Length == 0)
+                            {
+                                Number = string.Empty;
+                            }
+                            else
+                            {
+                                if (BitConverter.IsLittleEndian)
                                 {
-                                    throw new InvalidDataException("Malformed input: field 'Number' is truncated.");
-                                }
-                                
-                                ushort g__Number_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                offset += 2;
-                                
-                                if (offset + 2 * g__Number_Length > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Number' is truncated.");
-                                }
-                                
-                                if (g__Number_Length == 0)
-                                {
-                                    Number = string.Empty;
+                                    Number = new string((char*)offset, 0, g__Number_Length);
                                 }
                                 else
                                 {
-                                    char* chars = (char*)offset;
-                                    if (!BitConverter.IsLittleEndian)
+                                    Number = string.Create(g__Number_Length, (IntPtr)offset, static (chars, ptr) =>
                                     {
-                                        for (int n = 0; n < g__Number_Length; n++)
+                                        char* source = (char*)ptr;
+                                        for (int i = 0; i < chars.Length; i++)
                                         {
-                                            *((ushort*)chars) = BinaryPrimitives.ReverseEndianness(*((ushort*)chars));
-                                            chars += 2;
+                                            chars[i] = (char)BinaryPrimitives.ReverseEndianness((ushort)source[i]);
                                         }
-                                    }
-                                
-                                    Number = new string(chars, 0, g__Number_Length);
-                                    offset += 2 * g__Number_Length;
+                                    });
                                 }
-                                
                             
-                                g__Number_Read = true;
-                                readsCompleted++;
+                                offset += 2 * g__Number_Length;
+                            }
+                        
+                            g__Number_Read = true;
+                            readsCompleted++;
+                            break;
+                        #endregion
+                        #region Deserialize Type
+                        case Type_ID:
+                            if (g__Type_Read)
+                            {
                                 break;
-                            #endregion
-                            #region Deserialize Type
-                            case Type_ID:
-                                if (g__Type_Read)
-                                {
-                                    break;
-                                }
+                            }
+                        
+                            if (offset + 4 > end)
+                            {
+                                throw new InvalidDataException("Malformed input: field 'Type' is truncated.");
+                            }
                             
-                                if (offset + 4 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'Type' is truncated.");
-                                }
-                                
-                                Type = (PhoneType)(BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset)));
-                                offset += 4;
-                                
-                            
-                                g__Type_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            
-                        }
+                            Type = (PhoneType)(BitConverter.IsLittleEndian ? *((int*)offset) : BinaryPrimitives.ReverseEndianness(*((int*)offset)));
+                            offset += 4;
+                        
+                            g__Type_Read = true;
+                            readsCompleted++;
+                            break;
+                        #endregion
+                        
                     }
-        
-                    return (int)(offset - b);
                 }
+        
+                return (int)(offset - g__start);
             }
         }
         
@@ -1648,41 +1013,7 @@ namespace Samples.Nsd
         
         public readonly unsafe int SerializeInto(byte[] buffer, int start)
         {
-            unchecked
-            {
-                if (buffer.Length == 0)
-                {
-                    return 0;
-                }
-        
-                fixed (byte* b = &buffer[start])
-                {
-                    byte* offset = b;
-        
-                    #region Serialize People
-                    Person[] g__People = People;
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? People_ID : BinaryPrimitives.ReverseEndianness(People_ID);
-                        offset += 2;
-                    
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)(g__People?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)(g__People?.Length ?? 0));
-                        offset += 2;
-                    
-                    for (int i = 0; i < g__People?.Length; i++)
-                    {
-                        ushort g__People_ObjectLength = (ushort)g__People[i].GetSize();
-                        * ((ushort*)offset) = BitConverter.IsLittleEndian ? g__People_ObjectLength : BinaryPrimitives.ReverseEndianness(g__People_ObjectLength);
-                        offset += 2;
-                    
-                        g__People[i].SerializeInto(buffer, start + (int)(offset - b));
-                        offset += g__People_ObjectLength;
-                    }
-                    #endregion
-                    
-                    
-        
-                    return (int)(offset - b);
-                }
-            }
+            return SerializeInto(buffer.AsSpan(), start);
         }
         
         public readonly int SerializeInto(Span<byte> buffer)
@@ -1699,33 +1030,57 @@ namespace Samples.Nsd
                     return 0;
                 }
         
-                fixed (byte* b = &buffer[start])
+                fixed (byte* g__offset = &buffer[start])
                 {
-                    byte* offset = b;
+                    return SerializeCore(g__offset);
+                }
+            }
+        }
         
-                    #region Serialize People
-                    Person[] g__People = People;
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? People_ID : BinaryPrimitives.ReverseEndianness(People_ID);
-                        offset += 2;
-                    
-                    *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)(g__People?.Length ?? 0) : BinaryPrimitives.ReverseEndianness((ushort)(g__People?.Length ?? 0));
-                        offset += 2;
-                    
-                    for (int i = 0; i < g__People?.Length; i++)
+        internal readonly unsafe int SerializeCore(byte* offset)
+        {
+            unchecked
+            {
+                byte* g__serializeStart = offset;
+        
+                #region Serialize People
+                Person[] g__People = People;
+                
+                *((ushort*)offset) = BitConverter.IsLittleEndian ? People_ID : BinaryPrimitives.ReverseEndianness(People_ID);
+                offset += 2;
+                
+                int g__People_Length = g__People?.Length ?? 0;
+                if (g__People_Length > ushort.MaxValue)
+                {
+                    throw new InvalidOperationException("Field 'People' exceeds the maximum encodable length of 65535.");
+                }
+                
+                *((ushort*)offset) = BitConverter.IsLittleEndian ? (ushort)g__People_Length : BinaryPrimitives.ReverseEndianness((ushort)g__People_Length);
+                offset += 2;
+                
+                if (g__People_Length != 0)
+                {
+                    for (int i = 0; i < g__People_Length; i++)
                     {
-                        ushort g__People_ObjectLength = (ushort)g__People[i].GetSize();
-                        * ((ushort*)offset) = BitConverter.IsLittleEndian ? g__People_ObjectLength : BinaryPrimitives.ReverseEndianness(g__People_ObjectLength);
+                        byte* g__People_LengthPos = offset;
                         offset += 2;
-                    
-                        g__People[i].SerializeInto(buffer, start + (int)(offset - b));
+                
+                        int g__People_ObjectLength = g__People[i].SerializeCore(offset);
+                
+                        if (g__People_ObjectLength > ushort.MaxValue)
+                        {
+                            throw new InvalidOperationException("Field 'People' exceeds the maximum encodable length of 65535.");
+                        }
+                
+                        *((ushort*)g__People_LengthPos) = BitConverter.IsLittleEndian ? (ushort)g__People_ObjectLength : BinaryPrimitives.ReverseEndianness((ushort)g__People_ObjectLength);
                         offset += g__People_ObjectLength;
                     }
-                    #endregion
-                    
-                    
-        
-                    return (int)(offset - b);
                 }
+                #endregion
+                
+                
+        
+                return (int)(offset - g__serializeStart);
             }
         }
         
@@ -1766,278 +1121,140 @@ namespace Samples.Nsd
         
         public unsafe int Unpack(byte[] buffer, int start, int length)
         {
-            unchecked
+            if (buffer.Length == 0 || length == 0)
             {
-                if (buffer.Length == 0 || length == 0)
-                {
-                    return 0;
-                }
-        
-                if (length < 0 || length > buffer.Length - start)
-                {
-                    throw new InvalidDataException("Malformed input: start and length exceed the buffer.");
-                }
-        
-                fixed (byte* b = &buffer[start])
-                {
-                    byte* end = b + length;
-                    byte* offset = b;
-        
-                    int readsCompleted = 0;
-                    bool g__People_Read = false;
-                    
-        
-                    while (readsCompleted < 1 && offset + 2 <= end)
-                    {
-                        ushort id = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                        offset += 2;
-        
-                        switch (id)
-                        {
-                            #region Deserialize People
-                            case People_ID:
-                                if (g__People_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 2 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'People' is truncated.");
-                                }
-                                
-                                ushort g__People_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                offset += 2;
-                                
-                                
-                                if (g__People_Length == 0)
-                                {
-                                    People = Array.Empty<Person>();
-                                }
-                                else
-                                {
-                                    People = new Person[g__People_Length];
-                                
-                                    for (int i = 0; i < g__People_Length; i++)
-                                    {
-                                        if (offset + 2 > end)
-                                        {
-                                            throw new InvalidDataException("Malformed input: field 'People' is truncated.");
-                                        }
-                                        
-                                        ushort g__People_ObjectLength = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                        offset += 2;
-                                        
-                                        if (offset + g__People_ObjectLength > end)
-                                        {
-                                            throw new InvalidDataException("Malformed input: field 'People' is truncated.");
-                                        }
-                                        
-                                        int g__People_Start = start + (int)(offset - b);
-                                        People[i].Unpack(buffer, g__People_Start, g__People_ObjectLength);
-                                        offset += g__People_ObjectLength;
-                                    }
-                                }
-                                
-                            
-                                g__People_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            
-                        }
-                    }
-        
-                    return (int)(offset - b);
-                }
+                return 0;
             }
+        
+            if (start < 0 || length < 0 || length > buffer.Length - start)
+            {
+                throw new InvalidDataException("Malformed input: start and length exceed the buffer.");
+            }
+        
+            return UnpackSpan(buffer.AsSpan(start, length));
         }
         
         public unsafe int Unpack(Span<byte> buffer)
         {
-            return Unpack(buffer, 0, buffer.Length);
+            return UnpackSpan(buffer);
         }
         
         public unsafe int Unpack(Span<byte> buffer, int start, int length)
         {
-            unchecked
+            if (buffer.Length == 0 || length == 0)
             {
-                if (buffer.Length == 0 || length == 0)
-                {
-                    return 0;
-                }
-        
-                if (length < 0 || length > buffer.Length - start)
-                {
-                    throw new InvalidDataException("Malformed input: start and length exceed the buffer.");
-                }
-        
-                fixed (byte* b = &buffer[start])
-                {
-                    byte* end = b + length;
-                    byte* offset = b;
-        
-                    int readsCompleted = 0;
-                    bool g__People_Read = false;
-                    
-        
-                    while (readsCompleted < 1 && offset + 2 <= end)
-                    {
-                        ushort id = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                        offset += 2;
-        
-                        switch (id)
-                        {
-                            #region Deserialize People
-                            case People_ID:
-                                if (g__People_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 2 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'People' is truncated.");
-                                }
-                                
-                                ushort g__People_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                offset += 2;
-                                
-                                
-                                if (g__People_Length == 0)
-                                {
-                                    People = Array.Empty<Person>();
-                                }
-                                else
-                                {
-                                    People = new Person[g__People_Length];
-                                
-                                    for (int i = 0; i < g__People_Length; i++)
-                                    {
-                                        if (offset + 2 > end)
-                                        {
-                                            throw new InvalidDataException("Malformed input: field 'People' is truncated.");
-                                        }
-                                        
-                                        ushort g__People_ObjectLength = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                        offset += 2;
-                                        
-                                        if (offset + g__People_ObjectLength > end)
-                                        {
-                                            throw new InvalidDataException("Malformed input: field 'People' is truncated.");
-                                        }
-                                        
-                                        int g__People_Start = start + (int)(offset - b);
-                                        People[i].Unpack(buffer, g__People_Start, g__People_ObjectLength);
-                                        offset += g__People_ObjectLength;
-                                    }
-                                }
-                                
-                            
-                                g__People_Read = true;
-                                readsCompleted++;
-                                break;
-                            #endregion
-                            
-                        }
-                    }
-        
-                    return (int)(offset - b);
-                }
+                return 0;
             }
+        
+            if (start < 0 || length < 0 || length > buffer.Length - start)
+            {
+                throw new InvalidDataException("Malformed input: start and length exceed the buffer.");
+            }
+        
+            return UnpackSpan(buffer.Slice(start, length));
         }
         
         public unsafe int Unpack(ReadOnlySpan<byte> buffer)
         {
-            return Unpack(buffer, 0, buffer.Length);
+            return UnpackSpan(buffer);
         }
         
         public unsafe int Unpack(ReadOnlySpan<byte> buffer, int start, int length)
         {
+            if (buffer.Length == 0 || length == 0)
+            {
+                return 0;
+            }
+        
+            if (start < 0 || length < 0 || length > buffer.Length - start)
+            {
+                throw new InvalidDataException("Malformed input: start and length exceed the buffer.");
+            }
+        
+            return UnpackSpan(buffer.Slice(start, length));
+        }
+        
+        private unsafe int UnpackSpan(ReadOnlySpan<byte> buffer)
+        {
+            if (buffer.Length == 0)
+            {
+                return 0;
+            }
+        
+            fixed (byte* g__origin = &buffer[0])
+            {
+                return UnpackCore(g__origin, g__origin + buffer.Length);
+            }
+        }
+        
+        internal unsafe int UnpackCore(byte* offset, byte* end)
+        {
             unchecked
             {
-                if (buffer.Length == 0 || length == 0)
+                byte* g__start = offset;
+                int readsCompleted = 0;
+                bool g__People_Read = false;
+                
+        
+                while (readsCompleted < 1 && offset + 2 <= end)
                 {
-                    return 0;
-                }
+                    ushort id = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
+                    offset += 2;
         
-                if (length < 0 || length > buffer.Length - start)
-                {
-                    throw new InvalidDataException("Malformed input: start and length exceed the buffer.");
-                }
-        
-                fixed (byte* b = &buffer[start])
-                {
-                    byte* end = b + length;
-                    byte* offset = b;
-        
-                    int readsCompleted = 0;
-                    bool g__People_Read = false;
-                    
-        
-                    while (readsCompleted < 1 && offset + 2 <= end)
+                    switch (id)
                     {
-                        ushort id = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                        offset += 2;
-        
-                        switch (id)
-                        {
-                            #region Deserialize People
-                            case People_ID:
-                                if (g__People_Read)
-                                {
-                                    break;
-                                }
-                            
-                                if (offset + 2 > end)
-                                {
-                                    throw new InvalidDataException("Malformed input: field 'People' is truncated.");
-                                }
-                                
-                                ushort g__People_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                offset += 2;
-                                
-                                
-                                if (g__People_Length == 0)
-                                {
-                                    People = Array.Empty<Person>();
-                                }
-                                else
-                                {
-                                    People = new Person[g__People_Length];
-                                
-                                    for (int i = 0; i < g__People_Length; i++)
-                                    {
-                                        if (offset + 2 > end)
-                                        {
-                                            throw new InvalidDataException("Malformed input: field 'People' is truncated.");
-                                        }
-                                        
-                                        ushort g__People_ObjectLength = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
-                                        offset += 2;
-                                        
-                                        if (offset + g__People_ObjectLength > end)
-                                        {
-                                            throw new InvalidDataException("Malformed input: field 'People' is truncated.");
-                                        }
-                                        
-                                        int g__People_Start = start + (int)(offset - b);
-                                        People[i].Unpack(buffer, g__People_Start, g__People_ObjectLength);
-                                        offset += g__People_ObjectLength;
-                                    }
-                                }
-                                
-                            
-                                g__People_Read = true;
-                                readsCompleted++;
+                        #region Deserialize People
+                        case People_ID:
+                            if (g__People_Read)
+                            {
                                 break;
-                            #endregion
+                            }
+                        
+                            if (offset + 2 > end)
+                            {
+                                throw new InvalidDataException("Malformed input: field 'People' is truncated.");
+                            }
                             
-                        }
+                            ushort g__People_Length = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
+                            offset += 2;
+                            
+                            if (g__People_Length == 0)
+                            {
+                                People = Array.Empty<Person>();
+                            }
+                            else
+                            {
+                                People = new Person[g__People_Length];
+                            
+                                for (int i = 0; i < g__People_Length; i++)
+                                {
+                                    if (offset + 2 > end)
+                                    {
+                                        throw new InvalidDataException("Malformed input: field 'People' is truncated.");
+                                    }
+                            
+                                    ushort g__People_ObjectLength = BitConverter.IsLittleEndian ? *((ushort*)offset) : BinaryPrimitives.ReverseEndianness(*((ushort*)offset));
+                                    offset += 2;
+                            
+                                    if (offset + g__People_ObjectLength > end)
+                                    {
+                                        throw new InvalidDataException("Malformed input: field 'People' is truncated.");
+                                    }
+                            
+                                    People[i].UnpackCore(offset, offset + g__People_ObjectLength);
+                                    offset += g__People_ObjectLength;
+                                }
+                            }
+                        
+                            g__People_Read = true;
+                            readsCompleted++;
+                            break;
+                        #endregion
+                        
                     }
-        
-                    return (int)(offset - b);
                 }
+        
+                return (int)(offset - g__start);
             }
         }
         

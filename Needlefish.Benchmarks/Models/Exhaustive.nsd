@@ -1,0 +1,52 @@
+#version 1.0;
+#namespace Needlefish.Benchmarks.Models;
+
+message Exhaustive
+{
+    string? Content;
+    string Body;
+    float FloAT;
+    double Double;
+    long Long;
+    ulong uLong;
+    ulong Ulong = 15;
+    short Short;
+    ushort UShort;
+    bool Bool;
+    byte Byte;
+    byte[] Bytes = 21;
+    string[]? OptionalStrings = 30;
+
+    int Int;
+    int? OptionalInt;
+    int[] Ints;
+    int[]? OptionalInts;
+
+    uint UInt;
+    uint? OptionalUInt;
+    uint[] UInts;
+    uint[]? OptionalUInts;
+
+    BenchEnum Enum = 22;
+    BenchEnum? OptionalEnum;
+    BenchEnum[] Enums;
+    BenchEnum[]? OptionalEnums;
+
+    Submessage Submessage;
+    Submessage? OptionalSubmessage;
+    Submessage[] Submessages;
+    Submessage[]? OptionalSubmessages;
+}
+
+enum BenchEnum
+{
+    Val1;
+    Val2 = 10;
+    Val3;
+    Val4;
+}
+
+message Submessage
+{
+    int? OptionalInt;
+}

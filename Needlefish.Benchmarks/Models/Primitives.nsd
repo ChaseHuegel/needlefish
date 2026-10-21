@@ -1,0 +1,16 @@
+#version 1.0;
+#namespace Needlefish.Benchmarks.Models;
+
+message Primitives
+{
+    int IntValue;
+    long LongValue;
+    double DoubleValue;
+    float FloatValue;
+    bool BoolValue;
+    byte ByteValue;
+    short ShortValue;
+    ushort UShortValue;
+    uint UIntValue;
+    ulong ULongValue;
+}
